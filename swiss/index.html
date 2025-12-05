@@ -666,49 +666,60 @@
         }
     }
 
-    // Book a flight
     async function bookFlight(flightNumber) {
-        if (!currentUser) {
-            alert('Please login to book a flight');
+    if (!currentUser) {
+        alert('Please login to book a flight');
+        loginWithDiscord();
+        return;
+    }
+
+    try {
+        const token = localStorage.getItem('auth_token');
+        
+        if (!token) {
+            alert('Session expired. Please login again.');
+            logout();
             return;
         }
 
-        try {
-            const token = localStorage.getItem('auth_token');
+        console.log('Booking flight:', flightNumber);
+        console.log('User:', currentUser.username);
+        console.log('Token exists:', !!token);
+
+        const response = await fetch(`${API_URL}/bookings`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                flightNumber,
+                userId: currentUser.id,
+                userName: currentUser.username
+            })
+        });
+
+        console.log('Response status:', response.status);
+        const data = await response.json();
+        console.log('Response data:', data);
+
+        if (data.success) {
+            alert(`✅ Flight ${flightNumber} booked successfully!\n\nBooking ID: ${data.booking.bookingId}`);
+            loadMyBookings();
+        } else {
+            console.error('Booking failed:', data);
+            alert('❌ Booking failed: ' + data.message + '\n\nPlease try logging in again.');
             
-            if (!token) {
-                alert('Please login again');
+            // If unauthorized, force re-login
+            if (response.status === 401) {
                 logout();
-                return;
             }
-
-            const response = await fetch(`${API_URL}/bookings`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    flightNumber,
-                    userId: currentUser.id,
-                    userName: currentUser.username
-                })
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                alert(`✅ Flight ${flightNumber} booked successfully!\n\nBooking ID: ${data.booking.bookingId}`);
-                loadMyBookings();
-            } else {
-                alert('❌ Booking failed: ' + data.message);
-            }
-        } catch (error) {
-            console.error('Booking error:', error);
-            alert('❌ An error occurred while booking');
         }
+    } catch (error) {
+        console.error('Booking error:', error);
+        alert('❌ An error occurred while booking. Check the console for details.');
     }
-
+}
     // Load user's bookings
     async function loadMyBookings() {
         if (!currentUser) return;
