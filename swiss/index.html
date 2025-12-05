@@ -410,103 +410,103 @@
     <script>
         // API Configuration
         const API_URL = 'https://swiss-ptfs-services-production.up.railway.app/api';
-        const DISCORD_CLIENT_ID = '1445490722366029875'; // Replace with your Discord application client ID
-        const REDIRECT_URI = 'https://giorgio.is-a.dev/swiss/sso'; // Replace with your GitHub Pages URL
-        
+        const DISCORD_CLIENT_ID = '1445490722366029875'; // Your actual Discord Client ID
+        const REDIRECT_URI = 'https://giorgio.is-a.dev/swiss/'; // Note: removed /sso
+
         let departures = [];
         let currentUser = null;
 
         // Check for auth token on page load
-        window.addEventListener('DOMContentLoaded', () => {checkAuth();
-        handleOAuthCallback();
-    });
-
-    // Mobile menu toggle
-    function toggleMobileMenu() {
-        const menu = document.getElementById('mobileMenu');
-        const menuIcon = document.getElementById('menuIcon');
-        const closeIcon = document.getElementById('closeIcon');
-        
-        menu.classList.toggle('hidden');
-        menuIcon.classList.toggle('hidden');
-        closeIcon.classList.toggle('hidden');
-    }
-
-    // Update current time
-    function updateTime() {
-        const now = new Date();
-        const timeString = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-        const dateString = now.toLocaleDateString('en-GB', { 
-            weekday: 'long', 
-            day: 'numeric', 
-            month: 'long', 
-            year: 'numeric' 
+        window.addEventListener('DOMContentLoaded', () => {
+            checkAuth();
+            handleOAuthCallback();
         });
-        
-        document.getElementById('currentTime').textContent = timeString;
-        document.getElementById('currentDate').textContent = dateString;
-    }
 
-    // Discord OAuth Login
-    function loginWithDiscord() {
-        const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=identify`;
-        window.location.href = authUrl;
-    }
+        // Discord OAuth Login
+        function loginWithDiscord() {
+            const state = Math.random().toString(36).substring(7); // Generate random state for security
+            localStorage.setItem('oauth_state', state);
 
-    // Handle OAuth callback
-    async function handleOAuthCallback() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get('code');
-        
-        if (code) {
-            try {
-                const response = await fetch(`${API_URL}/auth/discord`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code, redirectUri: REDIRECT_URI })
-                });
-                
-                const data = await response.json();
-                if (data.success) {
-                    localStorage.setItem('auth_token', data.token);
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                    checkAuth();
+            const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=identify&state=${state}`;
+            window.location.href = authUrl;
+        }
+
+        // Handle OAuth callback
+        async function handleOAuthCallback() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const state = urlParams.get('state');
+            const storedState = localStorage.getItem('oauth_state');
+
+            // Verify state to prevent CSRF attacks
+            if (code && state === storedState) {
+                // Show loading indicator
+                console.log('Processing Discord login...');
+
+                try {
+                    const response = await fetch(`${API_URL}/auth/discord`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            code, 
+                            redirectUri: REDIRECT_URI 
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        localStorage.setItem('auth_token', data.token);
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                        localStorage.removeItem('oauth_state');
+
+                        // Clean URL and reload
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                        checkAuth();
+
+                        // Show success message
+                        alert(`✅ Welcome back, ${data.user.username}!`);
+                    } else {
+                        alert('❌ Login failed. Please try again.');
+                        console.error('Auth failed:', data);
+                    }
+                } catch (error) {
+                    alert('❌ Login error. Please try again.');
+                    console.error('Auth error:', error);
                 }
-            } catch (error) {
-                console.error('Auth error:', error);
             }
         }
-    }
 
-    // Check authentication status
-    function checkAuth() {
-        const token = localStorage.getItem('auth_token');
-        const user = localStorage.getItem('user');
-        
-        if (token && user) {
-            currentUser = JSON.parse(user);
-            document.getElementById('userInfo').classList.remove('hidden');
-            document.getElementById('userName').textContent = currentUser.username;
-            document.getElementById('loginBtn').classList.add('hidden');
-            document.getElementById('myBookingsBtn').classList.remove('hidden');
-            document.getElementById('bookingLoginRequired').classList.add('hidden');
-            document.getElementById('bookingForm').classList.remove('hidden');
-            loadAvailableFlights();
+        // Check authentication status
+        function checkAuth() {
+            const token = localStorage.getItem('auth_token');
+            const user = localStorage.getItem('user');
+
+            if (token && user) {
+                currentUser = JSON.parse(user);
+                document.getElementById('userInfo').classList.remove('hidden');
+                document.getElementById('userName').textContent = currentUser.username;
+                document.getElementById('loginBtn').classList.add('hidden');
+                document.getElementById('myBookingsBtn').classList.remove('hidden');
+                document.getElementById('bookingLoginRequired').classList.add('hidden');
+                document.getElementById('bookingForm').classList.remove('hidden');
+                loadAvailableFlights();
+            }
         }
-    }
 
-    // Logout
-    function logout() {
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('user');
-        currentUser = null;
-        document.getElementById('userInfo').classList.add('hidden');
-        document.getElementById('loginBtn').classList.remove('hidden');
-        document.getElementById('myBookingsBtn').classList.add('hidden');
-        document.getElementById('bookingLoginRequired').classList.remove('hidden');
-        document.getElementById('bookingForm').classList.add('hidden');
-    }
+        // Logout
+        function logout() {
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('user');
+            localStorage.removeItem('oauth_state');
+            currentUser = null;
+            document.getElementById('userInfo').classList.add('hidden');
+            document.getElementById('loginBtn').classList.remove('hidden');
+            document.getElementById('myBookingsBtn').classList.add('hidden');
+            document.getElementById('bookingLoginRequired').classList.remove('hidden');
+            document.getElementById('bookingForm').classList.add('hidden');
+            alert('👋 You have been logged out.');
+        }
 
     // Get status CSS class
     function getStatusClass(status) {
