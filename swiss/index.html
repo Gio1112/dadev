@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SWISS - Swiss International Air Lines PTFS</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
@@ -46,6 +47,22 @@
             transform: scale(1.05);
             transition: transform 0.3s ease;
         }
+
+        .dropdown-menu {
+            display: none;
+        }
+
+        .dropdown-menu.active {
+            display: block;
+        }
+
+        .modal {
+            display: none;
+        }
+
+        .modal.active {
+            display: flex;
+        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -55,10 +72,57 @@
             <div class="flex justify-end items-center h-10 text-sm space-x-6">
                 <a href="#" class="text-gray-700 hover:text-red-600">Contact</a>
                 <a href="#" class="text-gray-700 hover:text-red-600">Help</a>
-                <div id="userInfo" class="hidden">
-                    <span class="text-gray-700">Welcome, <span id="userName" class="font-semibold"></span></span>
-                    <button onclick="logout()" class="ml-4 text-gray-700 hover:text-red-600">Logout</button>
+                
+                <!-- User Profile Dropdown -->
+                <div id="userInfo" class="hidden relative">
+                    <button onclick="toggleProfileMenu()" class="flex items-center space-x-2 text-gray-700 hover:text-red-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                        </svg>
+                        <span id="userName" class="font-semibold"></span>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    
+                    <!-- Dropdown Menu -->
+                    <div id="profileMenu" class="dropdown-menu absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                        <div class="px-4 py-3 border-b border-gray-200">
+                            <p class="text-sm text-gray-500">Signed in as</p>
+                            <p class="text-sm font-semibold text-gray-900" id="profileUserName"></p>
+                        </div>
+                        <div class="py-2">
+                            <a href="#" onclick="showMyBookings()" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                </svg>
+                                My Bookings
+                            </a>
+                            <a href="#" onclick="showProfile()" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                                </svg>
+                                Profile
+                            </a>
+                            <a href="#" id="staffPanelLink" class="hidden block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                                Staff Panel
+                            </a>
+                        </div>
+                        <div class="border-t border-gray-200">
+                            <button onclick="logout()" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100">
+                                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                </svg>
+                                Logout
+                            </button>
+                        </div>
+                    </div>
                 </div>
+                
                 <button class="flex items-center space-x-1 text-gray-700 hover:text-red-600">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -85,9 +149,6 @@
                     <button id="loginBtn" onclick="loginWithDiscord()" class="ml-4 px-6 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition font-medium">
                         Sign in with Discord
                     </button>
-                    <a href="#bookings" id="myBookingsBtn" class="hidden ml-4 px-6 py-2 bg-gray-700 text-white rounded hover:bg-gray-800 transition font-medium">
-                        My Bookings
-                    </a>
                 </div>
 
                 <button onclick="toggleMobileMenu()" class="lg:hidden p-2">
@@ -207,14 +268,123 @@
         </div>
     </section>
 
-    <!-- My Bookings Section -->
-    <section id="bookings" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 bg-gray-50 hidden">
-        <h2 class="text-4xl font-light text-gray-900 mb-4">My Bookings</h2>
-        <p class="text-gray-600 mb-8">View and manage your flight bookings</p>
-        
-        <div id="myBookingsList" class="space-y-4">
+    <!-- Staff Panel Modal -->
+    <div id="staffPanel" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 items-center justify-center p-4">
+        <div class="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-gray-900">Staff Panel</h2>
+                <button onclick="closeStaffPanel()" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Add Flight -->
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <h3 class="text-xl font-semibold mb-4">Add New Flight</h3>
+                        <form id="addFlightForm" class="space-y-4">
+                            <input type="text" id="staffFlightNumber" placeholder="Flight Number" class="w-full px-4 py-2 border rounded" required>
+                            <input type="text" id="staffDestination" placeholder="Destination" class="w-full px-4 py-2 border rounded" required>
+                            <input type="time" id="staffScheduled" placeholder="Scheduled Time" class="w-full px-4 py-2 border rounded" required>
+                            <input type="time" id="staffEstimated" placeholder="Estimated Time" class="w-full px-4 py-2 border rounded">
+                            <input type="text" id="staffGate" placeholder="Gate" class="w-full px-4 py-2 border rounded" required>
+                            <input type="text" id="staffTerminal" placeholder="Terminal" class="w-full px-4 py-2 border rounded" required>
+                            <select id="staffStatus" class="w-full px-4 py-2 border rounded">
+                                <option>On Time</option>
+                                <option>Delayed</option>
+                                <option>Boarding</option>
+                                <option>Check-in</option>
+                            </select>
+                            <button type="submit" class="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700">Add Flight</button>
+                        </form>
+                    </div>
+
+                    <!-- Blacklist User -->
+                    <div class="bg-gray-50 p-6 rounded-lg">
+                        <h3 class="text-xl font-semibold mb-4">Blacklist Management</h3>
+                        <form id="blacklistForm" class="space-y-4">
+                            <input type="text" id="blacklistUserId" placeholder="Discord User ID" class="w-full px-4 py-2 border rounded" required>
+                            <input type="text" id="blacklistReason" placeholder="Reason" class="w-full px-4 py-2 border rounded">
+                            <button type="submit" class="w-full bg-gray-800 text-white py-2 rounded hover:bg-gray-900">Add to Blacklist</button>
+                        </form>
+                        
+                        <div class="mt-6">
+                            <h4 class="font-semibold mb-2">Blacklisted Users</h4>
+                            <div id="blacklistList" class="space-y-2">
+                                <!-- Blacklist items will appear here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- All Bookings -->
+                <div class="mt-6 bg-gray-50 p-6 rounded-lg">
+                    <h3 class="text-xl font-semibold mb-4">All Bookings</h3>
+                    <div id="allBookingsStaff" class="space-y-2">
+                        <!-- Bookings will appear here -->
+                    </div>
+                </div>
+            </div>
         </div>
-    </section>
+    </div>
+
+    <!-- Profile Modal -->
+    <div id="profileModal" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 items-center justify-center p-4">
+        <div class="bg-white rounded-lg max-w-2xl w-full">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-gray-900">My Profile</h2>
+                <button onclick="closeProfile()" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div class="flex items-center space-x-4 mb-6">
+                    <div class="w-20 h-20 bg-red-600 rounded-full flex items-center justify-center text-white text-2xl font-bold" id="profileAvatar">
+                        
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold" id="profileFullName"></h3>
+                        <p class="text-gray-600" id="profileDiscordId"></p>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-sm font-semibold text-gray-700">Total Bookings</label>
+                        <p class="text-2xl font-bold text-red-600" id="profileBookingCount">0</p>
+                    </div>
+                    <div>
+                        <label class="text-sm font-semibold text-gray-700">Member Since</label>
+                        <p class="text-gray-900" id="profileMemberSince">Just now</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- My Bookings Modal -->
+    <div id="bookingsModal" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 items-center justify-center p-4">
+        <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h2 class="text-2xl font-bold text-gray-900">My Bookings</h2>
+                <button onclick="closeMyBookings()" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="p-6">
+                <div id="myBookingsList" class="space-y-4">
+                    <!-- Bookings will appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Destinations Section -->
     <section id="destinations" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 bg-white">
@@ -403,13 +573,33 @@
         const DISCORD_CLIENT_ID = '1445490722366029875';
         const REDIRECT_URI = 'https://giorgio.is-a.dev/swiss/';
 
+        // Staff user IDs (add your Discord ID here)
+        const STAFF_IDS = ['882901706587910144']; // Replace with actual staff Discord IDs
+
         let departures = [];
         let currentUser = null;
+        let userBookings = [];
+        let blacklist = []; // Store blacklisted users
 
         // Initialize on page load
         window.addEventListener('DOMContentLoaded', () => {
             checkAuth();
             handleOAuthCallback();
+            loadBlacklist();
+        });
+
+        // Close modals when clicking outside
+        document.addEventListener('click', (e) => {
+            if (e.target.id === 'staffPanel') closeStaffPanel();
+            if (e.target.id === 'profileModal') closeProfile();
+            if (e.target.id === 'bookingsModal') closeMyBookings();
+            
+            // Close profile menu if clicking outside
+            const profileMenu = document.getElementById('profileMenu');
+            const userInfo = document.getElementById('userInfo');
+            if (profileMenu && !userInfo.contains(e.target)) {
+                profileMenu.classList.remove('active');
+            }
         });
 
         // Mobile menu toggle
@@ -423,305 +613,396 @@
             closeIcon.classList.toggle('hidden');
         }
 
+        // Toggle profile menu
+        function toggleProfileMenu() {
+            const menu = document.getElementById('profileMenu');
+            menu.classList.toggle('active');
+        }
+
         // Update current time
-        function updateTime(){
-        const now = new Date();
-        const timeString = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-        const dateString = now.toLocaleDateString('en-GB', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric'
-        });
-        document.getElementById('currentTime').textContent = timeString;
-        document.getElementById('currentDate').textContent = dateString;
-    }
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+            const dateString = now.toLocaleDateString('en-GB', {
+                weekday: 'long',
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            });
+            document.getElementById('currentTime').textContent = timeString;
+            document.getElementById('currentDate').textContent = dateString;
+        }
 
-    // Discord OAuth Login
-    function loginWithDiscord() {
-        const state = Math.random().toString(36).substring(7);
-        localStorage.setItem('oauth_state', state);
-        const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=identify&state=${state}`;
-        window.location.href = authUrl;
-    }
+        // Discord OAuth Login
+        function loginWithDiscord() {
+            const state = Math.random().toString(36).substring(7);
+            localStorage.setItem('oauth_state', state);
+            const authUrl = `https://discord.com/api/oauth2/authorize?client_id=${DISCORD_CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&response_type=code&scope=identify&state=${state}`;
+            window.location.href = authUrl;
+        }
 
-    // Handle OAuth callback
-    async function handleOAuthCallback() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get('code');
-        const state = urlParams.get('state');
-        const storedState = localStorage.getItem('oauth_state');
+        // Handle OAuth callback
+        async function handleOAuthCallback() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const state = urlParams.get('state');
+            const storedState = localStorage.getItem('oauth_state');
 
-        if (code && state === storedState) {
-            console.log('Processing Discord login...');
+            if (code && state === storedState) {
+                try {
+                    const response = await fetch(`${API_URL}/auth/discord`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ code, redirectUri: REDIRECT_URI })
+                    });
 
-            try {
-                const response = await fetch(`${API_URL}/auth/discord`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code, redirectUri: REDIRECT_URI })
-                });
+                    const data = await response.json();
 
-                const data = await response.json();
-
-                if (data.success) {
-                    localStorage.setItem('auth_token', data.token);
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    localStorage.removeItem('oauth_state');
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                    checkAuth();
-                    alert(`✅ Welcome back, ${data.user.username}!`);
-                } else {
-                    alert('❌ Login failed. Please try again.');
-                    console.error('Auth failed:', data);
+                    if (data.success) {
+                        localStorage.setItem('auth_token', data.token);
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                        localStorage.removeItem('oauth_state');
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                        checkAuth();
+                        
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Welcome back!',
+                            text: `Logged in as ${data.user.username}`,
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                    } else {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Login Failed',
+                            text: 'Please try again.'
+                        });
+                    }
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Login Error',
+                        text: 'An error occurred during login.'
+                    });
                 }
-            } catch (error) {
-                alert('❌ Login error. Please try again.');
-                console.error('Auth error:', error);
             }
         }
-    }
 
-    // Check authentication status
-    function checkAuth() {
-        const token = localStorage.getItem('auth_token');
-        const user = localStorage.getItem('user');
+        // Check authentication status
+        function checkAuth() {
+            const token = localStorage.getItem('auth_token');
+            const user = localStorage.getItem('user');
 
-        if (token && user) {
-            currentUser = JSON.parse(user);
-            document.getElementById('userInfo').classList.remove('hidden');
-            document.getElementById('userName').textContent = currentUser.username;
-            document.getElementById('loginBtn').classList.add('hidden');
-            document.getElementById('myBookingsBtn').classList.remove('hidden');
-            document.getElementById('bookingLoginRequired').classList.add('hidden');
-            document.getElementById('bookingForm').classList.remove('hidden');
-            loadAvailableFlights();
+            if (token && user) {
+                currentUser = JSON.parse(user);
+                document.getElementById('userInfo').classList.remove('hidden');
+                document.getElementById('userName').textContent = currentUser.username;
+                document.getElementById('profileUserName').textContent = currentUser.username;
+                document.getElementById('loginBtn').classList.add('hidden');
+                document.getElementById('bookingLoginRequired').classList.add('hidden');
+                document.getElementById('bookingForm').classList.remove('hidden');
+                
+                // Show staff panel link if user is staff
+                if (STAFF_IDS.includes(currentUser.id)) {
+                    document.getElementById('staffPanelLink').classList.remove('hidden');
+                    document.getElementById('staffPanelLink').onclick = () => {
+                        openStaffPanel();
+                        toggleProfileMenu();
+                    };
+                }
+                
+                loadAvailableFlights();
+                loadUserBookings();
+            }
         }
-    }
 
-    // Logout
-    function logout() {
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('user');
-        localStorage.removeItem('oauth_state');
-        currentUser = null;
-        document.getElementById('userInfo').classList.add('hidden');
-        document.getElementById('loginBtn').classList.remove('hidden');
-        document.getElementById('myBookingsBtn').classList.add('hidden');
-        document.getElementById('bookingLoginRequired').classList.remove('hidden');
-        document.getElementById('bookingForm').classList.add('hidden');
-        alert('👋 You have been logged out.');
-    }
-
-    // Get status CSS class
-    function getStatusClass(status) {
-        const statusLower = status.toLowerCase().replace(/\s/g, '-');
-        return `status-${statusLower}`;
-    }
-
-    // Render departures table (desktop)
-    function renderDeparturesTable() {
-        const tbody = document.getElementById('departuresTableBody');
-        tbody.innerHTML = '';
-        
-        departures.forEach(flight => {
-            const row = document.createElement('tr');
-            row.className = 'hover:bg-gray-50 transition';
+        // Logout
+        function logout() {
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('user');
+            localStorage.removeItem('oauth_state');
+            currentUser = null;
+            userBookings = [];
+            document.getElementById('userInfo').classList.add('hidden');
+            document.getElementById('loginBtn').classList.remove('hidden');
+            document.getElementById('bookingLoginRequired').classList.remove('hidden');
+            document.getElementById('bookingForm').classList.add('hidden');
             
-            const delayedClass = flight.estimatedTime !== flight.scheduledTime ? 'text-red-600' : 'text-gray-700';
-            
-            row.innerHTML = `
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm font-semibold text-gray-900">${flight.flightNumber}</div>
-                </td>
-                <td class="px-6 py-4">
-                    <div class="text-sm font-medium text-gray-900">${flight.destination}</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-700">${flight.scheduledTime}</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm font-medium ${delayedClass}">${flight.estimatedTime}</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-700">${flight.terminal}</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm font-medium text-gray-900">${flight.gate}</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(flight.status)}">
-                        ${flight.status}
-                    </span>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    ${currentUser ? `<button onclick="bookFlight('${flight.flightNumber}')" class="text-red-600 hover:text-red-700 font-medium text-sm">Book</button>` : '<span class="text-gray-400 text-sm">Login to book</span>'}
-                </td>
-            `;
-            
-            tbody.appendChild(row);
-        });
-    }
-
-    // Render departures cards (mobile)
-    function renderDeparturesMobile() {
-        const container = document.getElementById('departuresMobile');
-        container.innerHTML = '';
-        
-        departures.forEach(flight => {
-            const card = document.createElement('div');
-            card.className = 'p-4 hover:bg-gray-50';
-            
-            const delayedClass = flight.estimatedTime !== flight.scheduledTime ? 'text-red-600' : '';
-            
-            card.innerHTML = `
-                <div class="flex justify-between items-start mb-2">
-                    <div>
-                        <div class="text-lg font-bold text-gray-900">${flight.flightNumber}</div>
-                        <div class="text-sm text-gray-600">${flight.destination}</div>
-                    </div>
-                    <span class="px-3 py-1 text-xs font-semibold rounded-full ${getStatusClass(flight.status)}">
-                        ${flight.status}
-                    </span>
-                </div>
-                <div class="grid grid-cols-2 gap-2 text-sm mb-3">
-                    <div>
-                        <span class="text-gray-500">Scheduled:</span>
-                        <span class="ml-2 font-medium">${flight.scheduledTime}</span>
-                    </div>
-                    <div>
-                        <span class="text-gray-500">Expected:</span>
-                        <span class="ml-2 font-medium ${delayedClass}">${flight.estimatedTime}</span>
-                    </div>
-                    <div>
-                        <span class="text-gray-500">Terminal:</span>
-                        <span class="ml-2 font-medium">${flight.terminal}</span>
-                    </div>
-                    <div>
-                        <span class="text-gray-500">Gate:</span>
-                        <span class="ml-2 font-medium">${flight.gate}</span>
-                    </div>
-                </div>
-                ${currentUser ? `<button onclick="bookFlight('${flight.flightNumber}')" class="w-full mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition text-sm font-medium">Book Flight</button>` : '<div class="text-center text-gray-400 text-sm mt-2">Login to book</div>'}
-            `;
-            
-            container.appendChild(card);
-        });
-    }
-
-    // Fetch departures from backend
-    async function fetchDepartures() {
-        const refreshIcon = document.getElementById('refreshIcon');
-        refreshIcon.classList.add('rotate-animation');
-        
-        try {
-            const response = await fetch(`${API_URL}/departures`);
-            const data = await response.json();
-            departures = data;
-            renderDeparturesTable();
-            renderDeparturesMobile();
-            console.log('Departures updated');
-        } catch (error) {
-            console.error('Error fetching departures:', error);
-        } finally {
-            setTimeout(() => {
-                refreshIcon.classList.remove('rotate-animation');
-            }, 1000);
+            Swal.fire({
+                icon: 'info',
+                title: 'Logged Out',
+                text: 'You have been logged out successfully.',
+                timer: 2000,
+                showConfirmButton: false
+            });
         }
-    }
 
-    // Load available flights for booking
-    async function loadAvailableFlights() {
-        try {
-            const response = await fetch(`${API_URL}/departures`);
-            const flights = await response.json();
+        // Load blacklist from localStorage
+        function loadBlacklist() {
+            const stored = localStorage.getItem('blacklist');
+            blacklist = stored ? JSON.parse(stored) : [];
+        }
+
+        // Save blacklist to localStorage
+        function saveBlacklist() {
+            localStorage.setItem('blacklist', JSON.stringify(blacklist));
+        }
+
+        // Check if user is blacklisted
+        function isBlacklisted(userId) {
+            return blacklist.some(item => item.userId === userId);
+        }
+
+        // Get status CSS class
+        function getStatusClass(status) {
+            const statusLower = status.toLowerCase().replace(/\s/g, '-');
+            return `status-${statusLower}`;
+        }
+
+        // Check if user already booked a flight
+        function hasBookedFlight(flightNumber) {
+            return userBookings.some(b => b.flightNumber === flightNumber);
+        }
+
+        // Render departures table (desktop)
+        function renderDeparturesTable() {
+            const tbody = document.getElementById('departuresTableBody');
+            tbody.innerHTML = '';
             
-            const container = document.getElementById('availableFlights');
+            departures.forEach(flight => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50 transition';
+                
+                const delayedClass = flight.estimatedTime !== flight.scheduledTime ? 'text-red-600' : 'text-gray-700';
+                const alreadyBooked = hasBookedFlight(flight.flightNumber);
+                
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-semibold text-gray-900">${flight.flightNumber}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm font-medium text-gray-900">${flight.destination}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-700">${flight.scheduledTime}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium ${delayedClass}">${flight.estimatedTime}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-700">${flight.terminal}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">${flight.gate}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusClass(flight.status)}">
+                            ${flight.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        ${currentUser ? (alreadyBooked ? '<span class="text-green-600 text-sm font-medium">✓ Booked</span>' : `<button onclick="bookFlight('${flight.flightNumber}')" class="text-red-600 hover:text-red-700 font-medium text-sm">Book</button>`) : '<span class="text-gray-400 text-sm">Login to book</span>'}
+                    </td>
+                `;
+                
+                tbody.appendChild(row);
+            });
+        }
+
+        // Render departures cards (mobile)
+        function renderDeparturesMobile() {
+            const container = document.getElementById('departuresMobile');
             container.innerHTML = '';
             
-            flights.forEach(flight => {
+            departures.forEach(flight => {
                 const card = document.createElement('div');
-                card.className = 'border border-gray-200 rounded-lg p-6 hover:shadow-md transition';
+                card.className = 'p-4 hover:bg-gray-50';
+                
+                const delayedClass = flight.estimatedTime !== flight.scheduledTime ? 'text-red-600' : '';
+                const alreadyBooked = hasBookedFlight(flight.flightNumber);
+                
                 card.innerHTML = `
-                    <div class="flex justify-between items-center">
-                        <div class="flex-1">
-                            <h4 class="text-xl font-bold text-gray-900">${flight.flightNumber}</h4>
-                            <p class="text-gray-600">${flight.destination}</p>
-                            <p class="text-sm text-gray-500 mt-2">
-                                Departure: ${flight.scheduledTime} | Terminal ${flight.terminal} | Gate ${flight.gate}
-                            </p>
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <div class="text-lg font-bold text-gray-900">${flight.flightNumber}</div>
+                            <div class="text-sm text-gray-600">${flight.destination}</div>
                         </div>
-                        <div class="text-right">
-                            <p class="text-2xl font-bold text-gray-900">$${Math.floor(Math.random() * 500 + 200)}</p>
-                            <button onclick="bookFlight('${flight.flightNumber}')" class="mt-2 px-6 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition font-medium">
-                                Book Now
-                            </button>
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full ${getStatusClass(flight.status)}">
+                            ${flight.status}
+                        </span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-sm mb-3">
+                        <div>
+                            <span class="text-gray-500">Scheduled:</span>
+                            <span class="ml-2 font-medium">${flight.scheduledTime}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">Expected:</span>
+                            <span class="ml-2 font-medium ${delayedClass}">${flight.estimatedTime}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">Terminal:</span>
+                            <span class="ml-2 font-medium">${flight.terminal}</span>
+                        </div>
+                        <div>
+                            <span class="text-gray-500">Gate:</span>
+                            <span class="ml-2 font-medium">${flight.gate}</span>
                         </div>
                     </div>
+                    ${currentUser ? (alreadyBooked ? '<div class="w-full text-center bg-green-50 text-green-600 py-2 rounded font-medium text-sm">✓ Already Booked</div>' : `<button onclick="bookFlight('${flight.flightNumber}')" class="w-full mt-2 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition text-sm font-medium">Book Flight</button>`) : '<div class="text-center text-gray-400 text-sm mt-2">Login to book</div>'}
                 `;
+                
                 container.appendChild(card);
             });
-        } catch (error) {
-            console.error('Error loading flights:', error);
-        }
-    }
-
-    async function bookFlight(flightNumber) {
-    if (!currentUser) {
-        alert('Please login to book a flight');
-        loginWithDiscord();
-        return;
-    }
-
-    try {
-        const token = localStorage.getItem('auth_token');
-        
-        if (!token) {
-            alert('Session expired. Please login again.');
-            logout();
-            return;
         }
 
-        console.log('Booking flight:', flightNumber);
-        console.log('User:', currentUser.username);
-        console.log('Token exists:', !!token);
-
-        const response = await fetch(`${API_URL}/bookings`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                flightNumber,
-                userId: currentUser.id,
-                userName: currentUser.username
-            })
-        });
-
-        console.log('Response status:', response.status);
-        const data = await response.json();
-        console.log('Response data:', data);
-
-        if (data.success) {
-            alert(`✅ Flight ${flightNumber} booked successfully!\n\nBooking ID: ${data.booking.bookingId}`);
-            loadMyBookings();
-        } else {
-            console.error('Booking failed:', data);
-            alert('❌ Booking failed: ' + data.message + '\n\nPlease try logging in again.');
+        // Fetch departures from backend
+        async function fetchDepartures() {
+            const refreshIcon = document.getElementById('refreshIcon');
+            refreshIcon.classList.add('rotate-animation');
             
-            // If unauthorized, force re-login
-            if (response.status === 401) {
-                logout();
+            try {
+                const response = await fetch(`${API_URL}/departures`);
+                const data = await response.json();
+                departures = data;
+                renderDeparturesTable();
+                renderDeparturesMobile();
+            } catch (error) {
+                console.error('Error fetching departures:', error);
+            } finally {
+                setTimeout(() => {
+                    refreshIcon.classList.remove('rotate-animation');
+                }, 1000);
             }
         }
-    } catch (error) {
-        console.error('Booking error:', error);
-        alert('❌ An error occurred while booking. Check the console for details.');
+
+        // Load available flights for booking
+        async function loadAvailableFlights() {
+            try {
+                const response = await fetch(`${API_URL}/departures`);
+                const flights = await response.json();
+                
+                const container = document.getElementById('availableFlights');
+                container.innerHTML = '';
+                
+                flights.forEach(flight => {
+                    const alreadyBooked = hasBookedFlight(flight.flightNumber);
+                    const card = document.createElement('div');
+                    card.className = 'border border-gray-200 rounded-lg p-6 hover:shadow-md transition';
+                    card.innerHTML = `
+                        <div class="flex justify-between items-center">
+                            <div class="flex-1">
+                                <h4 class="text-xl font-bold text-gray-900">${flight.flightNumber}</h4>
+                                <p class="text-gray-600">${flight.destination}</p>
+                                <p class="text-sm text-gray-500 mt-2">
+                                    Departure: ${flight.scheduledTime} | Terminal ${flight.terminal} | Gate ${flight.gate}
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-2xl font-bold text-gray-900">$${Math.floor(Math.random() * 500 + 200)}</p>
+                                ${alreadyBooked ? 
+                                    '<span class="inline-block mt-2 px-6 py-2 bg-green-100 text-green-800 rounded font-medium">✓ Booked</span>' :
+                                    `<button onclick="bookFlight('${flight.flightNumber}')" class="mt-2 px-6 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition font-medium">Book Now</button>`
+                                }
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error loading flights:', error);
+            }
+        }
+
+        // Book a flight with duplicate check
+        async function bookFlight(flightNumber) {
+            if (!currentUser) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Login Required',
+                    text: 'Please sign in to book flights'
+                });
+                return;
+            }
+
+            // Check if blacklisted
+            if (isBlacklisted(currentUser.id)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Access Denied',
+                    text: 'You are not allowed to book flights. Please contact support.'
+                });
+                return;
+            }
+
+            // Check if already booked
+            if (hasBookedFlight(flightNumber)) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Already Booked',
+                    text: 'You have already booked this flight.'
+                });
+                return;
+            }
+
+            try {
+                const token = localStorage.getItem('auth_token');
+                
+                const response = await fetch(`${API_URL}/bookings`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        flightNumber,
+                        userId: currentUser.id,
+                        userName: currentUser.username
+                    })
+                    });
+
+            const data = await response.json();
+
+            if (data.success) {
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Booking Confirmed!',
+                    html: `
+                        <p>Flight <strong>${flightNumber}</strong> booked successfully!</p>
+                        <p class="mt-2">Booking ID: <strong>${data.booking.bookingId}</strong></p>
+                    `,
+                    confirmButtonColor: '#DC2626'
+                });
+                
+                // Reload bookings and refresh displays
+                await loadUserBookings();
+                renderDeparturesTable();
+                renderDeparturesMobile();
+                loadAvailableFlights();
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Booking Failed',
+                    text: data.message
+                });
+                
+                if (response.status === 401) {
+                    logout();
+                }
+            }
+        } catch (error) {
+            console.error('Booking error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'An error occurred while booking.'
+            });
+        }
     }
-}
+
     // Load user's bookings
-    async function loadMyBookings() {
+    async function loadUserBookings() {
         if (!currentUser) return;
 
         try {
@@ -731,46 +1012,281 @@
             });
 
             const data = await response.json();
-            const bookings = Array.isArray(data) ? data : [];
-            
-            const container = document.getElementById('myBookingsList');
-            container.innerHTML = '';
-
-            if (bookings.length === 0) {
-                container.innerHTML = '<p class="text-gray-600">No bookings found. Book your first flight!</p>';
-                return;
-            }
-
-            bookings.forEach(booking => {
-                const card = document.createElement('div');
-                card.className = 'bg-white border border-gray-200 rounded-lg p-6 shadow-sm';
-                card.innerHTML = `
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h4 class="text-xl font-bold text-gray-900">${booking.flightNumber}</h4>
-                            <p class="text-gray-600 mt-1">Booking ID: ${booking.bookingId}</p>
-                            <p class="text-sm text-gray-500 mt-2">Booked on: ${new Date(booking.bookedAt).toLocaleDateString()}</p>
-                        </div>
-                        <span class="px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
-                            Confirmed
-                        </span>
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-
-            document.getElementById('bookings').classList.remove('hidden');
+            userBookings = Array.isArray(data) ? data : [];
         } catch (error) {
             console.error('Error loading bookings:', error);
         }
     }
 
-    // Show bookings section
-    document.getElementById('myBookingsBtn')?.addEventListener('click', (e) => {
+    // Cancel a booking
+    async function cancelBooking(bookingId) {
+        const result = await Swal.fire({
+            title: 'Cancel Booking?',
+            text: 'Are you sure you want to cancel this booking?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#DC2626',
+            cancelButtonColor: '#6B7280',
+            confirmButtonText: 'Yes, cancel it'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                const token = localStorage.getItem('auth_token');
+                const response = await fetch(`${API_URL}/bookings/${bookingId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Cancelled',
+                        text: 'Your booking has been cancelled.',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+                    
+                    await loadUserBookings();
+                    showMyBookings();
+                    renderDeparturesTable();
+                    renderDeparturesMobile();
+                    loadAvailableFlights();
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Failed',
+                        text: 'Could not cancel booking.'
+                    });
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred.'
+                });
+            }
+        }
+    }
+
+    // Show my bookings modal
+    function showMyBookings() {
+        document.getElementById('bookingsModal').classList.add('active');
+        toggleProfileMenu();
+        
+        const container = document.getElementById('myBookingsList');
+        container.innerHTML = '';
+
+        if (userBookings.length === 0) {
+            container.innerHTML = '<p class="text-gray-600 text-center py-8">No bookings found. Book your first flight!</p>';
+            return;
+        }
+
+        userBookings.forEach(booking => {
+            const card = document.createElement('div');
+            card.className = 'bg-white border border-gray-200 rounded-lg p-6 shadow-sm';
+            card.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h4 class="text-xl font-bold text-gray-900">${booking.flightNumber}</h4>
+                        <p class="text-gray-600 mt-1">Booking ID: ${booking.bookingId}</p>
+                        <p class="text-sm text-gray-500 mt-2">Booked on: ${new Date(booking.bookedAt).toLocaleDateString()}</p>
+                    </div>
+                    <div class="flex flex-col items-end space-y-2">
+                        <span class="px-4 py-2 bg-green-100 text-green-800 rounded-full text-sm font-semibold">
+                            Confirmed
+                        </span>
+                        <button onclick="cancelBooking('${booking.bookingId}')" class="px-4 py-2 bg-red-100 text-red-600 rounded hover:bg-red-200 text-sm font-medium">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function closeMyBookings() {
+        document.getElementById('bookingsModal').classList.remove('active');
+    }
+
+    // Show profile modal
+    function showProfile() {
+        document.getElementById('profileModal').classList.add('active');
+        toggleProfileMenu();
+        
+        const avatar = document.getElementById('profileAvatar');
+        avatar.textContent = currentUser.username.charAt(0).toUpperCase();
+        
+        document.getElementById('profileFullName').textContent = currentUser.username;
+        document.getElementById('profileDiscordId').textContent = `Discord ID: ${currentUser.id}`;
+        document.getElementById('profileBookingCount').textContent = userBookings.length;
+        document.getElementById('profileMemberSince').textContent = new Date().toLocaleDateString();
+    }
+
+    function closeProfile() {
+        document.getElementById('profileModal').classList.remove('active');
+    }
+
+    // Staff Panel Functions
+    function openStaffPanel() {
+        document.getElementById('staffPanel').classList.add('active');
+        loadAllBookingsStaff();
+        renderBlacklist();
+    }
+
+    function closeStaffPanel() {
+        document.getElementById('staffPanel').classList.remove('active');
+    }
+
+    // Add flight from staff panel
+    document.getElementById('addFlightForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
-        loadMyBookings();
-        document.getElementById('bookings').scrollIntoView({ behavior: 'smooth' });
+        
+        const flight = {
+            flightNumber: document.getElementById('staffFlightNumber').value,
+            destination: document.getElementById('staffDestination').value,
+            scheduledTime: document.getElementById('staffScheduled').value,
+            estimatedTime: document.getElementById('staffEstimated').value || document.getElementById('staffScheduled').value,
+            gate: document.getElementById('staffGate').value,
+            terminal: document.getElementById('staffTerminal').value,
+            status: document.getElementById('staffStatus').value
+        };
+
+        try {
+            const response = await fetch(`${API_URL}/departures/add`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(flight)
+            });
+
+            if (response.ok) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Flight Added',
+                    text: `Flight ${flight.flightNumber} added successfully!`,
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                
+                document.getElementById('addFlightForm').reset();
+                fetchDepartures();
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Failed',
+                    text: 'Could not add flight.'
+                });
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'An error occurred.'
+            });
+        }
     });
+
+    // Blacklist management
+    document.getElementById('blacklistForm')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        
+        const userId = document.getElementById('blacklistUserId').value;
+        const reason = document.getElementById('blacklistReason').value;
+        
+        if (isBlacklisted(userId)) {
+            Swal.fire({
+                icon: 'info',
+                title: 'Already Blacklisted',
+                text: 'This user is already on the blacklist.'
+            });
+            return;
+        }
+        
+        blacklist.push({ userId, reason, addedAt: new Date().toISOString() });
+        saveBlacklist();
+        renderBlacklist();
+        
+        document.getElementById('blacklistForm').reset();
+        
+        Swal.fire({
+            icon: 'success',
+            title: 'User Blacklisted',
+            text: `User ${userId} has been blacklisted.`,
+            timer: 2000,
+            showConfirmButton: false
+        });
+    });
+
+    function renderBlacklist() {
+        const container = document.getElementById('blacklistList');
+        container.innerHTML = '';
+        
+        if (blacklist.length === 0) {
+            container.innerHTML = '<p class="text-gray-500 text-sm">No blacklisted users</p>';
+            return;
+        }
+        
+        blacklist.forEach((item, index) => {
+            const div = document.createElement('div');
+            div.className = 'flex justify-between items-center bg-white p-3 rounded border border-gray-200';
+            div.innerHTML = `
+                <div>
+                    <p class="font-medium">${item.userId}</p>
+                    <p class="text-sm text-gray-600">${item.reason || 'No reason provided'}</p>
+                </div>
+                <button onclick="removeFromBlacklist(${index})" class="text-red-600 hover:text-red-700 text-sm">Remove</button>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function removeFromBlacklist(index) {
+        blacklist.splice(index, 1);
+        saveBlacklist();
+        renderBlacklist();
+        
+        Swal.fire({
+            icon: 'success',
+            title: 'Removed',
+            text: 'User removed from blacklist.',
+            timer: 2000,
+            showConfirmButton: false
+        });
+    }
+
+    async function loadAllBookingsStaff() {
+        try {
+            const response = await fetch(`${API_URL}/bookings`);
+            const bookings = await response.json();
+            
+            const container = document.getElementById('allBookingsStaff');
+            container.innerHTML = '';
+            
+            if (bookings.length === 0) {
+                container.innerHTML = '<p class="text-gray-500">No bookings found</p>';
+                return;
+            }
+            
+            bookings.forEach(booking => {
+                const div = document.createElement('div');
+                div.className = 'flex justify-between items-center bg-white p-3 rounded border border-gray-200';
+                div.innerHTML = `
+                    <div>
+                        <p class="font-medium">${booking.bookingId} - ${booking.flightNumber}</p>
+                        <p class="text-sm text-gray-600">User: ${booking.userName} (${booking.userId})</p>
+                        <p class="text-xs text-gray-500">${new Date(booking.bookedAt).toLocaleString()}</p>
+                    </div>
+                    <span class="px-3 py-1 bg-green-100 text-green-800 rounded text-sm">${booking.status}</span>
+                `;
+                container.appendChild(div);
+            });
+        } catch (error) {
+            console.error('Error loading all bookings:', error);
+        }
+    }
 
     // Initialize
     updateTime();
