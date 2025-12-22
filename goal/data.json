@@ -1,0 +1,53 @@
+{
+    "heroSlug": "match-report",
+    "subNewsSlugs": ["patch-notes", "tactics-blog"],
+    "ticker": [
+        "LIVE: UNITED 2-1 CITY",
+        "STREAMS: ELITE FINALS STARTING NOW",
+        "GOAL! EXCLUSIVE: SEASON 6 MAP TEASER LEAKED"
+    ],
+    "streams": [
+        {
+            "title": "Season 5 Grand Finals - Live Coverage",
+            "host": "VSA Official",
+            "platform": "YouTube",
+            "isLive": true,
+            "embedUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ"
+        },
+        {
+            "title": "Tactics Breakdown: Why United Won",
+            "host": "Coach Pixel",
+            "platform": "YouTube",
+            "isLive": false,
+            "embedUrl": "https://www.youtube.com/embed/jNQXAC9IVRw"
+        }
+    ],
+    "teams": [
+        { "name": "Goal United", "played": 24, "gd": 42, "points": 60 },
+        { "name": "City FC", "played": 24, "gd": 31, "points": 55 }
+    ],
+    "fixtures": [
+        { "home": "GOAL UNITED", "away": "ROBLOX CITY", "utc": "2025-12-22T20:00:00Z", "stadium": "STADIUM ALPHA" }
+    ],
+    "articles": {
+        "match-report": {
+            "title": "Grand Finals: The King of the Pitch",
+            "category": "FEATURED STORY",
+            "excerpt": "The final countdown begins for the Season 5 Virtual Trophy.",
+            "image": "Group 136.png",
+            "body": "<p>Content here...</p>"
+        },
+        "patch-notes": {
+            "title": "Physics Update 1.4",
+            "category": "DEV LOG",
+            "excerpt": "New grass friction mechanics.",
+            "body": "<p>Content here...</p>"
+        },
+        "tactics-blog": {
+            "title": "Meta Report",
+            "category": "ANALYST BREAKDOWN",
+            "excerpt": "Why the 4-3-3 is the only way to win.",
+            "body": "<p>Content here...</p>"
+        }
+    }
+}
