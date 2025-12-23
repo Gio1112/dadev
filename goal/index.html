@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GOAL! | Virtual Sports Authority</title>
+    <title>GOAL! | Roblox Sports</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=League+Spartan:wght@700;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -146,7 +146,7 @@
 
     <div id="loader">
         <div class="spinner"></div>
-        <p style="margin-top: 20px; font-weight: 900; letter-spacing: 5px; color: var(--primary); font-size: 12px;">LOADING VSA</p>
+        <p style="margin-top: 20px; font-weight: 900; letter-spacing: 5px; color: var(--primary); font-size: 12px;">LOADING HUB</p>
     </div>
 
     <header>
@@ -215,7 +215,7 @@
 
             <div class="card" style="padding: 30px; border-color: #5865F2;">
                 <h4 style="color: #5865F2; font-family: var(--font-header); letter-spacing: 2px; margin-bottom: 10px;">COMMUNITY</h4>
-                <p style="font-size: 13px; margin-bottom: 20px; opacity: 0.6;">Connect with thousands of virtual football fans worldwide.</p>
+                <p style="font-size: 13px; margin-bottom: 20px; opacity: 0.6;">Connect with thousands of sports fans worldwide.</p>
                 <a href="https://discord.gg/GbbV8TJVCK" style="display: block; background: #5865F2; color: white; text-align: center; padding: 15px; border-radius: 8px; text-decoration: none; font-weight: 900; font-size: 12px;">JOIN DISCORD</a>
             </div>
         </aside>
@@ -334,7 +334,10 @@
 
         window.addEventListener('load', () => {
             loadSiteData();
-            document.getElementById('header-clock').innerText = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) + " GMT";
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+            const tzStr = now.toLocaleString('en-US', {timeZoneName: 'short'}).split(' ').pop();
+            document.getElementById('header-clock').innerText = timeStr + " " + tzStr;
             setTimeout(() => {
                 document.getElementById('loader').style.opacity = '0';
                 setTimeout(() => document.getElementById('loader').style.display = 'none', 800);
