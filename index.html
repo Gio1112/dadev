@@ -765,35 +765,24 @@
       lucide.createIcons();
 
       // Visitor counter
+      // Visitor counter
       async function updateVisitorCount() {
         try {
-          const counterKey = 'site-visitor-count';
-          let currentCount = 0;
-          
-          // Try to get existing count
-          try {
-            const result = await window.storage.get(counterKey, true);
-            if (result && result.value) {
-              currentCount = parseInt(result.value);
-            }
-          } catch (e) {
-            // Key doesn't exist yet, start at 0
-            currentCount = 0;
-          }
-          
-          // Increment and save
-          currentCount++;
-          await window.storage.set(counterKey, currentCount.toString(), true);
-          
-          // Display count
-          document.getElementById('visitor-count').textContent = currentCount + ' views';
+          const response = await fetch(
+            "https://api.countapi.xyz/hit/giorgio.is-a.dev/visits"
+          );
+          const data = await response.json();
+          document.getElementById("visitor-count").textContent =
+            data.value + " views";
         } catch (error) {
-          console.error('Visitor counter error:', error);
-          document.getElementById('visitor-count').textContent = '??? views';
+          console.error("Visitor counter error:", error);
+          document.getElementById("visitor-count").textContent = "??? views";
         }
       }
       
       updateVisitorCount();
+
+
 
       const observer = new IntersectionObserver(entries => {
         entries.forEach(entry => {
