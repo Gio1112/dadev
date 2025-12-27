@@ -764,23 +764,27 @@
     <script>
       lucide.createIcons();
 
-      // Visitor counter
-      // Visitor counter
+      // Visitor counter (CounterAPI v1)
       async function updateVisitorCount() {
+        const counterEl = document.getElementById("visitor-count");
+      
         try {
-          const response = await fetch(
-            "https://api.countapi.xyz/hit/giorgio.is-a.dev/visits"
+          const res = await fetch(
+            "https://api.counterapi.dev/v1/giorgio-is-a-dev/visits/up"
           );
-          const data = await response.json();
-          document.getElementById("visitor-count").textContent =
-            data.value + " views";
-        } catch (error) {
-          console.error("Visitor counter error:", error);
-          document.getElementById("visitor-count").textContent = "??? views";
+
+          if (!res.ok) throw new Error("Request failed");
+        
+          const data = await res.json();
+          counterEl.textContent = data.count + " views";
+        } catch (err) {
+          console.error("Visitor counter error:", err);
+          counterEl.textContent = "??? views";
         }
       }
-      
+
       updateVisitorCount();
+
 
 
 
