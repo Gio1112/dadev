@@ -139,6 +139,30 @@
         color: #6b8e6b;
       }
       
+      .visitor-counter {
+        margin-left: auto;
+        padding: 4px 12px;
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        border-radius: 4px;
+        font-size: 0.7rem;
+        color: var(--accent);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        animation: pulse-counter 2s ease-in-out infinite;
+      }
+      
+      @keyframes pulse-counter {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+      }
+      
+      .visitor-counter::before {
+        content: '👁️';
+        font-size: 0.9rem;
+      }
+      
       .terminal-body {
         padding: 24px;
       }
@@ -469,6 +493,9 @@
           <div class="terminal-dot yellow"></div>
           <div class="terminal-dot green"></div>
           <div class="terminal-title">giorgio@terminal: ~</div>
+          <div class="visitor-counter">
+            <span id="visitor-count">loading...</span>
+          </div>
         </div>
         <div class="terminal-body">
           <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
@@ -478,7 +505,7 @@
               <div class="text-3xl font-bold mb-2" style="color: var(--accent);">Giorgio</div>
               <div class="text-sm" style="color: var(--text-dim);">aviation_enthusiast && discord_bot_developer</div>
               <div class="mt-4 flex flex-wrap gap-2">
-                <span class="tag">linux :3</span>
+                <span class="tag">linux</span>
                 <span class="tag">open_to_projects</span>
               </div>
             </div>
@@ -513,7 +540,7 @@
                   <span class="stat-value" data-target="10">0</span>
                 </div>
                 <div class="stat-item">
-                  <span class="stat-label">servers_hosted:</span>
+                  <span class="stat-label">servers_hosting_for:</span>
                   <span class="stat-value" data-target="7">0</span>
                 </div>
                 <div class="stat-item">
@@ -737,6 +764,37 @@
     <script>
       lucide.createIcons();
 
+      // Visitor counter
+      async function updateVisitorCount() {
+        try {
+          const counterKey = 'site-visitor-count';
+          let currentCount = 0;
+          
+          // Try to get existing count
+          try {
+            const result = await window.storage.get(counterKey, true);
+            if (result && result.value) {
+              currentCount = parseInt(result.value);
+            }
+          } catch (e) {
+            // Key doesn't exist yet, start at 0
+            currentCount = 0;
+          }
+          
+          // Increment and save
+          currentCount++;
+          await window.storage.set(counterKey, currentCount.toString(), true);
+          
+          // Display count
+          document.getElementById('visitor-count').textContent = currentCount + ' views';
+        } catch (error) {
+          console.error('Visitor counter error:', error);
+          document.getElementById('visitor-count').textContent = '??? views';
+        }
+      }
+      
+      updateVisitorCount();
+
       const observer = new IntersectionObserver(entries => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
@@ -944,7 +1002,6 @@
 
           try { await audioCtx.resume(); } catch(e){ console.log(e); }
           musicEl.muted = false;
-          musicEl.volume = 0.005;
           musicEl.play().catch(() => console.log('Autoplay blocked'));
 
           document.removeEventListener('click', startMusicAndRemoveOverlay);
