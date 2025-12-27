@@ -3,20 +3,20 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>giorgio.is-a.dev</title>
-    <link rel="icon" href="./icon.png" type="image/png">
+    <title>giorgio@terminal:~$</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
       :root {
         --bg: #0a0a0a;
-        --card: #121212;
-        --border: #1f1f1f;
-        --accent: #3b82f6;
-        --accent-dim: #1e40af;
-        --text: #e5e7eb;
-        --text-dim: #9ca3af;
+        --terminal: #0d1117;
+        --border: #1f2937;
+        --accent: #22c55e;
+        --accent-dim: #16a34a;
+        --text: #a5f3a5;
+        --text-dim: #6b8e6b;
+        --cursor: #22c55e;
       }
       
       * {
@@ -24,69 +24,74 @@
         padding: 0;
         box-sizing: border-box;
       }
-
-   
-    
-
-
-
-
       
       body {
         background: var(--bg);
         color: var(--text);
-        font-family: 'Inter', sans-serif;
+        font-family: 'JetBrains Mono', monospace;
         overflow-x: hidden;
         line-height: 1.6;
-        
       }
-
-
-      /* Grid background pattern */
-      .grid-bg {
+      
+      body::before {
+        content: '';
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        z-index: -1;
-        background-image: 
-          linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-          linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-        background-size: 50px 50px;
+        background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.15) 1px, transparent 1px, transparent 2px);
+        pointer-events: none;
+        z-index: 9999;
+        animation: scanline 8s linear infinite;
       }
       
-      /* Subtle gradient overlay */
-      .gradient-overlay {
+      @keyframes scanline {
+        0% { transform: translateY(0); }
+        100% { transform: translateY(10px); }
+      }
+      
+      body::after {
+        content: '';
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        z-index: -1;
-        background: radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.05) 0%, transparent 50%),
-                    radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 50%);
+        background: rgba(34, 197, 94, 0.02);
+        pointer-events: none;
+        z-index: 9998;
+        animation: flicker 0.15s infinite;
       }
       
-      /* Glow effects */
-      .glow-blue {
-        box-shadow: 0 0 30px rgba(59, 130, 246, 0.15);
+      @keyframes flicker {
+        0% { opacity: 0.27861; }
+        5% { opacity: 0.34769; }
+        10% { opacity: 0.23604; }
+        15% { opacity: 0.90626; }
+        20% { opacity: 0.18128; }
+        25% { opacity: 0.83891; }
+        30% { opacity: 0.65583; }
+        35% { opacity: 0.67807; }
+        40% { opacity: 0.26559; }
+        45% { opacity: 0.84693; }
+        50% { opacity: 0.96019; }
+        55% { opacity: 0.08594; }
+        60% { opacity: 0.20313; }
+        65% { opacity: 0.71988; }
+        70% { opacity: 0.53455; }
+        75% { opacity: 0.37288; }
+        80% { opacity: 0.71428; }
+        85% { opacity: 0.70419; }
+        90% { opacity: 0.7003; }
+        95% { opacity: 0.36108; }
+        100% { opacity: 0.24387; }
       }
       
-      .glow-purple {
-        box-shadow: 0 0 30px rgba(139, 92, 246, 0.15);
-      }
-      
-      /* Code font for special elements */
-      .code-font {
-        font-family: 'JetBrains Mono', monospace;
-      }
-      
-      /* Fade in animation */
       .fade-in {
         opacity: 0;
-        transform: translateY(20px);
-        transition: opacity 0.8s ease, transform 0.8s ease;
+        transform: translateY(10px);
+        transition: opacity 0.6s ease, transform 0.6s ease;
       }
       
       .fade-in.visible {
@@ -94,175 +99,223 @@
         transform: translateY(0);
       }
       
-      /* Card styling */
-      .card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      .terminal-window {
+        background: var(--terminal);
+        border: 2px solid var(--border);
+        border-radius: 8px;
+        box-shadow: 0 0 30px rgba(34, 197, 94, 0.15), 0 8px 32px rgba(0, 0, 0, 0.5);
+        overflow: hidden;
+        transition: all 0.3s ease;
       }
       
-      .card:hover {
-        border-color: rgba(59, 130, 246, 0.3);
-        transform: translateY(-4px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(59, 130, 246, 0.1);
+      .terminal-window:hover {
+        border-color: rgba(34, 197, 94, 0.5);
+        box-shadow: 0 0 40px rgba(34, 197, 94, 0.25), 0 12px 48px rgba(0, 0, 0, 0.6);
+        transform: translateY(-2px);
       }
       
-      /* Gradient text */
-      .gradient-text {
-        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+      .terminal-header {
+        background: #161b22;
+        padding: 8px 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        border-bottom: 1px solid var(--border);
       }
       
-      /* Section headers */
-      .section-header {
-        position: relative;
+      .terminal-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+      
+      .terminal-dot.red { background: #ff5f56; }
+      .terminal-dot.yellow { background: #ffbd2e; }
+      .terminal-dot.green { background: #27c93f; }
+      
+      .terminal-title {
+        margin-left: 8px;
+        font-size: 0.75rem;
+        color: #6b8e6b;
+      }
+      
+      .terminal-body {
+        padding: 24px;
+      }
+      
+      .prompt {
+        color: var(--accent);
+        display: inline;
+      }
+      
+      .prompt::before {
+        content: 'giorgio@terminal:~$ ';
+      }
+      
+      .prompt-alt::before {
+        content: '> ';
+        color: #6b8e6b;
+      }
+      
+      .cursor {
         display: inline-block;
-        padding-bottom: 8px;
-        margin-bottom: 32px;
+        width: 10px;
+        height: 18px;
+        background: var(--cursor);
+        animation: blink 1s step-end infinite;
+        margin-left: 2px;
       }
       
-      .section-header::after {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 2px;
-        background: linear-gradient(90deg, #3b82f6, transparent);
+      @keyframes blink {
+        0%, 50% { opacity: 1; }
+        51%, 100% { opacity: 0; }
       }
       
-      /* Avatar styling */
+      .section-header {
+        font-size: 1.5rem;
+        color: var(--accent);
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+        transition: all 0.3s ease;
+      }
+      
+      .section-header::before {
+        content: '$';
+        color: #6b8e6b;
+        font-weight: bold;
+      }
+      
+      .section-header:hover {
+        text-shadow: 0 0 15px rgba(34, 197, 94, 0.8);
+        transform: translateX(4px);
+      }
+      
       #discord-avatar {
-        transition: all 0.4s ease;
-        border: 2px solid rgba(59, 130, 246, 0.3);
+        border: 3px solid rgba(34, 197, 94, 0.5);
+        filter: grayscale(30%) brightness(1.1) contrast(1.1);
+        transition: all 0.3s ease;
+        box-shadow: 0 0 20px rgba(34, 197, 94, 0.2);
       }
       
       #discord-avatar:hover {
+        filter: grayscale(0%) brightness(1.2) contrast(1.15);
+        border-color: var(--accent);
+        box-shadow: 0 0 30px rgba(34, 197, 94, 0.5);
         transform: scale(1.05);
-        border-color: #3b82f6;
-        box-shadow: 0 0 30px rgba(59, 130, 246, 0.4);
       }
       
-      /* Project cards */
       .project-card {
         position: relative;
-        overflow: hidden;
-        cursor: pointer;
+        padding: 16px;
+        padding-left: 20px;
+        border-left: 3px solid rgba(34, 197, 94, 0.2);
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
       }
       
-      .project-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
-        transition: left 0.6s ease;
+      .project-card:hover {
+        border-left-color: var(--accent);
+        background: rgba(34, 197, 94, 0.05);
+        padding-left: 24px;
+        box-shadow: 0 0 20px rgba(34, 197, 94, 0.1);
       }
       
-      .project-card:hover::before {
-        left: 100%;
+      .project-title {
+        color: var(--accent);
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 4px;
+        text-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
       }
       
-      /* Icon containers */
-      .icon-box {
-        width: 48px;
-        height: 48px;
+      .project-type {
+        color: #6b8e6b;
+        font-size: 0.85rem;
+      }
+      
+      .project-desc {
+        color: var(--text-dim);
+        font-size: 0.9rem;
+        line-height: 1.6;
+        margin-top: 8px;
+      }
+      
+      .stat-item {
         display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(59, 130, 246, 0.1);
-        border: 1px solid rgba(59, 130, 246, 0.2);
-        border-radius: 10px;
-        transition: all 0.3s ease;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid var(--border);
       }
       
-      .project-card:hover .icon-box {
-        background: rgba(59, 130, 246, 0.2);
-        border-color: rgba(59, 130, 246, 0.4);
-        transform: translateY(-4px) rotate(5deg);
+      .stat-item:last-child {
+        border-bottom: none;
       }
       
-      /* Skill tags */
-      .skill-tag {
-        padding: 8px 16px;
-        background: rgba(59, 130, 246, 0.08);
-        border: 1px solid rgba(59, 130, 246, 0.2);
-        border-radius: 6px;
-        font-size: 0.875rem;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        cursor: pointer;
+      .stat-label {
+        color: #6b8e6b;
+      }
+      
+      .stat-value {
+        color: var(--accent);
+        font-weight: 600;
+      }
+      
+      .tag {
         display: inline-block;
-        margin: 4px;
+        padding: 4px 12px;
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.3);
+        border-radius: 4px;
+        font-size: 0.8rem;
+        color: var(--accent);
+        margin: 4px 4px 4px 0;
+        transition: all 0.3s ease;
       }
       
-      .skill-tag:hover {
-        background: rgba(59, 130, 246, 0.15);
-        border-color: rgba(59, 130, 246, 0.4);
+      .tag:hover {
+        background: rgba(34, 197, 94, 0.2);
+        border-color: var(--accent);
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
       }
       
-      /* Stats counter */
-      .stat-card {
-        transition: all 0.3s ease;
+      .status-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: rgba(34, 197, 94, 0.05);
+        border: 1px solid rgba(34, 197, 94, 0.2);
+        border-radius: 4px;
       }
       
-      .stat-card:hover {
-        transform: translateY(-4px);
-      }
-      
-      .counter {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: #3b82f6;
-        font-family: 'JetBrains Mono', monospace;
-      }
-      
-      /* Status indicator */
       .status-dot {
-        width: 10px;
-        height: 10px;
+        width: 8px;
+        height: 8px;
         border-radius: 50%;
-        display: inline-block;
-        margin-right: 8px;
         animation: pulse-status 2s ease-in-out infinite;
       }
       
       @keyframes pulse-status {
         0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.7; transform: scale(1.1); }
+        50% { opacity: 0.5; transform: scale(1.2); }
       }
       
-      .status-dot.online { 
-        background: #10b981; 
-        box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
-      }
-      .status-dot.idle { 
-        background: #f59e0b; 
-        box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
-      }
-      .status-dot.dnd { 
-        background: #ef4444; 
-        box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
-      }
-      .status-dot.offline { 
-        background: #6b7280; 
-        box-shadow: 0 0 10px rgba(107, 114, 128, 0.5);
-      }
+      .status-dot.online { background: #22c55e; box-shadow: 0 0 10px #22c55e; }
+      .status-dot.idle { background: #f59e0b; box-shadow: 0 0 10px #f59e0b; }
+      .status-dot.dnd { background: #ef4444; box-shadow: 0 0 10px #ef4444; }
+      .status-dot.offline { background: #6b7280; box-shadow: 0 0 10px #6b7280; }
       
-      /* Activity card */
       .activity-card {
-        background: rgba(59, 130, 246, 0.05);
-        border: 1px solid rgba(59, 130, 246, 0.15);
-        border-radius: 8px;
-        padding: 12px;
         margin-top: 12px;
+        padding: 12px 16px;
+        background: rgba(34, 197, 94, 0.05);
+        border: 1px solid rgba(34, 197, 94, 0.15);
+        border-left: 3px solid rgba(34, 197, 94, 0.3);
+        border-radius: 4px;
         display: flex;
         align-items: center;
         gap: 12px;
@@ -270,12 +323,13 @@
       }
       
       .activity-card:hover {
-        background: rgba(59, 130, 246, 0.1);
-        border-color: rgba(59, 130, 246, 0.3);
+        background: rgba(34, 197, 94, 0.1);
+        border-left-color: var(--accent);
+        border-color: rgba(34, 197, 94, 0.3);
         transform: translateX(4px);
+        box-shadow: 0 0 15px rgba(34, 197, 94, 0.1);
       }
       
-      /* Navigation dots */
       .nav-dots {
         position: fixed;
         right: 2rem;
@@ -291,7 +345,7 @@
         width: 8px;
         height: 8px;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.2);
+        background: rgba(34, 197, 94, 0.3);
         cursor: pointer;
         transition: all 0.3s ease;
         position: relative;
@@ -303,10 +357,10 @@
         right: 20px;
         top: 50%;
         transform: translateY(-50%);
-        background: var(--card);
+        background: var(--terminal);
         border: 1px solid var(--border);
         padding: 6px 12px;
-        border-radius: 6px;
+        border-radius: 4px;
         font-size: 0.75rem;
         white-space: nowrap;
         opacity: 0;
@@ -319,693 +373,587 @@
       }
       
       .nav-dot:hover, .nav-dot.active {
-        background: #3b82f6;
+        background: var(--accent);
         transform: scale(1.5);
-        box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+        box-shadow: 0 0 10px var(--accent);
       }
       
-      /* Progress bars */
-      .progress-bar {
+      .progress-container {
+        margin: 12px 0;
+      }
+      
+      .progress-label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 6px;
+        font-size: 0.9rem;
+      }
+      
+      .progress-bar-bg {
+        height: 20px;
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid rgba(34, 197, 94, 0.2);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      
+      .progress-bar-fill {
+        height: 100%;
+        background: repeating-linear-gradient(90deg, var(--accent), var(--accent) 10px, #16a34a 10px, #16a34a 20px);
+        background-size: 40px 100%;
+        animation: progress-move 2s linear infinite;
         transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+        box-shadow: 0 0 15px rgba(34, 197, 94, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding-right: 8px;
+        color: #000;
+        font-size: 0.75rem;
+        font-weight: bold;
       }
       
-      /* Links */
+      @keyframes progress-move {
+        0% { background-position: 0 0; }
+        100% { background-position: 40px 0; }
+      }
+      
       a {
-        color: #3b82f6;
+        color: var(--accent);
         text-decoration: none;
         position: relative;
-        transition: color 0.3s ease;
+        transition: all 0.3s ease;
       }
       
       a:hover {
-        color: #60a5fa;
+        color: #34d399;
+        text-shadow: 0 0 8px rgba(34, 197, 94, 0.8);
       }
       
-      a::after {
-        content: '';
-        position: absolute;
-        bottom: -2px;
-        left: 0;
-        width: 0;
-        height: 1px;
-        background: #3b82f6;
-        transition: width 0.3s ease;
-      }
-      
-      a:hover::after {
-        width: 100%;
-      }
-      
-      /* Linux badge */
-      .linux-badge {
-        padding: 6px 14px;
-        background: rgba(245, 158, 11, 0.1);
-        border: 1px solid rgba(245, 158, 11, 0.3);
-        border-radius: 6px;
-        font-family: 'JetBrains Mono', monospace;
-        font-size: 0.875rem;
-        color: #fbbf24;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s ease;
-        }
-
-  .linux-badge:hover {
-    background: rgba(245, 158, 11, 0.15);
-    transform: translateY(-2px);
-      }
-      
-      /* Terminal-style prompt */
-      .terminal-prompt {
-        font-family: 'JetBrains Mono', monospace;
-        color: #6b7280;
-        font-size: 0.875rem;
-      }
-      
-      .terminal-prompt::before {
-        content: '$ ';
-        color: #3b82f6;
-      }
-      
-      /* Smooth scroll */
       html {
         scroll-behavior: smooth;
       }
       
-      /* Contact icons */
-      .contact-icon {
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(59, 130, 246, 0.08);
-        border: 1px solid rgba(59, 130, 246, 0.2);
-        border-radius: 8px;
-        transition: all 0.3s ease;
-      }
-      
-      .contact-icon:hover {
-        background: rgba(59, 130, 246, 0.15);
-        border-color: rgba(59, 130, 246, 0.4);
-        transform: translateY(-2px);
-      }
-      
-      /* Hobby cards */
-      .hobby-card {
-        transition: all 0.3s ease;
-      }
-      
-      .hobby-card:hover {
-        transform: translateY(-6px);
-      }
-      
-      .hobby-icon {
-        width: 64px;
-        height: 64px;
-        margin: 0 auto 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(59, 130, 246, 0.08);
-        border: 1px solid rgba(59, 130, 246, 0.2);
-        border-radius: 12px;
-        transition: all 0.3s ease;
-      }
-      
-      .hobby-card:hover .hobby-icon {
-        background: rgba(59, 130, 246, 0.15);
-        border-color: rgba(59, 130, 246, 0.4);
-        transform: rotate(5deg) scale(1.1);
-      }
-      
-      /* Responsive */
       @media (max-width: 768px) {
         .nav-dots {
+          display: none;
+        }
+        
+        body::before,
+        body::after {
           display: none;
         }
       }
     </style>
   </head>
   <body>
-    <div id="terminal-overlay" style="
-    position: fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:#000;
-    color:#0f0;
-    font-family: 'JetBrains Mono', monospace;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    flex-direction:column;
-    z-index:9999;
-    padding: 20px;
-    overflow: hidden;
-    white-space: pre-wrap;
-">
-    <div id="terminal-text" style="font-size:1.2rem;"></div>
-</div>
-
-
-<audio id="bg-music" loop>
-    <source src="music.mp3" type="audio/mpeg">
-    Your browser does not support the audio element.
-</audio>
-
-
-    <div id="custom-cursor"></div>
-    <div class="grid-bg"></div>
-    <div class="gradient-overlay"></div>
-
-    <!-- Navigation dots -->
-    <div class="nav-dots">
-      <div class="nav-dot" data-section="about" data-label="About"></div>
-      <div class="nav-dot" data-section="projects" data-label="Projects"></div>
-      <div class="nav-dot" data-section="hobbies" data-label="Hobbies"></div>
-      <div class="nav-dot" data-section="contact" data-label="Contact"></div>
+    <div id="terminal-overlay" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#000; color:#0f0; font-family: 'JetBrains Mono', monospace; display:flex; align-items:center; justify-content:center; flex-direction:column; z-index:9999; padding: 20px; overflow: hidden; white-space: pre-wrap;">
+      <div id="terminal-text" style="font-size:1.2rem;"></div>
     </div>
 
-    <!-- Header -->
-    <header class="max-w-6xl mx-auto px-6 md:px-8 py-20">
-      <div class="flex flex-col md:flex-row items-center md:items-start gap-8">
-        <img id="discord-avatar" alt="Discord Profile" class="rounded-2xl w-24 h-24 object-cover" />
-        <div class="flex-1 text-center md:text-left">
-          <div class="terminal-prompt mb-2">whoami</div>
-          <h1 class="text-5xl md:text-6xl font-bold gradient-text mb-3">Giorgio</h1>
-          <p class="text-lg text-gray-400 mb-4">Aviation enthusiast & Discord bot developer</p>
-          <div class="flex flex-wrap gap-2 justify-center md:justify-start">
-            <span class="linux-badge">linux :3</span>
-            <span class="skill-tag">Open to projects</span>
+    <audio id="bg-music" loop>
+      <source src="music.mp3" type="audio/mpeg">
+    </audio>
+
+    <div class="nav-dots">
+      <div class="nav-dot" data-section="about" data-label="whoami"></div>
+      <div class="nav-dot" data-section="projects" data-label="ls projects/"></div>
+      <div class="nav-dot" data-section="hobbies" data-label="cat interests.txt"></div>
+      <div class="nav-dot" data-section="contact" data-label="./contact.sh"></div>
+    </div>
+
+    <header class="max-w-6xl mx-auto px-6 md:px-8 py-12">
+      <div class="terminal-window">
+        <div class="terminal-header">
+          <div class="terminal-dot red"></div>
+          <div class="terminal-dot yellow"></div>
+          <div class="terminal-dot green"></div>
+          <div class="terminal-title">giorgio@terminal: ~</div>
+        </div>
+        <div class="terminal-body">
+          <div class="flex flex-col md:flex-row items-center md:items-start gap-6">
+            <img id="discord-avatar" alt="Profile" class="rounded-lg w-24 h-24 object-cover" />
+            <div class="flex-1">
+              <div class="mb-2"><span class="prompt">whoami</span><span class="cursor"></span></div>
+              <div class="text-3xl font-bold mb-2" style="color: var(--accent);">Giorgio</div>
+              <div class="text-sm" style="color: var(--text-dim);">aviation_enthusiast && discord_bot_developer</div>
+              <div class="mt-4 flex flex-wrap gap-2">
+                <span class="tag">linux :3</span>
+                <span class="tag">open_to_projects</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </header>
 
-    <!-- Main content -->
-    <main class="max-w-6xl mx-auto px-6 md:px-8 space-y-24 pb-24">
+    <main class="max-w-6xl mx-auto px-6 md:px-8 space-y-12 pb-24">
       
-      <!-- About Section -->
       <section id="about" class="fade-in">
-        <h2 class="text-3xl font-bold section-header gradient-text">About</h2>
-        <div class="card p-8">
-          <p class="text-gray-300 leading-relaxed mb-6">
-            I'm a passionate developer who loves aviation and creating Discord bots as well as other coding projects. 
-            I enjoy combining creativity and technology to bring immersive experiences to online communities.
-          </p>
-          
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div class="stat-card card p-4 text-center">
-              <div class="counter" data-target="10">0</div>
-              <p class="text-sm text-gray-400 code-font">projects</p>
-            </div>
-            <div class="stat-card card p-4 text-center">
-              <div class="counter" data-target="7">0</div>
-              <p class="text-sm text-gray-400 code-font">servers</p>
-            </div>
-            <div class="stat-card card p-4 text-center">
-              <div class="counter" data-target="5">0</div>
-              <p class="text-sm text-gray-400 code-font">active_bots</p>
-            </div>
-            <div class="stat-card card p-4 text-center">
-              <div class="counter" data-target="3">0</div>
-              <p class="text-sm text-gray-400 code-font">years</p>
-            </div>
+        <div class="section-header">[1] cat about.txt</div>
+        <div class="terminal-window">
+          <div class="terminal-header">
+            <div class="terminal-dot red"></div>
+            <div class="terminal-dot yellow"></div>
+            <div class="terminal-dot green"></div>
+            <div class="terminal-title">about.txt</div>
           </div>
-          
-          <div class="border-t border-gray-800 pt-6">
-            <p class="text-sm text-gray-500 mb-3 code-font">tech_stack:</p>
-            <div class="flex flex-wrap gap-2">
-              <span class="skill-tag">Discord.js</span>
-              <span class="skill-tag">Node.js</span>
-              <span class="skill-tag">Web Dev</span>
-              <span class="skill-tag">Bots</span>
-              <span class="skill-tag">Python</span>
-              <span class="skill-tag">Aviation</span>
-              <span class="skill-tag">PTFS</span>
+          <div class="terminal-body">
+            <div class="mb-6" style="color: var(--text-dim);">
+              Passionate developer specializing in Discord bots and web applications.<br />
+              Combining aviation knowledge with coding skills to build immersive<br />
+              community experiences. Currently exploring C++ and expanding web dev skills.
+            </div>
+            
+            <div class="mb-6">
+              <div class="prompt-alt" style="color: #6b8e6b;">system_stats</div>
+              <div class="mt-2 space-y-1">
+                <div class="stat-item">
+                  <span class="stat-label">projects_completed:</span>
+                  <span class="stat-value" data-target="10">0</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">servers_hosted:</span>
+                  <span class="stat-value" data-target="7">0</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">active_bots:</span>
+                  <span class="stat-value" data-target="5">0</span>
+                </div>
+                <div class="stat-item">
+                  <span class="stat-label">years_experience:</span>
+                  <span class="stat-value" data-target="3">0</span>
+                </div>
+              </div>
+            </div>
+            
+            <div>
+              <div class="prompt-alt" style="color: #6b8e6b;">tech_stack --list</div>
+              <div class="mt-2 flex flex-wrap gap-2">
+                <span class="tag">discord.js</span>
+                <span class="tag">node.js</span>
+                <span class="tag">web_dev</span>
+                <span class="tag">python</span>
+                <span class="tag">aviation</span>
+                <span class="tag">ptfs</span>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Projects Section -->
       <section id="projects" class="fade-in">
-        <h2 class="text-3xl font-bold section-header gradient-text">Projects</h2>
-        <div class="grid md:grid-cols-2 gap-6">
-          
-          <div class="project-card card p-6">
-            <div class="flex items-start gap-4 mb-4">
-              <div class="icon-box">
-                <i data-lucide="gift" class="w-6 h-6 text-blue-400"></i>
-              </div>
-              <div class="flex-1">
-                <h3 class="text-xl font-semibold text-gray-100 mb-1">ATMOS Rewards</h3>
-                <p class="text-sm text-gray-500 code-font">discord-bot</p>
-              </div>
-            </div>
-            <p class="text-gray-400 text-sm mb-4 leading-relaxed">
-              Rewards system for PTFS Alaskan Airlines startup. Handles points, achievements, and user progression.
-            </p>
-            <div class="flex items-center gap-2">
-              <span class="text-xs text-gray-500 code-font">Status:</span>
-              <span class="text-xs text-rose-400 code-font">Inactive</span>
-            </div>
+        <div class="section-header">[2] ls -la projects/</div>
+        <div class="terminal-window">
+          <div class="terminal-header">
+            <div class="terminal-dot red"></div>
+            <div class="terminal-dot yellow"></div>
+            <div class="terminal-dot green"></div>
+            <div class="terminal-title">projects/</div>
           </div>
+          <div class="terminal-body space-y-6">
+            
+            <div class="project-card">
+              <div class="flex items-start justify-between mb-2">
+                <div class="project-title">./atmos_rewards</div>
+                <div style="color: #6b8e6b; font-size: 0.75rem;">2024</div>
+              </div>
+              <div class="project-type">
+                <span style="color: #6b8e6b;">rwxr-xr-x</span> discord_bot | status: <span style="color: #ef4444;">inactive</span>
+              </div>
+              <div class="project-desc mt-2">
+                Rewards system for PTFS Alaskan Airlines. Manages points,<br />
+                achievements, and user progression tracking.
+              </div>
+            </div>
 
-          <div class="project-card card p-6">
-            <div class="flex items-start gap-4 mb-4">
-              <div class="icon-box">
-                <i data-lucide="globe" class="w-6 h-6 text-blue-400"></i>
+            <div class="project-card">
+              <div class="flex items-start justify-between mb-2">
+                <div class="project-title">./korean_air_web</div>
+                <div style="color: #6b8e6b; font-size: 0.75rem;">2024</div>
               </div>
-              <div class="flex-1">
-                <h3 class="text-xl font-semibold text-gray-100 mb-1">Korean Air PTFS</h3>
-                <p class="text-sm text-gray-500 code-font">web-app</p>
+              <div class="project-type">
+                <span style="color: #6b8e6b;">rwxr-xr-x</span> web_app | <a href="https://github.com/Gio1112/korean-air">github ↗</a>
+              </div>
+              <div class="project-desc mt-2">
+                Virtual airline platform with booking system and flight tracking<br />
+                for PTC-based Korean Air operations.
               </div>
             </div>
-            <p class="text-gray-400 text-sm mb-4 leading-relaxed">
-              Virtual airline website for PTC-based Korean Air operations with booking system and flight tracking.
-            </p>
-            <a href="https://github.com/Gio1112/korean-air" class="text-sm code-font inline-flex items-center gap-1">
-              <i data-lucide="github" class="w-4 h-4"></i>
-              View source
-            </a>
-          </div>
 
-          <div class="project-card card p-6">
-            <div class="flex items-start gap-4 mb-4">
-              <div class="icon-box">
-                <i data-lucide="globe" class="w-6 h-6 text-blue-400"></i>
+            <div class="project-card">
+              <div class="flex items-start justify-between mb-2">
+                <div class="project-title">./swiss_air_web</div>
+                <div style="color: #6b8e6b; font-size: 0.75rem;">2025</div>
               </div>
-              <div class="flex-1">
-                <h3 class="text-xl font-semibold text-gray-100 mb-1">Swiss PTFS</h3>
-                <p class="text-sm text-gray-500 code-font">web-app</p>
+              <div class="project-type">
+                <span style="color: #6b8e6b;">rwxr-xr-x</span> web_app | <a href="https://giorgio.is-a.dev/swiss">live_demo ↗</a>
+              </div>
+              <div class="project-desc mt-2">
+                Full-stack Swiss Air virtual airline with custom API integration.<br />
+                Discord and web booking system with real-time flight tracking.
               </div>
             </div>
-            <p class="text-gray-400 text-sm mb-4 leading-relaxed">
-              Virtual airline website for PTC-based Swiss Air operations with discord and web integrated booking system and flight tracking.
-              Includes full on custom api.
-            </p>
-            <a href="https://giorgio.is-a.dev/swiss" class="text-sm code-font inline-flex items-center gap-1">
-              <i data-lucide="github" class="w-4 h-4"></i>
-              View source
-            </a>
-          </div>
 
-          <div class="project-card card p-6 md:col-span-2">
-            <div class="flex items-start gap-4 mb-4">
-              <div class="icon-box">
-                <i data-lucide="life-buoy" class="w-6 h-6 text-blue-400"></i>
+            <div class="project-card">
+              <div class="flex items-start justify-between mb-2">
+                <div class="project-title">./ba_helpdesk_suite</div>
+                <div style="color: #6b8e6b; font-size: 0.75rem;">2024-25</div>
               </div>
-              <div class="flex-1">
-                <h3 class="text-xl font-semibold text-gray-100 mb-1">BA Helpdesk & Utilities</h3>
-                <p class="text-sm text-gray-500 code-font">discord-bot-suite</p>
+              <div class="project-type">
+                <span style="color: #6b8e6b;">rwxr-xr-x</span> discord_bot_suite | status: <span style="color: var(--accent);">active</span>
+              </div>
+              <div class="project-desc mt-2">
+                Dual-bot system for British Airways PTFS. Ticket management,<br />
+                booking automation, flight tracking, and admin tools.
+              </div>
+              <div class="mt-2">
+                <span class="tag">tickets</span>
+                <span class="tag">booking</span>
+                <span class="tag">automation</span>
               </div>
             </div>
-            <p class="text-gray-400 text-sm mb-4 leading-relaxed">
-              Dual-bot system: support helpdesk with ticket management and utilities bot featuring booking system, 
-              flight tracking, and admin tools for the British Airways PTFS airline.
-            </p>
-            <div class="flex flex-wrap gap-2">
-              <span class="text-xs px-3 py-1 bg-blue-500/10 text-blue-400 rounded code-font border border-blue-500/20">tickets</span>
-              <span class="text-xs px-3 py-1 bg-blue-500/10 text-blue-400 rounded code-font border border-blue-500/20">booking</span>
-              <span class="text-xs px-3 py-1 bg-blue-500/10 text-blue-400 rounded code-font border border-blue-500/20">automation</span>
-            </div>
+            
           </div>
-          
         </div>
       </section>
 
-      <!-- Hobbies Section -->
       <section id="hobbies" class="fade-in">
-        <h2 class="text-3xl font-bold section-header gradient-text">Interests</h2>
-        <div class="grid md:grid-cols-3 gap-6 mb-8">
-          
-          <div class="hobby-card card p-6 text-center">
-            <div class="hobby-icon">
-              <i data-lucide="plane" class="w-8 h-8 text-blue-400"></i>
-            </div>
-            <h3 class="text-lg font-semibold text-gray-100 mb-2">Aviation</h3>
-            <p class="text-sm text-gray-400">Commercial aviation, flight sim, and aircraft systems</p>
+        <div class="section-header">[3] cat interests.txt</div>
+        <div class="terminal-window">
+          <div class="terminal-header">
+            <div class="terminal-dot red"></div>
+            <div class="terminal-dot yellow"></div>
+            <div class="terminal-dot green"></div>
+            <div class="terminal-title">interests.txt</div>
           </div>
+          <div class="terminal-body">
+            <div class="space-y-4 mb-6">
+              <div>
+                <div style="color: var(--accent);">• aviation/</div>
+                <div style="color: var(--text-dim); padding-left: 20px;">
+                  Commercial aviation, flight simulation, aircraft systems
+                </div>
+              </div>
+              <div>
+                <div style="color: var(--accent);">• development/</div>
+                <div style="color: var(--text-dim); padding-left: 20px;">
+                  Building tools and bots for online communities
+                </div>
+              </div>
+              <div>
+                <div style="color: var(--accent);">• gaming/</div>
+                <div style="color: var(--text-dim); padding-left: 20px;">
+                  PTFS, War Thunder, flight simulators
+                </div>
+              </div>
+            </div>
 
-          <div class="hobby-card card p-6 text-center">
-            <div class="hobby-icon">
-              <i data-lucide="code-2" class="w-8 h-8 text-blue-400"></i>
-            </div>
-            <h3 class="text-lg font-semibold text-gray-100 mb-2">Development</h3>
-            <p class="text-sm text-gray-400">Building tools and bots for communities</p>
-          </div>
+            <div class="border-t border-gray-800 pt-6">
+              <div class="prompt-alt" style="color: #6b8e6b;">learning_progress --verbose</div>
+              
+              <div class="progress-container">
+                <div class="progress-label">
+                  <span>discord.js</span>
+                  <span style="color: #6b8e6b;">85%</span>
+                </div>
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill" style="width: 0%" data-width="85"></div>
+                </div>
+              </div>
 
-          <div class="hobby-card card p-6 text-center">
-            <div class="hobby-icon">
-              <i data-lucide="gamepad-2" class="w-8 h-8 text-blue-400"></i>
-            </div>
-            <h3 class="text-lg font-semibold text-gray-100 mb-2">Gaming</h3>
-            <p class="text-sm text-gray-400">PTFS and war thunder</p>
-          </div>
-          
-        </div>
+              <div class="progress-container">
+                <div class="progress-label">
+                  <span>web_development</span>
+                  <span style="color: #6b8e6b;">70%</span>
+                </div>
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill" style="width: 0%" data-width="70"></div>
+                </div>
+              </div>
 
-        <div class="card p-8">
-          <p class="text-sm text-gray-500 mb-4 code-font">learning_progress:</p>
-          <div class="space-y-4">
-            <div>
-              <div class="flex justify-between items-center mb-2">
-                <span class="text-sm text-gray-300 code-font">discord.js</span>
-                <span class="text-sm text-gray-500 code-font">85%</span>
-              </div>
-              <div class="w-full h-1.5 bg-gray-800 rounded-full overflow-hidden">
-                <div class="progress-bar h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full" style="width: 0%" data-width="85"></div>
-              </div>
-            </div>
-            
-            <div>
-              <div class="flex justify-between items-center mb-2">
-                <span class="text-sm text-gray-300 code-font">web_development</span>
-                <span class="text-sm text-gray-500 code-font">70%</span>
-              </div>
-              <div class="w-full h-1.5 bg-gray-800 rounded-full overflow-hidden">
-                <div class="progress-bar h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full" style="width: 0%" data-width="70"></div>
-              </div>
-            </div>
-            
-            <div>
-              <div class="flex justify-between items-center mb-2">
-                <span class="text-sm text-gray-300 code-font">cpp</span>
-                <span class="text-sm text-gray-500 code-font">20%</span>
-              </div>
-              <div class="w-full h-1.5 bg-gray-800 rounded-full overflow-hidden">
-                <div class="progress-bar h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full" style="width: 0%" data-width="20"></div>
+              <div class="progress-container">
+                <div class="progress-label">
+                  <span>cpp</span>
+                  <span style="color: #6b8e6b;">20%</span>
+                </div>
+                <div class="progress-bar-bg">
+                  <div class="progress-bar-fill" style="width: 0%" data-width="20"></div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Contact Section -->
       <section id="contact" class="fade-in">
-        <h2 class="text-3xl font-bold section-header gradient-text">Contact</h2>
-        <div class="card p-8">
-          <p class="text-gray-400 mb-6">Open to collaboration and new projects. Reach out through any platform:</p>
-          
-          <div class="space-y-3 mb-6">
-            <a href="mailto:giorgiodabest1@gmail.com" class="flex items-center gap-3 group">
-              <div class="contact-icon">
-                <i data-lucide="mail" class="w-5 h-5 text-blue-400"></i>
-              </div>
-              <span class="text-gray-300 group-hover:text-blue-400 transition-colors">giorgiodabest1@gmail.com</span>
-            </a>
-            
-            <a href="https://discord.com/users/882901706587910144" class="flex items-center gap-3 group">
-              <div class="contact-icon">
-                <i data-lucide="message-circle" class="w-5 h-5 text-blue-400"></i>
-              </div>
-              <span class="text-gray-300 group-hover:text-blue-400 transition-colors code-font">giorgiodabest#0</span>
-            </a>
-            
-            <a href="https://github.com/Gio1112" class="flex items-center gap-3 group">
-              <div class="contact-icon">
-                <i data-lucide="github" class="w-5 h-5 text-blue-400"></i>
-              </div>
-              <span class="text-gray-300 group-hover:text-blue-400 transition-colors">Gio1112</span>
-            </a>
+        <div class="section-header">[4] ./contact.sh</div>
+        <div class="terminal-window">
+          <div class="terminal-header">
+            <div class="terminal-dot red"></div>
+            <div class="terminal-dot yellow"></div>
+            <div class="terminal-dot green"></div>
+            <div class="terminal-title">contact.sh</div>
           </div>
-
-          <div class="border-t border-gray-800 pt-6">
-            <div class="flex items-center gap-2 mb-3">
-              <span id="status-dot" class="status-dot offline"></span>
-              <span class="text-sm text-gray-400 code-font">discord_status:</span>
-              <span id="discord-status" class="text-sm text-gray-300">connecting...</span>
+          <div class="terminal-body">
+            <div style="color: var(--text-dim); margin-bottom: 20px;">
+              #!/bin/bash<br />
+              # Open to collaboration and new projects
             </div>
-            <div id="activity-container"></div>
+            
+            <div class="space-y-3 mb-6">
+              <div>
+                <span style="color: #6b8e6b;">email:</span>
+                <a href="mailto:giorgiodabest1@gmail.com">giorgiodabest1@gmail.com</a>
+              </div>
+              <div>
+                <span style="color: #6b8e6b;">discord:</span>
+                <a href="https://discord.com/users/882901706587910144">giorgiodabest#0</a>
+              </div>
+              <div>
+                <span style="color: #6b8e6b;">github:</span>
+                <a href="https://github.com/Gio1112">Gio1112</a>
+              </div>
+            </div>
+
+            <div class="border-t border-gray-800 pt-4">
+              <div class="status-indicator">
+                <span id="status-dot" class="status-dot offline"></span>
+                <span style="color: #6b8e6b;">discord_status:</span>
+                <span id="discord-status">connecting...</span>
+              </div>
+              <div id="activity-container"></div>
+            </div>
           </div>
         </div>
       </section>
 
     </main>
 
-    <footer class="text-center py-8 text-gray-600 text-sm code-font border-t border-gray-900">
-      <p>© 2025 Giorgio · Built with ❤️, pain and TailwindCSS</p>
+    <footer class="text-center py-8 border-t border-gray-900">
+      <p style="color: #6b8e6b;">giorgio@terminal:~$ <span style="color: var(--accent);">echo</span> <span style="color: var(--text-dim);">"© 2025 | Built with ❤️ and pain"</span></p>
     </footer>
 
     <script>
-  lucide.createIcons();
+      lucide.createIcons();
 
-  // -------------------------------
-  // FADE-IN ANIMATION + COUNTERS
-  // -------------------------------
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        if (entry.target.id === 'about') animateCounters();
-        if (entry.target.id === 'hobbies') animateProgressBars();
-      }
-    });
-  }, { threshold: 0.1 });
-  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
-
-  let countersAnimated = false;
-  function animateCounters() {
-    if (countersAnimated) return;
-    countersAnimated = true;
-    document.querySelectorAll('.counter').forEach(counter => {
-      const target = parseInt(counter.getAttribute('data-target'));
-      const duration = 2000;
-      const step = target / (duration / 16);
-      let current = 0;
-      const timer = setInterval(() => {
-        current += step;
-        if (current >= target) {
-          counter.textContent = target + '+';
-          clearInterval(timer);
-        } else {
-          counter.textContent = Math.floor(current);
-        }
-      }, 16);
-    });
-  }
-
-  let barsAnimated = false;
-  function animateProgressBars() {
-    if (barsAnimated) return;
-    barsAnimated = true;
-    setTimeout(() => {
-      document.querySelectorAll('[data-width]').forEach(bar => {
-        bar.style.width = bar.getAttribute('data-width') + '%';
-      });
-    }, 300);
-  }
-
-  // -------------------------------
-  // DISCORD STATUS
-  // -------------------------------
-  const discordId = '882901706587910144';
-  const statusDot = document.getElementById('status-dot');
-  const statusEl = document.getElementById('discord-status');
-  const activityContainer = document.getElementById('activity-container');
-
-  document.getElementById('discord-avatar').src = 
-    `https://cdn.discordapp.com/avatars/${discordId}/1ff523b0a986dbc6cb0cb753e143a89d.png?size=256`;
-
-  async function updateStatus() {
-    try {
-      const res = await fetch(`https://api.lanyard.rest/v1/users/${discordId}`);
-      const data = await res.json();
-      if (!data.success) throw new Error('API error');
-      const presence = data.data.discord_status;
-      statusDot.className = `status-dot ${presence}`;
-      const statusMap = {
-        'online': 'online',
-        'idle': 'idle',
-        'dnd': 'do_not_disturb',
-        'offline': 'offline'
-      };
-      statusEl.textContent = statusMap[presence] || 'unknown';
-      activityContainer.innerHTML = '';
-      if (data.data.activities?.length > 0) {
-        data.data.activities.forEach(activity => {
-          if (activity.type === 4 && activity.state) {
-            activityContainer.innerHTML += `
-              <div class="activity-card">
-                <div class="text-2xl">${activity.emoji?.name || '💭'}</div>
-                <div class="flex-1">
-                  <p class="text-xs text-gray-500 code-font">custom_status:</p>
-                  <p class="text-sm text-gray-300">${activity.state}</p>
-                </div>
-              </div>`;
-          } else if (activity.type === 0) {
-            activityContainer.innerHTML += `
-              <div class="activity-card">
-                <i data-lucide="gamepad-2" class="w-6 h-6 text-purple-400"></i>
-                <div class="flex-1">
-                  <p class="text-xs text-gray-500 code-font">playing:</p>
-                  <p class="text-sm text-gray-300">${activity.name}</p>
-                  ${activity.details ? `<p class="text-xs text-gray-500">${activity.details}</p>` : ''}
-                </div>
-              </div>`;
-          } else if (activity.type === 2) {
-            activityContainer.innerHTML += `
-              <div class="activity-card">
-                <i data-lucide="music" class="w-6 h-6 text-green-400"></i>
-                <div class="flex-1">
-                  <p class="text-xs text-gray-500 code-font">spotify:</p>
-                  <p class="text-sm text-gray-300">${activity.details || 'Unknown'}</p>
-                  <p class="text-xs text-gray-500">${activity.state || ''}</p>
-                </div>
-              </div>`;
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            if (entry.target.id === 'about') animateCounters();
+            if (entry.target.id === 'hobbies') animateProgressBars();
           }
         });
-        lucide.createIcons();
+      }, { threshold: 0.1 });
+      document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+      let countersAnimated = false;
+      function animateCounters() {
+        if (countersAnimated) return;
+        countersAnimated = true;
+        document.querySelectorAll('.stat-value[data-target]').forEach(counter => {
+          const target = parseInt(counter.getAttribute('data-target'));
+          const duration = 2000;
+          const step = target / (duration / 16);
+          let current = 0;
+          const timer = setInterval(() => {
+            current += step;
+            if (current >= target) {
+              counter.textContent = target;
+              clearInterval(timer);
+            } else {
+              counter.textContent = Math.floor(current);
+            }
+          }, 16);
+        });
       }
-    } catch (err) {
-      statusDot.className = 'status-dot offline';
-      statusEl.textContent = 'unavailable';
-    }
-  }
-  updateStatus();
-  setInterval(updateStatus, 5000);
 
-  // -------------------------------
-  // NAVIGATION DOTS
-  // -------------------------------
-  const navDots = document.querySelectorAll('.nav-dot');
-  navDots.forEach(dot => {
-    dot.addEventListener('click', () => {
-      document.getElementById(dot.getAttribute('data-section')).scrollIntoView({ behavior: 'smooth' });
-    });
-  });
-
-  window.addEventListener('scroll', () => {
-    let current = '';
-    document.querySelectorAll('section').forEach(section => {
-      if (scrollY >= section.offsetTop - 200) {
-        current = section.getAttribute('id');
+      let barsAnimated = false;
+      function animateProgressBars() {
+        if (barsAnimated) return;
+        barsAnimated = true;
+        setTimeout(() => {
+          document.querySelectorAll('[data-width]').forEach(bar => {
+            bar.style.width = bar.getAttribute('data-width') + '%';
+          });
+        }, 300);
       }
-    });
-    navDots.forEach(dot => {
-      dot.classList.toggle('active', dot.getAttribute('data-section') === current);
-    });
-  });
 
+      const discordId = '882901706587910144';
+      const statusDot = document.getElementById('status-dot');
+      const statusEl = document.getElementById('discord-status');
+      const activityContainer = document.getElementById('activity-container');
 
-  
-(async function(){
-    const overlay = document.getElementById('terminal-overlay');
-    const textEl = document.getElementById('terminal-text');
-    const musicEl = document.getElementById('bg-music');
+      document.getElementById('discord-avatar').src = 
+        'https://cdn.discordapp.com/avatars/' + discordId + '/1ff523b0a986dbc6cb0cb753e143a89d.png?size=256';
 
-    // MUFFLED MUSIC USING WEB AUDIO API
-    let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    let source = audioCtx.createMediaElementSource(musicEl);
-    let filter = audioCtx.createBiquadFilter();
-    filter.type = "lowpass";
-    filter.frequency.value = 1000;
-    source.connect(filter).connect(audioCtx.destination);
-    musicEl.volume = 0.05;
-    musicEl.muted = true;
+      async function updateStatus() {
+        try {
+          const res = await fetch('https://api.lanyard.rest/v1/users/' + discordId);
+          const data = await res.json();
+          if (!data.success) throw new Error('API error');
+          
+          const presence = data.data.discord_status;
+          statusDot.className = 'status-dot ' + presence;
+          statusEl.textContent = presence;
+          
+          activityContainer.innerHTML = '';
+          if (data.data.activities && data.data.activities.length > 0) {
+            data.data.activities.forEach(activity => {
+              let activityHTML = '';
+              if (activity.type === 4 && activity.state) {
+                const emoji = activity.emoji ? (activity.emoji.name || '💭') : '💭';
+                activityHTML = '<div class="activity-card"><div style="font-size: 1.5rem;">' + emoji + '</div><div class="flex-1"><div style="color: #6b8e6b; font-size: 0.8rem;">custom_status:</div><div style="color: var(--text);">' + activity.state + '</div></div></div>';
+              } else if (activity.type === 0) {
+                const details = activity.details ? '<div style="color: var(--text-dim); font-size: 0.85rem;">' + activity.details + '</div>' : '';
+                activityHTML = '<div class="activity-card"><div style="color: var(--accent);">▶</div><div class="flex-1"><div style="color: #6b8e6b; font-size: 0.8rem;">playing:</div><div style="color: var(--text);">' + activity.name + '</div>' + details + '</div></div>';
+              } else if (activity.type === 2) {
+                const songName = activity.details || 'Unknown';
+                const artist = activity.state || '';
+                activityHTML = '<div class="activity-card"><div style="color: #10b981;">♫</div><div class="flex-1"><div style="color: #6b8e6b; font-size: 0.8rem;">spotify:</div><div style="color: var(--text);">' + songName + '</div><div style="color: var(--text-dim); font-size: 0.85rem;">' + artist + '</div></div></div>';
+              }
+              if (activityHTML) {
+                activityContainer.innerHTML += activityHTML;
+              }
+            });
+          }
+        } catch (err) {
+          statusDot.className = 'status-dot offline';
+          statusEl.textContent = 'unavailable';
+        }
+      }
+      updateStatus();
+      setInterval(updateStatus, 5000);
 
-    // Terminal lines with optional progress
-    const lines = [
-        { text: "$ initializing system..." },
-        { text: "Loading modules", progress: [50, 60, 80, 95, 100] },
-        { text: "Connecting to network..." },
-        { text: "Establishing secure connection..." },
-        { text: "Loading user environment..." },
-        { text: "$ Press any key or click to continue..." }
-    ];
+      const navDots = document.querySelectorAll('.nav-dot');
+      navDots.forEach(dot => {
+        dot.addEventListener('click', () => {
+          document.getElementById(dot.getAttribute('data-section')).scrollIntoView({ behavior: 'smooth' });
+        });
+      });
 
-    let currentLine = 0;
-    let charIndex = 0;
-    let progressIndex = 0;
-    let progressLineEl = null; // reference to the progress line span
+      window.addEventListener('scroll', () => {
+        let current = '';
+        document.querySelectorAll('section').forEach(section => {
+          if (scrollY >= section.offsetTop - 200) {
+            current = section.getAttribute('id');
+          }
+        });
+        navDots.forEach(dot => {
+          dot.classList.toggle('active', dot.getAttribute('data-section') === current);
+        });
+      });
 
-    function typeLine() {
-        if (currentLine < lines.length) {
+      (async function(){
+        const overlay = document.getElementById('terminal-overlay');
+        const textEl = document.getElementById('terminal-text');
+        const musicEl = document.getElementById('bg-music');
+
+        let audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let source = audioCtx.createMediaElementSource(musicEl);
+        let filter = audioCtx.createBiquadFilter();
+        filter.type = "lowpass";
+        filter.frequency.value = 1000;
+        source.connect(filter).connect(audioCtx.destination);
+        musicEl.volume = 0.05;
+        musicEl.muted = true;
+
+        const lines = [
+          { text: "$ initializing system..." },
+          { text: "Loading modules", progress: [50, 60, 80, 95, 100] },
+          { text: "Connecting to network..." },
+          { text: "Establishing secure connection..." },
+          { text: "Loading user environment..." },
+          { text: "$ Press any key or click to continue..." }
+        ];
+
+        let currentLine = 0;
+        let charIndex = 0;
+        let progressIndex = 0;
+        let progressLineEl = null;
+
+        function typeLine() {
+          if (currentLine < lines.length) {
             const lineData = lines[currentLine];
 
-            // Handle progress line separately
             if (lineData.progress) {
-                if (!progressLineEl) {
-                    progressLineEl = document.createElement('span');
-                    textEl.appendChild(progressLineEl);
-                }
-                const progressValue = lineData.progress[progressIndex];
-                progressLineEl.textContent = `${lineData.text} [${"#".repeat(Math.floor(progressValue/10))}${"-".repeat(10-Math.floor(progressValue/10))}] ${progressValue}% █`;
+              if (!progressLineEl) {
+                progressLineEl = document.createElement('span');
+                textEl.appendChild(progressLineEl);
+              }
+              const progressValue = lineData.progress[progressIndex];
+              const hashCount = Math.floor(progressValue/10);
+              const dashCount = 10 - hashCount;
+              progressLineEl.textContent = lineData.text + ' [' + '#'.repeat(hashCount) + '-'.repeat(dashCount) + '] ' + progressValue + '% █';
 
-                // Update progress index
-                if (progressIndex < lineData.progress.length - 1) {
-                    progressIndex++;
-                    setTimeout(typeLine, 500 + Math.random()*200);
-                } else {
-                    progressLineEl.textContent = `${lineData.text} [##########] 100%`;
-                    textEl.appendChild(document.createElement('br'));
-                    currentLine++;
-                    progressLineEl = null;
-                    progressIndex = 0;
-                    setTimeout(typeLine, 200);
-                }
-                return;
+              if (progressIndex < lineData.progress.length - 1) {
+                progressIndex++;
+                setTimeout(typeLine, 500 + Math.random()*200);
+              } else {
+                progressLineEl.textContent = lineData.text + ' [##########] 100%';
+                textEl.appendChild(document.createElement('br'));
+                currentLine++;
+                progressLineEl = null;
+                progressIndex = 0;
+                setTimeout(typeLine, 200);
+              }
+              return;
             }
 
-            // Type normal lines character by character
             let lineText = lineData.text;
             let span = document.createElement('span');
             textEl.appendChild(span);
 
             function typeChar() {
-                if (charIndex < lineText.length) {
-                    span.textContent = lineText.slice(0, charIndex+1) + "█";
-                    charIndex++;
-                    setTimeout(typeChar, 30 + Math.random()*40);
-                } else {
-                    span.textContent = lineText;
-                    textEl.appendChild(document.createElement('br'));
-                    charIndex = 0;
-                    currentLine++;
-                    setTimeout(typeLine, 200);
-                }
+              if (charIndex < lineText.length) {
+                span.textContent = lineText.slice(0, charIndex+1) + "█";
+                charIndex++;
+                setTimeout(typeChar, 30 + Math.random()*40);
+              } else {
+                span.textContent = lineText;
+                textEl.appendChild(document.createElement('br'));
+                charIndex = 0;
+                currentLine++;
+                setTimeout(typeLine, 200);
+              }
             }
             typeChar();
-        } else {
+          } else {
             blinkCursor();
+          }
         }
-    }
 
-    let blinkInterval;
-    function blinkCursor() {
-        const cursorSpan = document.createElement('span');
-        cursorSpan.textContent = "█";
-        textEl.appendChild(cursorSpan);
-        blinkInterval = setInterval(() => {
+        let blinkInterval;
+        function blinkCursor() {
+          const cursorSpan = document.createElement('span');
+          cursorSpan.textContent = "█";
+          textEl.appendChild(cursorSpan);
+          blinkInterval = setInterval(() => {
             cursorSpan.style.visibility = (cursorSpan.style.visibility === 'hidden') ? 'visible' : 'visible';
-        }, 500);
-    }
+          }, 500);
+        }
 
-    typeLine();
+        typeLine();
 
-    // Start music and remove terminal overlay
-    async function startMusicAndRemoveOverlay() {
-        clearInterval(blinkInterval);
-        overlay.style.transition = 'opacity 0.5s';
-        overlay.style.opacity = 0;
-        setTimeout(() => overlay.remove(), 500);
+        async function startMusicAndRemoveOverlay() {
+          clearInterval(blinkInterval);
+          overlay.style.transition = 'opacity 0.5s';
+          overlay.style.opacity = '0';
+          setTimeout(() => overlay.remove(), 500);
 
-        try { await audioCtx.resume(); } catch(e){ console.log(e); }
-        musicEl.muted = false;
-        musicEl.play().catch(() => console.log('Autoplay blocked, waiting for interaction...'));
+          try { await audioCtx.resume(); } catch(e){ console.log(e); }
+          musicEl.muted = false;
+          musicEl.volume = 0.005;
+          musicEl.play().catch(() => console.log('Autoplay blocked'));
 
-        document.removeEventListener('click', startMusicAndRemoveOverlay);
-        document.removeEventListener('keydown', startMusicAndRemoveOverlay);
-    }
+          document.removeEventListener('click', startMusicAndRemoveOverlay);
+          document.removeEventListener('keydown', startMusicAndRemoveOverlay);
+        }
 
-    document.addEventListener('click', startMusicAndRemoveOverlay);
-    document.addEventListener('keydown', startMusicAndRemoveOverlay);
-})();
+        document.addEventListener('click', startMusicAndRemoveOverlay);
+        document.addEventListener('keydown', startMusicAndRemoveOverlay);
+      })();
     </script>
   </body>
 </html>
