@@ -768,34 +768,26 @@
                 motivation: document.getElementById('motivation').value,
                 experienceDetail: document.getElementById('experience_detail').value,
                 status: 'pending',
-                submittedAt: new Date().toISOString()
+                submittedAt: new Date().toISOString(),
+                webhookUrl: DISCORD_WEBHOOK_URL
             };
 
             try {
-                // Save to storage
-                await window.storage.set(`application:${application.id}`, JSON.stringify(application), true);
-                
-                // Send to Discord webhook (optional)
-                if (DISCORD_WEBHOOK_URL && DISCORD_WEBHOOK_URL !== 'YOUR_DISCORD_WEBHOOK_URL') {
-                    try {
-                        await fetch(`${BACKEND_URL}/api/webhook/application`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ 
-                                application, 
-                                webhookUrl: DISCORD_WEBHOOK_URL 
-                            })
-                        });
-                    } catch (webhookError) {
-                        console.error('Webhook failed:', webhookError);
-                        // Don't fail the submission if webhook fails
-                    }
+                const response = await fetch(`${BACKEND_URL}/api/applications`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(application)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to submit application');
                 }
-                
+
                 showAlert('Application submitted successfully!', 'success');
                 document.getElementById('applicationForm').reset();
                 showSection('myApplicationsSection');
             } catch (error) {
+                console.error('Submit error:', error);
                 showAlert('Error submitting application. Please try again.', 'error');
             }
         });
@@ -805,25 +797,16 @@
             listContainer.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⏳</div><p>Loading applications...</p></div>';
 
             try {
-                const result = await window.storage.list('application:', true);
-                const applications = [];
-
-                if (result && result.keys) {
-                    for (const key of result.keys) {
-                        try {
-                            const appData = await window.storage.get(key, true);
-                            if (appData) {
-                                const app = JSON.parse(appData.value);
-                                if (app.userId === currentUser.id) {
-                                    applications.push(app);
-                                }
-                            }
-                        } catch (e) {}
-                    }
+                const response = await fetch(`${BACKEND_URL}/api/applications/${currentUser.id}`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load applications');
                 }
 
-                displayApplications(applications, listContainer, false);
+                const data = await response.json();
+                displayApplications(data.applications, listContainer, false);
             } catch (error) {
+                console.error('Load error:', error);
                 listContainer.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><p>No applications found.</p></div>';
             }
         }
@@ -833,22 +816,16 @@
             listContainer.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⏳</div><p>Loading applications...</p></div>';
 
             try {
-                const result = await window.storage.list('application:', true);
-                const applications = [];
-
-                if (result && result.keys) {
-                    for (const key of result.keys) {
-                        try {
-                            const appData = await window.storage.get(key, true);
-                            if (appData) {
-                                applications.push(JSON.parse(appData.value));
-                            }
-                        } catch (e) {}
-                    }
+                const response = await fetch(`${BACKEND_URL}/api/applications`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load applications');
                 }
 
-                displayApplications(applications, listContainer, true);
+                const data = await response.json();
+                displayApplications(data.applications, listContainer, true);
             } catch (error) {
+                console.error('Load error:', error);
                 listContainer.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><p>No applications found.</p></div>';
             }
         }
@@ -904,20 +881,23 @@
 
         async function updateApplicationStatus(appId, status) {
             try {
-                const key = `application:${appId}`;
-                const appData = await window.storage.get(key, true);
-                
-                if (appData) {
-                    const app = JSON.parse(appData.value);
-                    app.status = status;
-                    app.reviewedAt = new Date().toISOString();
-                    app.reviewedBy = currentUser.username;
-                    
-                    await window.storage.set(key, JSON.stringify(app), true);
-                    showAlert(`Application ${status}!`, 'success');
-                    loadAllApplications();
+                const response = await fetch(`${BACKEND_URL}/api/applications/${appId}`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        status,
+                        reviewedBy: currentUser.username
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to update application');
                 }
+
+                showAlert(`Application ${status}!`, 'success');
+                loadAllApplications();
             } catch (error) {
+                console.error('Update error:', error);
                 showAlert('Error updating application status.', 'error');
             }
         }
