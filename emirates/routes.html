@@ -78,6 +78,22 @@
         #map {
             flex: 1;
             background: #a8d5e2;
+        .fleet-lineup {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .fleet-chip {
+            padding: 4px 8px;
+            border-radius: 10px;
+            background: #f5f5f5;
+            border: 1px solid #eee;
+            font-size: 11px;
+            font-weight: 600;
+            color: #444;
+        }
+        .fleet-chip.on-order { background: #fff6e9; border-color: #f1e0c4; color: #9a6a2f; }
             z-index: 1;
         }
 
@@ -423,6 +439,18 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
         .ek-tooltip::before { display: none; }
+
+        /* --- Mobile --- */
+        @media (max-width: 900px) {
+            body { overflow-y: auto; }
+            .header { padding: 12px 16px; flex-wrap: wrap; gap: 8px; }
+            .main-container { flex-direction: column; height: auto; }
+            .sidebar { width: 100%; box-shadow: none; }
+            #map { height: 55vh; min-height: 320px; }
+            .flight-card { margin: 16px; }
+            .list-scroll-area { max-height: 40vh; }
+            .destinations-wrapper { flex: unset; }
+        }
     </style>
 </head>
 <body>
@@ -478,6 +506,7 @@
                         <span class="stat-label">Aircraft</span>
                         <span class="stat-value" id="card-aircraft">Boeing 777-300ER</span>
                     </div>
+                    <div class="fleet-lineup" id="fleet-lineup"></div>
                     <div class="amenities" style="margin-top: 10px;">
                         <span class="amenity-badge">First</span>
                         <span class="amenity-badge">Business</span>
@@ -511,11 +540,13 @@
     <script>
         /* --- Data: Extended Emirates Destinations --- */
         const destinations = [
-             // Middle East (Hub)
-             { lat: 25.2532, lng: 55.3657, name: "Dubai", code: "DXB", country: "UAE", hub: true },
+            // Middle East (Hub)
+            { lat: 25.2532, lng: 55.3657, name: "Dubai", code: "DXB", country: "UAE", hub: true },
             { lat: 24.4330, lng: 54.6511, name: "Abu Dhabi", code: "AUH", country: "UAE" },
             { lat: 21.6797, lng: 39.1564, name: "Jeddah", code: "JED", country: "Saudi Arabia" },
             { lat: 24.9574, lng: 46.6987, name: "Riyadh", code: "RUH", country: "Saudi Arabia" },
+            { lat: 26.4712, lng: 49.7979, name: "Dammam", code: "DMM", country: "Saudi Arabia" },
+            { lat: 24.5534, lng: 39.7051, name: "Medina", code: "MED", country: "Saudi Arabia" },
             { lat: 29.2267, lng: 47.9689, name: "Kuwait City", code: "KWI", country: "Kuwait" },
             { lat: 26.2708, lng: 50.6332, name: "Bahrain", code: "BAH", country: "Bahrain" },
             { lat: 23.5933, lng: 58.2844, name: "Muscat", code: "MCT", country: "Oman" },
@@ -524,18 +555,22 @@
             { lat: 35.6892, lng: 51.3890, name: "Tehran", code: "IKA", country: "Iran" },
             { lat: 33.2625, lng: 44.2333, name: "Baghdad", code: "BGW", country: "Iraq" },
             { lat: 30.5503, lng: 47.7478, name: "Basra", code: "BSR", country: "Iraq" },
+            { lat: 36.2376, lng: 43.9632, name: "Erbil", code: "EBL", country: "Iraq" },
 
             // Europe
             { lat: 51.4700, lng: -0.4543, name: "London Heathrow", code: "LHR", country: "UK" },
             { lat: 51.1537, lng: -0.1821, name: "London Gatwick", code: "LGW", country: "UK" },
             { lat: 51.8860, lng: 0.2389, name: "London Stansted", code: "STN", country: "UK" },
             { lat: 53.3537, lng: -2.2750, name: "Manchester", code: "MAN", country: "UK" },
+            { lat: 52.4539, lng: -1.7480, name: "Birmingham", code: "BHX", country: "UK" },
             { lat: 55.8711, lng: -4.4325, name: "Glasgow", code: "GLA", country: "UK" },
+            { lat: 55.9503, lng: -3.3725, name: "Edinburgh", code: "EDI", country: "UK" },
             { lat: 54.9756, lng: -1.6218, name: "Newcastle", code: "NCL", country: "UK" },
             { lat: 53.4213, lng: -6.2701, name: "Dublin", code: "DUB", country: "Ireland" },
             { lat: 49.0097, lng: 2.5479, name: "Paris", code: "CDG", country: "France" },
             { lat: 43.6653, lng: 7.2150, name: "Nice", code: "NCE", country: "France" },
             { lat: 45.7256, lng: 5.0811, name: "Lyon", code: "LYS", country: "France" },
+            { lat: 43.6293, lng: 1.3638, name: "Toulouse", code: "TLS", country: "France" },
             { lat: 50.0379, lng: 8.5622, name: "Frankfurt", code: "FRA", country: "Germany" },
             { lat: 48.3538, lng: 11.7861, name: "Munich", code: "MUC", country: "Germany" },
             { lat: 51.2895, lng: 6.7668, name: "Dusseldorf", code: "DUS", country: "Germany" },
@@ -556,6 +591,11 @@
             { lat: 47.4385, lng: 19.2523, name: "Budapest", code: "BUD", country: "Hungary" },
             { lat: 52.1672, lng: 20.9679, name: "Warsaw", code: "WAW", country: "Poland" },
             { lat: 37.9364, lng: 23.9445, name: "Athens", code: "ATH", country: "Greece" },
+            { lat: 34.8751, lng: 33.6249, name: "Larnaca", code: "LCA", country: "Cyprus" },
+            { lat: 35.8575, lng: 14.4775, name: "Malta", code: "MLA", country: "Malta" },
+            { lat: 44.8194, lng: 20.3069, name: "Belgrade", code: "BEG", country: "Serbia" },
+            { lat: 45.7429, lng: 16.0688, name: "Zagreb", code: "ZAG", country: "Croatia" },
+            { lat: 44.5707, lng: 26.0850, name: "Bucharest", code: "OTP", country: "Romania" },
             { lat: 41.2753, lng: 28.7519, name: "Istanbul", code: "IST", country: "Turkey" },
             { lat: 55.6180, lng: 12.6508, name: "Copenhagen", code: "CPH", country: "Denmark" },
             { lat: 59.6519, lng: 17.9186, name: "Stockholm", code: "ARN", country: "Sweden" },
@@ -567,6 +607,8 @@
             { lat: 40.6895, lng: -74.1745, name: "Newark", code: "EWR", country: "USA" },
             { lat: 42.3656, lng: -71.0096, name: "Boston", code: "BOS", country: "USA" },
             { lat: 38.9531, lng: -77.4565, name: "Washington DC", code: "IAD", country: "USA" },
+            { lat: 33.6367, lng: -84.4281, name: "Atlanta", code: "ATL", country: "USA" },
+            { lat: 30.1975, lng: -97.6664, name: "Austin", code: "AUS", country: "USA" },
             { lat: 41.9742, lng: -87.9073, name: "Chicago", code: "ORD", country: "USA" },
             { lat: 28.4312, lng: -81.3081, name: "Orlando", code: "MCO", country: "USA" },
             { lat: 25.7959, lng: -80.2870, name: "Miami", code: "MIA", country: "USA" },
@@ -581,6 +623,7 @@
             // South America
             { lat: -23.4356, lng: -46.4731, name: "São Paulo", code: "GRU", country: "Brazil" },
             { lat: -22.8089, lng: -43.2436, name: "Rio de Janeiro", code: "GIG", country: "Brazil" },
+            { lat: -33.3972, lng: -70.7938, name: "Santiago", code: "SCL", country: "Chile" },
             { lat: -34.8222, lng: -58.5358, name: "Buenos Aires", code: "EZE", country: "Argentina" },
             { lat: 4.7016, lng: -74.1469, name: "Bogota", code: "BOG", country: "Colombia" },
             { lat: 19.4363, lng: -99.0721, name: "Mexico City", code: "MEX", country: "Mexico" },
@@ -616,9 +659,14 @@
             { lat: 10.1518, lng: 76.3930, name: "Kochi", code: "COK", country: "India" },
             { lat: 23.0732, lng: 72.6347, name: "Ahmedabad", code: "AMD", country: "India" },
             { lat: 22.6547, lng: 88.4467, name: "Kolkata", code: "CCU", country: "India" },
+            { lat: 15.4989, lng: 73.8284, name: "Goa", code: "GOI", country: "India" },
+            { lat: 8.4791, lng: 76.9207, name: "Thiruvananthapuram", code: "TRV", country: "India" },
+            { lat: 11.1368, lng: 75.9553, name: "Kozhikode", code: "CCJ", country: "India" },
             { lat: 24.9065, lng: 67.1608, name: "Karachi", code: "KHI", country: "Pakistan" },
             { lat: 31.5204, lng: 74.4036, name: "Lahore", code: "LHE", country: "Pakistan" },
             { lat: 33.5492, lng: 73.0992, name: "Islamabad", code: "ISB", country: "Pakistan" },
+            { lat: 32.5353, lng: 74.3636, name: "Sialkot", code: "SKT", country: "Pakistan" },
+            { lat: 33.9939, lng: 71.5146, name: "Peshawar", code: "PEW", country: "Pakistan" },
             { lat: 23.8433, lng: 90.3978, name: "Dhaka", code: "DAC", country: "Bangladesh" },
             { lat: 7.1807, lng: 79.8842, name: "Colombo", code: "CMB", country: "Sri Lanka" },
             { lat: 4.1928, lng: 73.5291, name: "Malé", code: "MLE", country: "Maldives" },
@@ -628,6 +676,9 @@
             { lat: -26.1367, lng: 28.2411, name: "Johannesburg", code: "JNB", country: "South Africa" },
             { lat: -33.9715, lng: 18.6021, name: "Cape Town", code: "CPT", country: "South Africa" },
             { lat: -29.6144, lng: 31.1197, name: "Durban", code: "DUR", country: "South Africa" },
+            { lat: -8.8584, lng: 13.2312, name: "Luanda", code: "LAD", country: "Angola" },
+            { lat: -17.9318, lng: 31.0928, name: "Harare", code: "HRE", country: "Zimbabwe" },
+            { lat: -15.3308, lng: 28.4526, name: "Lusaka", code: "LUN", country: "Zambia" },
             { lat: -1.3192, lng: 36.9278, name: "Nairobi", code: "NBO", country: "Kenya" },
             { lat: 8.9806, lng: 38.7995, name: "Addis Ababa", code: "ADD", country: "Ethiopia" },
             { lat: 33.3676, lng: -7.5898, name: "Casablanca", code: "CMN", country: "Morocco" },
@@ -651,6 +702,19 @@
             { lat: -37.0082, lng: 174.7850, name: "Auckland", code: "AKL", country: "New Zealand" },
             { lat: -43.4864, lng: 172.5369, name: "Christchurch", code: "CHC", country: "New Zealand" }
         ];
+
+        /* --- Data: Emirates Fleet --- */
+        const fleet = {
+            inService: [
+                { name: "Airbus A380-800", rangeKm: 15200, seats: "489-615" },
+                { name: "Boeing 777-300ER", rangeKm: 13650, seats: "354-426" },
+                { name: "Boeing 777-200LR", rangeKm: 15500, seats: "266-302" }
+            ],
+            onOrder: [
+                { name: "Airbus A350-900", rangeKm: 15000, seats: "~300" },
+                { name: "Boeing 787-9", rangeKm: 14100, seats: "~290" }
+            ]
+        };
 
         /* --- State & Init --- */
         let map;
@@ -933,16 +997,33 @@
         function updateFlightCard(dist) {
             const time = calculateFlightTime(dist);
             
-            // Logic for Aircraft type based on total distance or legs
-            // Simplified: Long haul = A380
+            // Pick a representative airframe by distance band
             let aircraft = "Boeing 777-300ER";
-            if (dist > 5000) aircraft = "Airbus A380-800";
+            if (dist > 13000) aircraft = "Boeing 777-200LR";
+            else if (dist > 7500) aircraft = "Airbus A380-800";
+            else if (dist > 4500) aircraft = "Boeing 777-300ER";
 
             document.getElementById('card-distance').innerText = Math.round(dist).toLocaleString() + " km";
             document.getElementById('card-time').innerText = time;
             document.getElementById('card-aircraft').innerText = aircraft;
 
             document.getElementById('flight-card').style.display = 'block';
+        }
+
+        function renderFleetLineup() {
+            const holder = document.getElementById('fleet-lineup');
+            if (!holder) return;
+            holder.innerHTML = '';
+
+            const renderChip = (entry, onOrder = false) => {
+                const chip = document.createElement('span');
+                chip.className = `fleet-chip${onOrder ? ' on-order' : ''}`;
+                chip.textContent = entry.name;
+                holder.appendChild(chip);
+            };
+
+            fleet.inService.forEach(entry => renderChip(entry, false));
+            fleet.onOrder.forEach(entry => renderChip(entry, true));
         }
 
         function focusSearch() {
@@ -977,7 +1058,10 @@
         }
 
         // Start
-        window.onload = initMap;
+        window.onload = () => {
+            initMap();
+            renderFleetLineup();
+        };
 
     </script>
 </body>
