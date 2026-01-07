@@ -19,10 +19,21 @@
             --shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 12px; height: 12px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { 
+            background: var(--ek-gold); 
+            border-radius: 6px; 
+            border: 3px solid transparent;
+            background-clip: content-box;
+        }
+        ::-webkit-scrollbar-thumb:hover { 
+            background: var(--ek-red); 
+            border: 3px solid transparent;
+            background-clip: content-box;
         }
 
         body {
@@ -32,7 +43,7 @@
             color: var(--ek-dark);
         }
 
-        /* --- Header --- */
+        /* Header */
         .header {
             background: white;
             height: 70px;
@@ -46,401 +57,185 @@
             border-bottom: 3px solid var(--ek-red);
         }
 
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+        .logo-container { display: flex; align-items: center; gap: 15px; }
+        .logo-img { height: 45px; width: auto; }
+        .app-title { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--ek-gray); border-left: 1px solid #ddd; padding-left: 15px; margin-left: 15px; font-weight: 600; }
 
-        .logo-img {
-            height: 45px;
-            width: auto;
-        }
+        /* Layout */
+        .main-container { display: flex; height: calc(100vh - 70px); position: relative; }
+        #map { flex: 1; background: #a8d5e2; z-index: 1; }
 
-        .app-title {
-            font-size: 12px;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: var(--ek-gray);
-            border-left: 1px solid #ddd;
-            padding-left: 15px;
-            margin-left: 15px;
-            font-weight: 600;
-        }
 
-        /* --- Layout --- */
-        .main-container {
-            display: flex;
-            height: calc(100vh - 70px);
-            position: relative;
-        }
-
-        #map {
-            flex: 1;
-            background: #a8d5e2;
-        .fleet-lineup {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-top: 8px;
-        }
-        .fleet-chip {
-            padding: 4px 8px;
-            border-radius: 10px;
-            background: #f5f5f5;
-            border: 1px solid #eee;
-            font-size: 11px;
-            font-weight: 600;
-            color: #444;
-        }
-        .fleet-chip.on-order { background: #fff6e9; border-color: #f1e0c4; color: #9a6a2f; }
-            z-index: 1;
-        }
+        html { scroll-behavior: smooth; }
 
         .sidebar {
             width: 400px;
             background: white;
             box-shadow: -5px 0 15px rgba(0,0,0,0.05);
-            display: flex;
-            flex-direction: column;
+            display: block;
             z-index: 2;
+            overflow-y: auto;
+            height: calc(100vh - 70px);
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on touch devices */
+            scrollbar-width: thin; /* Firefox */
+            scrollbar-color: var(--ek-gold) transparent; /* Firefox */
         }
 
-        /* --- Sidebar Components --- */
-        .sidebar-header {
-            padding: 25px 25px 15px 25px;
-            background: #fff;
-        }
+        /* Sidebar Components */
+        .sidebar-header { padding: 25px 25px 15px 25px; background: #fff; }
+        .sidebar-title { font-family: 'Georgia', serif; font-size: 24px; color: var(--ek-dark); margin-bottom: 5px; }
+        .sidebar-subtitle { font-size: 13px; color: var(--ek-gray); font-weight: 400; }
 
-        .sidebar-title {
-            font-family: 'Georgia', serif;
-            font-size: 24px;
-            color: var(--ek-dark);
-            margin-bottom: 5px;
+        /* Itinerary Builder */
+        .booking-widget { padding: 0 25px 25px 25px; background: #fff; border-bottom: 1px solid #eee; }
+        .itinerary-list { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        .itinerary-segment { display: flex; align-items: center; background: #fdfdfd; border: 1px solid #eee; border-radius: 6px; padding: 10px; position: relative; transition: all 0.2s; cursor: move; }
+        .itinerary-segment.active { border-color: var(--ek-gold); background: #fffbf5; }
+        .itinerary-segment.dragging { opacity: 0.5; }
+        .itinerary-segment.drag-over-top {
+            border-top: 2px solid var(--ek-red);
+            background: #fff5f5;
         }
-
-        .sidebar-subtitle {
-            font-size: 13px;
-            color: var(--ek-gray);
-            font-weight: 400;
+        .itinerary-segment.drag-over-bottom {
+            border-bottom: 2px solid var(--ek-red);
+            background: #fff5f5;
         }
-
-        /* --- Itinerary Builder --- */
-        .booking-widget {
-            padding: 0 25px 25px 25px;
-            background: #fff;
-            border-bottom: 1px solid #eee;
-        }
-
-        .itinerary-list {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .itinerary-segment {
-            display: flex;
-            align-items: center;
-            background: #fdfdfd;
-            border: 1px solid #eee;
-            border-radius: 6px;
-            padding: 10px;
-            position: relative;
-            transition: all 0.2s;
-        }
-        
-        .itinerary-segment.active {
-            border-color: var(--ek-gold);
-            background: #fffbf5;
-        }
-
-        .segment-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: #ddd;
-            margin-right: 12px;
-            flex-shrink: 0;
-        }
-
+        .segment-dot { width: 10px; height: 10px; border-radius: 50%; background: #ddd; margin-right: 12px; flex-shrink: 0; }
         .segment-dot.origin { background: var(--ek-red); }
         .segment-dot.stop { background: var(--ek-gold); }
         .segment-dot.dest { background: var(--ek-dark); }
-
-        .segment-content {
-            flex: 1;
-            font-size: 14px;
-            font-weight: 500;
-        }
-        
-        .segment-code {
-            font-weight: 700;
-            color: var(--ek-red);
-            margin-right: 5px;
-        }
-
-        .segment-remove {
-            color: #ccc;
-            cursor: pointer;
-            padding: 5px;
-        }
+        .segment-drag { color: #ccc; cursor: grab; padding: 5px; margin-right: 4px; }
+        .segment-drag:hover { color: var(--ek-gold); }
+        .segment-content { flex: 1; font-size: 14px; font-weight: 500; }
+        .segment-code { font-weight: 700; color: var(--ek-red); margin-right: 5px; }
+        .segment-remove { color: #ccc; cursor: pointer; padding: 5px; }
         .segment-remove:hover { color: var(--ek-red); }
-
-        .dashed-connector {
-            position: absolute;
-            left: 14px;
-            top: 25px;
-            height: 25px;
-            border-left: 2px dashed #eee;
-            z-index: 0;
-        }
+        .dashed-connector { position: absolute; left: 14px; top: 25px; height: 25px; border-left: 2px dashed #eee; z-index: 0; }
         .itinerary-segment:last-child .dashed-connector { display: none; }
-
-        .add-flight-placeholder {
-            padding: 12px;
-            border: 1px dashed #ccc;
-            border-radius: 6px;
-            text-align: center;
-            color: #888;
-            font-size: 13px;
-            margin-top: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .add-flight-placeholder:hover {
-            border-color: var(--ek-gold);
-            color: var(--ek-gold-dark);
-            background: #fffbf5;
-        }
-
-        .route-actions {
-            display: flex;
-            justify-content: flex-end;
-            margin-top: 15px;
-        }
-
-        .btn-text {
-            background: none;
-            border: none;
-            color: var(--ek-gray);
-            font-size: 12px;
-            cursor: pointer;
-            text-decoration: underline;
-        }
+        .add-flight-placeholder { padding: 12px; border: 1px dashed #ccc; border-radius: 6px; text-align: center; color: #888; font-size: 13px; margin-top: 10px; cursor: pointer; transition: all 0.2s; }
+        .add-flight-placeholder:hover { border-color: var(--ek-gold); color: var(--ek-gold-dark); background: #fffbf5; }
+        .route-actions { display: flex; justify-content: flex-end; margin-top: 15px; }
+        .btn-text { background: none; border: none; color: var(--ek-gray); font-size: 12px; cursor: pointer; text-decoration: underline; }
         .btn-text:hover { color: var(--ek-red); }
 
-
-        /* --- Flight Details Card --- */
-        .flight-card {
-            margin: 20px 25px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
-            border: 1px solid #eee;
-            overflow: hidden;
-            display: none;
-        }
-
-        .card-header {
-            background: linear-gradient(135deg, var(--ek-red) 0%, var(--ek-red-dark) 100%);
-            color: white;
-            padding: 12px 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .card-body { padding: 15px; }
-
-        .stat-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
+        /* Flight Card */
+        .flight-card { margin: 20px 25px; background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); border: 1px solid #eee; overflow: hidden; display: none; }
+        .card-header { background: linear-gradient(135deg, var(--ek-red) 0%, var(--ek-red-dark) 100%); color: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; font-weight: 600; cursor: pointer; user-select: none; }
+        .card-header:hover { background: linear-gradient(135deg, var(--ek-red-dark) 0%, var(--ek-red) 100%); }
+        .card-chevron { transition: transform 0.3s ease; }
+        .card-chevron.collapsed { transform: rotate(-90deg); }
+        .card-body { padding: 15px; max-height: 400px; overflow-y: auto; transition: max-height 0.3s ease, padding 0.3s ease; }
+        .card-body.collapsed { max-height: 0; padding: 0 15px; overflow: hidden; }
+        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
         .stat-label { font-size: 10px; color: #888; text-transform: uppercase; margin-bottom: 2px; }
         .stat-value { font-size: 14px; font-weight: 600; color: var(--ek-dark); }
-
         .amenities { display: flex; gap: 5px; flex-wrap: wrap; }
         .amenity-badge { font-size: 9px; padding: 2px 6px; border-radius: 4px; background: #f5f5f5; color: #666; border: 1px solid #eee; }
+        .fleet-lineup { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .fleet-chip { padding: 4px 8px; border-radius: 10px; background: #f5f5f5; border: 1px solid #eee; font-size: 11px; font-weight: 600; color: #444; }
+        .fleet-chip.on-order { background: #fff6e9; border-color: #f1e0c4; color: #9a6a2f; }
 
-        /* --- List & Search --- */
-        .destinations-wrapper {
-            flex: 1;
-            overflow-y: hidden;
-            display: flex;
-            flex-direction: column;
-            background: #fff;
-        }
-
-        .search-container {
-            padding: 15px 25px;
-            border-bottom: 1px solid #f5f5f5;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 10px 15px;
-            padding-left: 35px;
-            border: 1px solid #ddd;
-            border-radius: 20px;
-            font-size: 13px;
-            outline: none;
-            background: #f9f9f9;
-        }
+        /* List & Search */
+        .destinations-wrapper { display: block; background: #fff; min-height: 0; position: relative; }
+        .search-container { padding: 15px 25px; border-bottom: 1px solid #f5f5f5; position: relative; flex-shrink: 0; }
+        .search-input { width: 100%; padding: 10px 15px 10px 35px; border: 1px solid #ddd; border-radius: 20px; font-size: 13px; outline: none; background: #f9f9f9; }
+        .search-input:focus { border-color: var(--ek-gold); background: white; }
+        .search-icon { position: absolute; left: 38px; top: 26px; color: #aaa; font-size: 12px; }
+        .list-scroll-area { overflow: visible; padding: 0 25px 25px 25px; height: auto; }
+        .list-header { font-size: 11px; font-weight: 700; color: var(--ek-gray); margin: 15px 0 10px 0; display: flex; justify-content: space-between; }
         
-        .search-input:focus {
-            border-color: var(--ek-gold);
-            background: white;
-        }
-
-        .search-icon {
+        /* Autocomplete */
+        .autocomplete-results {
             position: absolute;
-            left: 38px;
-            top: 26px; /* Adjust based on padding */
-            color: #aaa;
-            font-size: 12px;
-        }
-
-        .list-scroll-area {
-            flex: 1;
+            top: 55px;
+            left: 25px;
+            right: 25px;
+            background: white;
+            border: 1px solid #ddd;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 2000;
+            max-height: 300px;
             overflow-y: auto;
-            padding: 0 25px 25px 25px;
+            border-radius: 8px;
+            display: none;
         }
-
-        .list-header {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--ek-gray);
-            margin: 15px 0 10px 0;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .destination-item {
+        .autocomplete-item {
+            padding: 10px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f5f5f5;
+            font-size: 13px;
             display: flex;
             align-items: center;
-            padding: 10px 12px;
-            border-bottom: 1px solid #f9f9f9;
-            cursor: pointer;
-            transition: all 0.2s;
-            border-radius: 6px;
+            gap: 10px;
         }
-
-        .destination-item:hover {
-            background: #fffcf5;
-            padding-left: 16px;
-        }
-        
-        .destination-item.selected {
-            background: #f0f0f0;
-            opacity: 0.6;
-        }
-
-        .destination-code {
-            font-weight: 700;
-            font-size: 13px;
-            width: 40px;
-            color: var(--ek-red);
-        }
-
+        .autocomplete-item:hover { background: #fffcf5; }
+        .autocomplete-item .code-badge { font-weight: 700; color: var(--ek-red); background: #fdfdfd; border: 1px solid #eee; padding: 2px 6px; border-radius: 4px; font-size: 11px; }
+        .autocomplete-item .name-text { color: #333; font-weight: 500; }
+        .autocomplete-item .sub-text { color: #888; font-size: 11px; margin-left: auto; }
+        .destination-item { display: flex; align-items: center; padding: 10px 12px; border-bottom: 1px solid #f9f9f9; cursor: pointer; transition: all 0.2s; border-radius: 6px; }
+        .destination-item:hover { background: #fffcf5; padding-left: 16px; }
+        .destination-item.selected { background: #f0f0f0; opacity: 0.6; }
+        .destination-code { font-weight: 700; font-size: 13px; width: 40px; color: var(--ek-red); }
         .destination-details { flex: 1; }
         .destination-name { font-size: 13px; color: var(--ek-dark); font-weight: 500; }
         .destination-country { font-size: 11px; color: #999; }
+        .destination-item.disabled { opacity: 0.45; pointer-events: none; }
 
-        /* --- Map Markers & Clusters --- */
+        /* View toggle */
+        .view-toggle {
+            display: flex; gap: 6px; align-items: center;
+        }
+        .toggle-btn {
+            border: 1px solid #ddd; background: #fff; padding: 6px 10px; font-size: 12px; border-radius: 14px; cursor: pointer;
+        }
+        .toggle-btn.active { background: var(--ek-red); border-color: var(--ek-red); color: #fff; }
+        .toggle-group { display: flex; gap: 6px; align-items: center; }
+        .toggle-sep { width: 1px; height: 16px; background: #e5e5e5; margin: 0 6px; }
+
+        /* Globe */
+        #globe { flex: 1; display: none; background: #0b1220; }
+        .globe-container { position: relative; }
+        .globe-overlay { position: absolute; top: 10px; right: 10px; z-index: 5; color: #fff; font-size: 12px; }
+        .leg-details { font-size: 12px; color: #444; border-top: 1px solid #eee; padding-top: 10px; max-height: 120px; overflow-y: auto; line-height: 1.4; margin-top: 6px; }
+        .globe-bubble { background: rgba(255,255,255,0.95); color: #111; padding: 6px 10px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.25); font-size: 11px; line-height: 1.3; pointer-events: none; white-space: nowrap; }
+        .globe-bubble::after { content: ""; position: absolute; left: 50%; transform: translateX(-50%); bottom: -6px; width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 6px solid rgba(255,255,255,0.95); }
+        .globe-node { position: absolute; width: 12px; height: 12px; border-radius: 50%; background: #d71921; border: 2px solid rgba(255,255,255,0.95); box-shadow: 0 2px 8px rgba(0,0,0,0.35); transform: translate(-50%, -50%); cursor: pointer; z-index: 3; pointer-events: auto; }
+        .globe-node.hub { background: #c6a87c; }
+        .globe-node.selected { background: #222; border-color: #fff; }
+        .globe-node.disabled { opacity: 0.35; }
+        .globe-node:hover { transform: translate(-50%, -50%) scale(1.25); }
+
+        /* Globe hover tooltip */
+        .globe-tooltip { position: absolute; z-index: 9999; background: rgba(255,255,255,0.96); color: #111; padding: 6px 8px; border-radius: 6px; box-shadow: 0 6px 16px rgba(0,0,0,0.25); font-size: 12px; line-height: 1.3; pointer-events: none; transform: translate(10px, 10px); min-width: 140px; }
+        .globe-tooltip .tt-title { font-weight: 700; margin-bottom: 2px; }
+        .globe-tooltip .tt-sub { font-size: 11px; color: #666; }
+        .globe-tooltip .tt-hint { font-size: 11px; color: #888; margin-top: 4px; }
+
+        /* 3D Route Chooser (removed) */
+
+        /* Markers & Clusters */
         .custom-marker { transition: all 0.3s ease; }
-        
-        /* City Marker */
-        .marker-pin {
-            width: 14px;
-            height: 14px;
-            background: var(--ek-red);
-            border: 2px solid white;
-            border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-        
-        /* Selected Route Marker (No Cluster) */
-        .marker-selected {
-            width: 18px;
-            height: 18px;
-            background: var(--ek-dark);
-            border: 3px solid white;
-            border-radius: 50%;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.5);
-            z-index: 1000 !important;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 9px;
-            font-weight: bold;
-        }
-        
+        .marker-pin { width: 14px; height: 14px; background: var(--ek-red); border: 2px solid white; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+        .marker-selected { width: 18px; height: 18px; background: var(--ek-dark); border: 3px solid white; border-radius: 50%; box-shadow: 0 3px 8px rgba(0,0,0,0.5); z-index: 1000 !important; display: flex; align-items: center; justify-content: center; color: white; font-size: 9px; font-weight: bold; }
         .marker-selected.origin { background: var(--ek-red); }
         .marker-selected.stop { background: var(--ek-gold); }
-
-        /* Hub Marker */
-        .marker-hub {
-            width: 20px;
-            height: 20px;
-            background: var(--ek-gold);
-            border: 3px solid white;
-            border-radius: 50%;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.4);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+        .marker-hub { width: 20px; height: 20px; background: var(--ek-gold); border: 3px solid white; border-radius: 50%; box-shadow: 0 3px 8px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; }
         .marker-hub i { color: white; font-size: 10px; }
-
-        /* Custom Cluster */
-        .ek-cluster {
-            background: rgba(215, 25, 33, 0.1);
-            border-radius: 50%;
-        }
-        .ek-cluster div {
-            width: 36px;
-            height: 36px;
-            background: linear-gradient(135deg, var(--ek-red) 0%, var(--ek-red-dark) 100%);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 14px;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.3);
-            border: 2px solid white;
-            margin-left: 2px;
-            margin-top: 2px;
-        }
-        .ek-cluster-large div {
-            width: 44px;
-            height: 44px;
-            background: linear-gradient(135deg, var(--ek-gold) 0%, #b09060 100%);
-            font-size: 16px;
-        }
-
-        .ek-tooltip {
-            background: var(--ek-dark);
-            border: none;
-            color: white;
-            font-weight: 500;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
+        .ek-cluster { background: rgba(215, 25, 33, 0.1); border-radius: 50%; }
+        .ek-cluster div { width: 36px; height: 36px; background: linear-gradient(135deg, var(--ek-red) 0%, var(--ek-red-dark) 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; box-shadow: 0 3px 8px rgba(0,0,0,0.3); border: 2px solid white; margin-left: 2px; margin-top: 2px; }
+        .ek-cluster-large div { width: 44px; height: 44px; background: linear-gradient(135deg, var(--ek-gold) 0%, #b09060 100%); font-size: 16px; }
+        .ek-tooltip { background: var(--ek-dark); border: none; color: white; font-weight: 500; padding: 4px 8px; border-radius: 4px; font-size: 11px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
         .ek-tooltip::before { display: none; }
+        
+        @keyframes dash-flow {
+            to { stroke-dashoffset: -30; }
+        }
+        .animated-route { animation: dash-flow 2s linear infinite; }
 
-        /* --- Mobile --- */
+        .ek-cluster.disabled { pointer-events: none; }
+        .ek-cluster.disabled div { opacity: 0.35; }
+
+        /* Mobile */
         @media (max-width: 900px) {
             body { overflow-y: auto; }
             .header { padding: 12px 16px; flex-wrap: wrap; gap: 8px; }
@@ -454,14 +249,14 @@
     </style>
 </head>
 <body>
-
     <div class="header">
         <div class="logo-container">
             <img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/Emirates_logo.svg" alt="Emirates" class="logo-img">
             <div class="app-title">Route Map</div>
         </div>
-        <div style="font-size: 12px; font-weight: 600; color: var(--ek-red);">
-            <i class="fas fa-globe-asia"></i> GLOBAL NETWORK
+        <div class="view-toggle">
+            <button id="btn-2d" class="toggle-btn active" onclick="setViewMode('2D')">2D</button>
+            <button id="btn-3d" class="toggle-btn" onclick="setViewMode('3D')">3D</button>
         </div>
     </div>
 
@@ -473,25 +268,21 @@
             </div>
 
             <div class="booking-widget">
-                <div class="itinerary-list" id="itinerary-list">
-                    <!-- Dynamic Items -->
-                </div>
-                
+                <div class="itinerary-list" id="itinerary-list"></div>
                 <div class="add-flight-placeholder" onclick="focusSearch()">
                     <i class="fas fa-plus-circle"></i> Click map or search to add destination
                 </div>
-
                 <div class="route-actions" id="route-actions" style="display: none;">
                     <button class="btn-text" onclick="clearItinerary()">Clear Route</button>
                 </div>
             </div>
 
             <div id="flight-card" class="flight-card">
-                <div class="card-header">
+                <div class="card-header" onclick="toggleTripSummary()">
                     <span>TRIP SUMMARY</span>
-                    <i class="fas fa-plane"></i>
+                    <i id="card-chevron" class="fas fa-chevron-down card-chevron"></i>
                 </div>
-                <div class="card-body">
+                <div id="card-body" class="card-body">
                     <div class="stat-grid">
                         <div class="stat-item">
                             <span class="stat-label">Total Distance</span>
@@ -502,10 +293,41 @@
                             <span class="stat-value" id="card-time">-</span>
                         </div>
                     </div>
+                    <div class="stat-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">Legs</span>
+                            <span class="stat-value" id="card-legs">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Stops</span>
+                            <span class="stat-value" id="card-stops">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Start</span>
+                            <span class="stat-value" id="card-start">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">End</span>
+                            <span class="stat-value" id="card-end">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Longest Leg</span>
+                            <span class="stat-value" id="card-longest">-</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Shortest Leg</span>
+                            <span class="stat-value" id="card-shortest">-</span>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Average Leg</span>
+                        <span class="stat-value" id="card-avg">-</span>
+                    </div>
                     <div class="stat-item">
                         <span class="stat-label">Aircraft</span>
                         <span class="stat-value" id="card-aircraft">Boeing 777-300ER</span>
                     </div>
+                    <div id="leg-details" class="leg-details"></div>
                     <div class="fleet-lineup" id="fleet-lineup"></div>
                     <div class="amenities" style="margin-top: 10px;">
                         <span class="amenity-badge">First</span>
@@ -516,31 +338,32 @@
             </div>
 
             <div class="destinations-wrapper">
-                <div class="search-container" style="position: relative;">
+                <div class="search-container">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="search-input" class="search-input" placeholder="Search city or airport code..." onkeyup="filterDestinations()">
+                    <input type="text" id="search-input" class="search-input" placeholder="Search city, code, or route (e.g. DXB-LHR)" onkeyup="handleSearchInput(event)" onkeydown="handleSearchKey(event)">
+                    <div id="autocomplete-results" class="autocomplete-results"></div>
                 </div>
                 <div class="list-scroll-area">
                     <div class="list-header">
                         <span>AVAILABLE DESTINATIONS</span>
                         <span id="dest-count">0</span>
                     </div>
-                    <div id="dest-list">
-                        <!-- Populated by JS -->
-                    </div>
+                    <div id="dest-list"></div>
                 </div>
             </div>
         </div>
 
         <div id="map"></div>
+        <div id="globe" class="globe-container"></div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
+    <!-- Use specific browser-compatible UMD build of Three.js to fix 'exports' error -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+    <script src="https://unpkg.com/globe.gl"></script>
     <script>
-        /* --- Data: Extended Emirates Destinations --- */
         const destinations = [
-            // Middle East (Hub)
             { lat: 25.2532, lng: 55.3657, name: "Dubai", code: "DXB", country: "UAE", hub: true },
             { lat: 24.4330, lng: 54.6511, name: "Abu Dhabi", code: "AUH", country: "UAE" },
             { lat: 21.6797, lng: 39.1564, name: "Jeddah", code: "JED", country: "Saudi Arabia" },
@@ -556,8 +379,6 @@
             { lat: 33.2625, lng: 44.2333, name: "Baghdad", code: "BGW", country: "Iraq" },
             { lat: 30.5503, lng: 47.7478, name: "Basra", code: "BSR", country: "Iraq" },
             { lat: 36.2376, lng: 43.9632, name: "Erbil", code: "EBL", country: "Iraq" },
-
-            // Europe
             { lat: 51.4700, lng: -0.4543, name: "London Heathrow", code: "LHR", country: "UK" },
             { lat: 51.1537, lng: -0.1821, name: "London Gatwick", code: "LGW", country: "UK" },
             { lat: 51.8860, lng: 0.2389, name: "London Stansted", code: "STN", country: "UK" },
@@ -601,8 +422,6 @@
             { lat: 59.6519, lng: 17.9186, name: "Stockholm", code: "ARN", country: "Sweden" },
             { lat: 60.1976, lng: 11.1004, name: "Oslo", code: "OSL", country: "Norway" },
             { lat: 55.4103, lng: 37.9024, name: "Moscow", code: "DME", country: "Russia" },
-
-            // Americas (US/Canada)
             { lat: 40.6413, lng: -73.7781, name: "New York JFK", code: "JFK", country: "USA" },
             { lat: 40.6895, lng: -74.1745, name: "Newark", code: "EWR", country: "USA" },
             { lat: 42.3656, lng: -71.0096, name: "Boston", code: "BOS", country: "USA" },
@@ -619,16 +438,12 @@
             { lat: 33.9425, lng: -118.4081, name: "Los Angeles", code: "LAX", country: "USA" },
             { lat: 43.6777, lng: -79.6248, name: "Toronto", code: "YYZ", country: "Canada" },
             { lat: 45.4706, lng: -73.7407, name: "Montreal", code: "YUL", country: "Canada" },
-
-            // South America
             { lat: -23.4356, lng: -46.4731, name: "São Paulo", code: "GRU", country: "Brazil" },
             { lat: -22.8089, lng: -43.2436, name: "Rio de Janeiro", code: "GIG", country: "Brazil" },
             { lat: -33.3972, lng: -70.7938, name: "Santiago", code: "SCL", country: "Chile" },
             { lat: -34.8222, lng: -58.5358, name: "Buenos Aires", code: "EZE", country: "Argentina" },
             { lat: 4.7016, lng: -74.1469, name: "Bogota", code: "BOG", country: "Colombia" },
             { lat: 19.4363, lng: -99.0721, name: "Mexico City", code: "MEX", country: "Mexico" },
-
-            // Asia
             { lat: 35.7720, lng: 140.3929, name: "Tokyo Narita", code: "NRT", country: "Japan" },
             { lat: 35.5494, lng: 139.7798, name: "Tokyo Haneda", code: "HND", country: "Japan" },
             { lat: 34.4320, lng: 135.2296, name: "Osaka", code: "KIX", country: "Japan" },
@@ -649,8 +464,6 @@
             { lat: -8.7482, lng: 115.1672, name: "Bali", code: "DPS", country: "Indonesia" },
             { lat: 10.8188, lng: 106.6519, name: "Ho Chi Minh City", code: "SGN", country: "Vietnam" },
             { lat: 21.2187, lng: 105.8055, name: "Hanoi", code: "HAN", country: "Vietnam" },
-
-            // South Asia
             { lat: 19.0896, lng: 72.8656, name: "Mumbai", code: "BOM", country: "India" },
             { lat: 28.5665, lng: 77.1031, name: "Delhi", code: "DEL", country: "India" },
             { lat: 12.9941, lng: 80.1709, name: "Chennai", code: "MAA", country: "India" },
@@ -670,8 +483,6 @@
             { lat: 23.8433, lng: 90.3978, name: "Dhaka", code: "DAC", country: "Bangladesh" },
             { lat: 7.1807, lng: 79.8842, name: "Colombo", code: "CMB", country: "Sri Lanka" },
             { lat: 4.1928, lng: 73.5291, name: "Malé", code: "MLE", country: "Maldives" },
-
-            // Africa
             { lat: 30.1219, lng: 31.4056, name: "Cairo", code: "CAI", country: "Egypt" },
             { lat: -26.1367, lng: 28.2411, name: "Johannesburg", code: "JNB", country: "South Africa" },
             { lat: -33.9715, lng: 18.6021, name: "Cape Town", code: "CPT", country: "South Africa" },
@@ -692,18 +503,28 @@
             { lat: 0.0425, lng: 32.4435, name: "Entebbe", code: "EBB", country: "Uganda" },
             { lat: -20.4302, lng: 57.6836, name: "Mauritius", code: "MRU", country: "Mauritius" },
             { lat: -4.6740, lng: 55.5215, name: "Seychelles", code: "SEZ", country: "Seychelles" },
-
-            // Oceania
             { lat: -33.9461, lng: 151.1772, name: "Sydney", code: "SYD", country: "Australia" },
             { lat: -37.6690, lng: 144.8410, name: "Melbourne", code: "MEL", country: "Australia" },
             { lat: -27.3942, lng: 153.1218, name: "Brisbane", code: "BNE", country: "Australia" },
             { lat: -31.9403, lng: 115.9672, name: "Perth", code: "PER", country: "Australia" },
             { lat: -34.9462, lng: 138.5332, name: "Adelaide", code: "ADL", country: "Australia" },
             { lat: -37.0082, lng: 174.7850, name: "Auckland", code: "AKL", country: "New Zealand" },
-            { lat: -43.4864, lng: 172.5369, name: "Christchurch", code: "CHC", country: "New Zealand" }
+            { lat: -43.4864, lng: 172.5369, name: "Christchurch", code: "CHC", country: "New Zealand" },
+            // Expanded Destinations
+            { lat: 32.0055, lng: 34.8854, name: "Tel Aviv", code: "TLV", country: "Israel" },
+            { lat: 59.8003, lng: 30.2625, name: "St Petersburg", code: "LED", country: "Russia" },
+            { lat: 9.577, lng: -13.612, name: "Conakry", code: "CKY", country: "Guinea" },
+            { lat: 5.2556, lng: -3.9301, name: "Abidjan", code: "ABJ", country: "Ivory Coast" },
+            { lat: 27.6972, lng: 85.3592, name: "Kathmandu", code: "KTM", country: "Nepal" },
+            { lat: 36.2300, lng: 59.6400, name: "Mashhad", code: "MHD", country: "Iran" },
+            { lat: 29.5400, lng: 52.5900, name: "Shiraz", code: "SYZ", country: "Iran" },
+            { lat: 11.5466, lng: 104.8441, name: "Phnom Penh", code: "PNH", country: "Cambodia" },
+            { lat: 30.2295, lng: 120.4345, name: "Hangzhou", code: "HGH", country: "China" },
+            { lat: 22.6393, lng: 113.8107, name: "Shenzhen", code: "SZX", country: "China" },
+            { lat: -18.7969, lng: 47.4788, name: "Antananarivo", code: "TNR", country: "Madagascar" },
+            { lat: 13.2201, lng: 104.2217, name: "Siem Reap", code: "SAI", country: "Cambodia" }
         ];
 
-        /* --- Data: Emirates Fleet --- */
         const fleet = {
             inService: [
                 { name: "Airbus A380-800", rangeKm: 15200, seats: "489-615" },
@@ -716,18 +537,79 @@
             ]
         };
 
-        /* --- State & Init --- */
         let map;
         let markers = {};
         let clusterGroup;
-        let selectedMarkersLayer; // Separate layer for selected markers so they don't cluster
-        let itinerary = []; // Array of destination objects
+        let selectedMarkersLayer;
+        let itinerary = [];
         let routePolylines = [];
+        let viewMode = '2D';
+        let globe = null;
+        let globeInitAttempts = 0;
+        let globeAutoRotate = false;
+        let globeShowAllowedOnly = false;
+        let globeIdleTimer = null;
+        let globeNodes = [];
+        let currentAllowedSet = new Set();
+        let tripSummaryCollapsed = false;
+
+        // Fifth-freedom (sample set; editable)
+        const fifthFreedomPairs = [
+            ['MXP','JFK'],
+            ['ATH','EWR'],
+            ['BCN','MEX'],
+            ['BKK','HKG'],
+            ['CMB','MLE'],
+            ['EZE','GIG'], // Rio - Buenos Aires
+            ['SYD','CHC'],
+            ['MEL','AKL'], // Not standard EK but keeping precedent
+            ['LCA','MLA'], // Larnaca - Malta
+            ['SIN','MEL'], // Singapore - Melbourne
+            ['MIA','BOG'], // Miami - Bogota
+            ['ABJ','ACC'], // Abidjan - Accra (Often triangular)
+            ['HRE','LUN'], // Harare - Lusaka
+            ['CKY','DSS'],  // Conakry - Dakar
+            ['SEZ','TNR'], // Seychelles - Antananarivo
+            ['SIN','SAI']  // Singapore - Siem Reap
+        ];
+
+        // Build a minimal Emirates route network: DXB connects to all, all others connect to DXB.
+        // You can extend this with known fifth-freedom routes if desired.
+        const routes = buildRoutesFromDestinations(destinations);
+
+        function buildRoutesFromDestinations(dests) {
+            const codes = dests.map(d => d.code);
+            const map = {};
+            // DXB → everyone except DXB
+            map['DXB'] = codes.filter(c => c !== 'DXB');
+            // Everyone else → DXB only (hub-and-spoke)
+            codes.forEach(c => {
+                if (c !== 'DXB') map[c] = ['DXB'];
+            });
+            // Add fifth-freedom both directions where codes exist
+            fifthFreedomPairs.forEach(([a,b]) => {
+                if (!codes.includes(a) || !codes.includes(b)) return;
+                if (!map[a]) map[a] = [];
+                if (!map[b]) map[b] = [];
+                if (!map[a].includes(b)) map[a].push(b);
+                if (!map[b].includes(a)) map[b].push(a);
+            });
+            return map;
+        }
+
+        function getAllowedNextCodes() {
+            if (itinerary.length === 0) {
+                return destinations.map(d => d.code);
+            }
+            const last = itinerary[itinerary.length - 1].code;
+            const allowed = routes[last] || [];
+            // Avoid immediate duplicates (no leg from A → A)
+            return allowed.filter(c => c !== last);
+        }
 
         function initMap() {
-            // Centered on Middle East/World
             map = L.map('map', {
-                center: [25, 15], 
+                center: [25, 15],
                 zoom: 3,
                 zoomControl: false,
                 minZoom: 2,
@@ -736,13 +618,13 @@
 
             L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                attribution: '© OpenStreetMap, © CartoDB',
-                subdomains: 'abcd',
-                maxZoom: 19
+            // Replaced CartoDB Voyager with Esri World Street Map for higher quality details
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012',
+                maxZoom: 19,
+                detectRetina: true
             }).addTo(map);
 
-            // Configure Cluster Group for UNSELECTED markers
             clusterGroup = L.markerClusterGroup({
                 showCoverageOnHover: false,
                 zoomToBoundsOnClick: true,
@@ -751,10 +633,12 @@
                     const count = cluster.getChildCount();
                     let size = 'medium';
                     if (count > 20) size = 'large';
-                    
+                    const children = cluster.getAllChildMarkers ? cluster.getAllChildMarkers() : [];
+                    const anyAllowed = children.some(m => currentAllowedSet.has(m._code));
+                    const disabledClass = anyAllowed ? '' : ' disabled';
                     return L.divIcon({
                         html: `<div>${count}</div>`,
-                        className: `ek-cluster ek-cluster-${size}`,
+                        className: `ek-cluster ek-cluster-${size}${disabledClass}`,
                         iconSize: L.point(40, 40)
                     });
                 }
@@ -762,17 +646,13 @@
 
             selectedMarkersLayer = L.layerGroup().addTo(map);
 
-            // Set default itinerary (DXB)
-            itinerary.push(destinations[0]); // Dubai
+            // Start empty; first click selects departure
             refreshMapState();
             renderItineraryUI();
             renderDestList();
+            initGlobe();
         }
 
-        /* --- Map Logic --- */
-        
-        // This function completely redraws markers based on state
-        // Key Fix: Selected markers go into 'selectedMarkersLayer' (no cluster), others go into 'clusterGroup'
         function refreshMapState() {
             clusterGroup.clearLayers();
             selectedMarkersLayer.clearLayers();
@@ -780,19 +660,20 @@
 
             const itineraryCodes = itinerary.map(d => d.code);
 
-            destinations.forEach((dest) => {
+            const allowedSet = new Set(getAllowedNextCodes());
+            currentAllowedSet = allowedSet;
+
+            destinations.forEach(dest => {
                 const isSelected = itineraryCodes.includes(dest.code);
                 const isHub = dest.hub === true;
                 const indexInItinerary = itineraryCodes.indexOf(dest.code);
+                const isEnabled = itinerary.length === 0 || allowedSet.has(dest.code) || isSelected;
 
-                // Determine Icon Style
                 let icon;
                 if (isSelected) {
-                    // It's in the route
                     let typeClass = 'stop';
                     if (indexInItinerary === 0) typeClass = 'origin';
                     else if (indexInItinerary === itinerary.length - 1 && itinerary.length > 1) typeClass = 'dest';
-                    
                     icon = L.divIcon({
                         className: 'custom-marker',
                         html: `<div class="marker-selected ${typeClass}">${indexInItinerary + 1}</div>`,
@@ -800,35 +681,27 @@
                         iconAnchor: [9, 9]
                     });
                 } else {
-                    // Standard marker
+                    const baseHtml = isHub ? `<div class=\"marker-hub\"><i class=\"fas fa-star\"></i></div>` : `<div class=\"marker-pin\"></div>`;
+                    const html = isEnabled ? baseHtml : baseHtml.replace('<div ', '<div style=\"opacity:0.35\" ');
                     icon = L.divIcon({
                         className: 'custom-marker',
-                        html: isHub ? `<div class="marker-hub"><i class="fas fa-star"></i></div>` : `<div class="marker-pin"></div>`,
+                        html: html,
                         iconSize: isHub ? [20, 20] : [14, 14],
                         iconAnchor: isHub ? [10, 10] : [7, 7]
                     });
                 }
 
                 const marker = L.marker([dest.lat, dest.lng], { icon: icon });
-                
-                marker.bindTooltip(`${dest.name} (${dest.code})`, {
-                    direction: 'top',
-                    className: 'ek-tooltip',
-                    offset: [0, -10]
-                });
-
+                marker._code = dest.code;
+                marker.bindTooltip(`${dest.name} (${dest.code})`, { direction: 'top', className: 'ek-tooltip', offset: [0, -10] });
                 marker.on('click', () => handleMarkerClick(dest));
                 markers[dest.code] = marker;
 
-                // PLACEMENT LOGIC
                 if (isSelected) {
-                    // Add directly to map (Bypasses clustering)
                     selectedMarkersLayer.addLayer(marker);
                 } else {
                     if (isHub) {
-                        // Hubs also visible directly (optional, but good for context)
-                        // But let's cluster them if not selected to reduce clutter at world zoom
-                        marker.addTo(map).setZIndexOffset(500); // Add directly but lower z than selected
+                        marker.addTo(map).setZIndexOffset(500);
                     } else {
                         clusterGroup.addLayer(marker);
                     }
@@ -837,88 +710,103 @@
 
             map.addLayer(clusterGroup);
             drawRoute();
+            refreshGlobeState();
         }
 
         function handleMarkerClick(dest) {
-            // Check if already in itinerary
-            const existingIndex = itinerary.findIndex(d => d.code === dest.code);
-            
-            if (existingIndex !== -1) {
-                // Remove if clicked again (toggle)? Or just alert?
-                // Let's allow removing by clicking again for simplicity
-                if (existingIndex === itinerary.length -1 && itinerary.length > 1) {
-                   removeFromItinerary(existingIndex);
-                   return;
-                }
-            } else {
-                addToItinerary(dest);
+            if (itinerary.length === 0) {
+                addToItinerary(dest); // choose departure
+                return;
             }
+            const last = itinerary[itinerary.length - 1];
+            if (last && last.code === dest.code) {
+                // toggle off last
+                if (itinerary.length > 1) removeFromItinerary(itinerary.length - 1);
+                return;
+            }
+            const allowed = new Set(getAllowedNextCodes());
+            if (!allowed.has(dest.code)) return; // not a valid Emirates departure from current airport
+            addToItinerary(dest);
         }
 
         function addToItinerary(dest) {
             itinerary.push(dest);
             refreshMapState();
             renderItineraryUI();
+            handleSearchInput({ target: { value: document.getElementById('search-input').value } });
         }
 
         function removeFromItinerary(index) {
             itinerary.splice(index, 1);
             refreshMapState();
             renderItineraryUI();
+            handleSearchInput({ target: { value: document.getElementById('search-input').value } });
         }
 
         function clearItinerary() {
-            itinerary = [destinations[0]]; // Reset to DXB
+            itinerary = [];
             refreshMapState();
             renderItineraryUI();
             document.getElementById('flight-card').style.display = 'none';
+            handleSearchInput({ target: { value: document.getElementById('search-input').value } });
         }
 
         function drawRoute() {
-            // Clear old lines
             routePolylines.forEach(l => map.removeLayer(l));
             routePolylines = [];
-
+            
             if (itinerary.length < 2) return;
 
             let totalDist = 0;
-            let bounds = [];
+            const bounds = [];
 
-            // Draw segments
             for (let i = 0; i < itinerary.length - 1; i++) {
                 const start = itinerary[i];
-                const end = itinerary[i+1];
-                
-                const latlngs = [
-                    [start.lat, start.lng],
-                    [end.lat, end.lng]
-                ];
+                const end = itinerary[i + 1];
+                const latlngs = [[start.lat, start.lng], [end.lat, end.lng]];
 
-                const polyline = L.polyline(latlngs, {
-                    color: 'var(--ek-red)',
-                    weight: 3,
+                // Base white stroke for contrast
+                const polylineBase = L.polyline(latlngs, {
+                    color: '#FFFFFF',
+                    weight: 6,
                     opacity: 0.9,
-                    dashArray: '5, 5',
-                    lineCap: 'round'
+                    lineCap: 'round',
+                    lineJoin: 'round'
                 }).addTo(map);
-                
-                routePolylines.push(polyline);
-                
+
+                // Main route line
+                const polyline = L.polyline(latlngs, {
+                    color: '#D71921',
+                    weight: 4,
+                    opacity: 0.9,
+                    lineCap: 'round',
+                    lineJoin: 'round'
+                }).addTo(map);
+
+                // Animated dash overlay
+                const animatedLine = L.polyline(latlngs, {
+                    color: '#FFFFFF',
+                    weight: 2,
+                    opacity: 0.8,
+                    dashArray: '10, 20',
+                    lineCap: 'round',
+                    className: 'animated-route'
+                }).addTo(map);
+
+                routePolylines.push(polylineBase, polyline, animatedLine);
                 totalDist += getDistanceFromLatLonInKm(start.lat, start.lng, end.lat, end.lng);
                 bounds.push([start.lat, start.lng]);
                 bounds.push([end.lat, end.lng]);
             }
 
-            // Fit bounds to show entire route
             if (bounds.length > 0) {
                 map.fitBounds(bounds, { padding: [50, 50], maxZoom: 6 });
             }
 
             updateFlightCard(totalDist);
+            updateGlobeArcs();
         }
 
-        /* --- UI Logic --- */
-        
         function renderItineraryUI() {
             const container = document.getElementById('itinerary-list');
             container.innerHTML = '';
@@ -926,6 +814,8 @@
             itinerary.forEach((dest, index) => {
                 const el = document.createElement('div');
                 el.className = 'itinerary-segment';
+                el.draggable = true;
+                el.dataset.index = index;
                 if (index === itinerary.length - 1) el.classList.add('active');
 
                 let dotClass = 'stop';
@@ -934,48 +824,52 @@
 
                 el.innerHTML = `
                     <div class="dashed-connector"></div>
+                    <div class="segment-drag" title="Drag to reorder"><i class="fas fa-grip-vertical"></i></div>
                     <div class="segment-dot ${dotClass}"></div>
                     <div class="segment-content">
                         <span class="segment-code">${dest.code}</span>
                         ${dest.name}
                     </div>
-                    ${index > 0 ? `<div class="segment-remove" onclick="removeFromItinerary(${index})"><i class="fas fa-times"></i></div>` : ''}
+                    <div class="segment-remove" onclick="event.stopPropagation(); removeFromItinerary(${index})"><i class="fas fa-times"></i></div>
                 `;
+                
+                el.addEventListener('dragstart', handleDragStart);
+                el.addEventListener('dragover', handleDragOver);
+                el.addEventListener('drop', handleDrop);
+                el.addEventListener('dragend', handleDragEnd);
+                el.addEventListener('dragleave', handleDragLeave);
+                
                 container.appendChild(el);
             });
 
             document.getElementById('route-actions').style.display = itinerary.length > 1 ? 'flex' : 'none';
+            updateGlobeArcs();
         }
 
-        function renderDestList() {
-            filterDestinations(); // Use filter function to render
-        }
+        function renderDestList() { filterDestinations(); }
 
-        function filterDestinations() {
-            const query = document.getElementById('search-input').value.toLowerCase();
+        function handleSearchInput(event) {
+            const query = document.getElementById('search-input').value || '';
+            
+            // 1. Update the main list (filter)
             const list = document.getElementById('dest-list');
             list.innerHTML = '';
-            
-            const filtered = destinations.filter(d => 
-                d.name.toLowerCase().includes(query) || 
-                d.code.toLowerCase().includes(query) ||
-                d.country.toLowerCase().includes(query)
+
+            const filtered = destinations.filter(d =>
+                d.name.toLowerCase().includes(query.toLowerCase()) ||
+                d.code.toLowerCase().includes(query.toLowerCase()) ||
+                d.country.toLowerCase().includes(query.toLowerCase())
             );
 
-            // Sort logic: Selected items first, then alphabetical
-            filtered.sort((a, b) => {
-                const aInItinerary = itinerary.some(i => i.code === a.code);
-                const bInItinerary = itinerary.some(i => i.code === b.code);
-                if (aInItinerary && !bInItinerary) return -1;
-                if (!aInItinerary && bInItinerary) return 1;
-                return a.country.localeCompare(b.country) || a.name.localeCompare(b.name);
-            });
-
+            filtered.sort((a, b) => a.country.localeCompare(b.country) || a.name.localeCompare(b.name));
+            
+            // Re-render dest list logic (simplified from filterDestinations)
+            const allowedSet = new Set(getAllowedNextCodes());
             filtered.forEach(dest => {
                 const inItinerary = itinerary.some(i => i.code === dest.code);
-                
+                const isEnabled = itinerary.length === 0 || allowedSet.has(dest.code) || inItinerary;
                 const el = document.createElement('div');
-                el.className = `destination-item ${inItinerary ? 'selected' : ''}`;
+                el.className = `destination-item ${inItinerary ? 'selected' : ''} ${isEnabled ? '' : 'disabled'}`;
                 el.innerHTML = `
                     <div class="destination-code">${dest.code}</div>
                     <div class="destination-details">
@@ -984,30 +878,229 @@
                     </div>
                     ${inItinerary ? '<i class="fas fa-check" style="color:var(--ek-gold)"></i>' : '<i class="fas fa-plus" style="color:#ddd; font-size: 10px;"></i>'}
                 `;
-                el.onclick = () => {
-                     // If searching, clear search after click for better UX? No, keep it.
-                     handleMarkerClick(dest);
-                };
+                if (isEnabled) el.onclick = () => handleMarkerClick(dest);
                 list.appendChild(el);
             });
-            
             document.getElementById('dest-count').innerText = filtered.length;
+
+            // 2. Handle Autocomplete
+            updateAutocomplete(query);
         }
 
-        function updateFlightCard(dist) {
-            const time = calculateFlightTime(dist);
+        function updateAutocomplete(query) {
+            const container = document.getElementById('autocomplete-results');
+            if (query.length < 1) {
+                container.style.display = 'none';
+                return;
+            }
+
+            let suggestions = [];
+            let routeMode = false;
+            let originCode = '';
+
+            // Check if user is building a route
+            if (query.includes('-')) {
+                const parts = query.split('-');
+                originCode = parts[0].trim().toUpperCase();
+                const partialDest = parts[1] ? parts[1].trim().toLowerCase() : '';
+                
+                // If origin is valid, suggest destinations
+                const originDest = findDestination(originCode);
+                if (originDest) {
+                    routeMode = true;
+                    suggestions = destinations.filter(d => 
+                        d.code !== originDest.code && 
+                        (d.name.toLowerCase().includes(partialDest) || d.code.toLowerCase().includes(partialDest))
+                    );
+                }
+            } else {
+                // Standard search
+                suggestions = destinations.filter(d => 
+                    d.name.toLowerCase().includes(query.toLowerCase()) || 
+                    d.code.toLowerCase().includes(query.toLowerCase())
+                );
+            }
+
+            if (suggestions.length === 0) {
+                container.style.display = 'none';
+                return;
+            }
+
+            container.innerHTML = '';
+            suggestions.slice(0, 8).forEach(dest => { // limit to 8 suggestions
+                const el = document.createElement('div');
+                el.className = 'autocomplete-item';
+                
+                let displayText = dest.name;
+                let displayCode = dest.code;
+                
+                if (routeMode) {
+                    // Show "LHR - DXB" format
+                    displayCode = `${originCode} - ${dest.code}`;
+                    displayText = `to ${dest.name}`;
+                }
+
+                el.innerHTML = `
+                    <span class="code-badge">${displayCode}</span>
+                    <span class="name-text">${displayText}</span>
+                    <span class="sub-text">${dest.country}</span>
+                `;
+                
+                el.onclick = () => {
+                    const input = document.getElementById('search-input');
+                    if (routeMode) {
+                        // Complete the route
+                        input.value = `${originCode}-${dest.code}`;
+                        container.style.display = 'none';
+                        parseAndLoadRoute(input.value);
+                    } else {
+                        // Start the route (append hyphen to hint at next step)
+                        input.value = `${dest.code}-`;
+                        input.focus();
+                        // Trigger update again to show suggestions for second leg
+                        updateAutocomplete(`${dest.code}-`);
+                    }
+                };
+                container.appendChild(el);
+            });
             
-            // Pick a representative airframe by distance band
-            let aircraft = "Boeing 777-300ER";
-            if (dist > 13000) aircraft = "Boeing 777-200LR";
-            else if (dist > 7500) aircraft = "Airbus A380-800";
-            else if (dist > 4500) aircraft = "Boeing 777-300ER";
+            container.style.display = 'block';
+        }
 
-            document.getElementById('card-distance').innerText = Math.round(dist).toLocaleString() + " km";
-            document.getElementById('card-time').innerText = time;
-            document.getElementById('card-aircraft').innerText = aircraft;
+        function filterDestinations() {
+             // Retired in favor of handleSearchInput
+             handleSearchInput({ target: document.getElementById('search-input') });
+        }
+        
+        // Ensure clicking outside closes autocomplete
+        document.addEventListener('click', function(e) {
+            const container = document.getElementById('autocomplete-results');
+            const input = document.getElementById('search-input');
+            if (e.target !== container && e.target !== input && !container.contains(e.target)) {
+                container.style.display = 'none';
+            }
+        });
 
+        function updateFlightCard(dist) {
+            const legs = Math.max(0, itinerary.length - 1);
+            if (legs === 0) {
+                document.getElementById('flight-card').style.display = 'none';
+                return;
+            }
+
+            const time = calculateFlightTime(dist);
+            // Approx skywards miles (1 mile per mile flown, simplified)
+            const skywardsMiles = Math.round(dist * 0.621371); 
+
+            // Leg analytics
+            const legDistances = [];
+            let legContentHtml = '';
+            const aircraftUsed = new Set();
+            
+            for (let i = 0; i < itinerary.length - 1; i++) {
+                const a = itinerary[i];
+                const b = itinerary[i + 1];
+                const d = getDistanceFromLatLonInKm(a.lat, a.lng, b.lat, b.lng);
+                const ac = selectAircraft(d);
+                aircraftUsed.add(ac.name);
+                legDistances.push(d);
+                
+                legContentHtml += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #f5f5f5;">
+                        <div style="flex: 1;">
+                            <div style="font-weight: 700; color: var(--ek-red); font-size: 14px;">${a.code} <span style="color: #ccc; margin: 0 4px;">✈</span> ${b.code}</div>
+                            <div style="font-size: 11px; color: #666; margin-top: 2px;">${formatLocalTime(a.code, a.lng)} origin time</div>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 13px; font-weight: 600;">${calculateFlightTime(d)}</div>
+                            <div style="font-size: 10px; color: #888; margin-top: 2px;">${Math.round(d).toLocaleString()} km</div>
+                            <div style="font-size: 10px; color: var(--ek-gold-dark); margin-top: 2px; font-weight: 500;">${ac.name}</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Determine display mode (Single leg vs Multi leg)
+            const isMulti = legs > 1;
+            
+            let statsHtml = '';
+            if (isMulti) {
+                const stops = legs - 1;
+                const longest = Math.max(...legDistances);
+                
+                statsHtml = `
+                    <div class="stat-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">Total Distance</span>
+                            <span class="stat-value">${Math.round(dist).toLocaleString()} km</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Total Duration</span>
+                            <span class="stat-value">${time}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Stops</span>
+                            <span class="stat-value">${stops} stop${stops > 1 ? 's' : ''}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Est. Skywards</span>
+                            <span class="stat-value" style="color: var(--ek-gold)">~${skywardsMiles.toLocaleString()}</span>
+                            <div style="font-size: 9px; color: #999;">Reference only</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                // Single leg simplified view
+                statsHtml = `
+                    <div class="stat-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">Distance</span>
+                            <span class="stat-value">${Math.round(dist).toLocaleString()} km</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Duration</span>
+                            <span class="stat-value">${time}</span>
+                        </div>
+                         <div class="stat-item">
+                            <span class="stat-label">Est. Skywards</span>
+                            <span class="stat-value" style="color: var(--ek-gold)">~${skywardsMiles.toLocaleString()}</span>
+                            <div style="font-size: 9px; color: #999;">Reference only</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const bodyContent = `
+                ${statsHtml}
+                <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 15px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <span class="stat-label">Flight Details</span>
+                        <span class="stat-label" style="font-size: 9px; color: #aaa;">Timings are local</span>
+                    </div>
+                    ${legContentHtml}
+                </div>
+                <div class="amenities" style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #eee;">
+                    <div style="width:100%; display:flex; gap:10px; align-items:center;">
+                        <span style="font-size:10px; color:#aaa; text-transform:uppercase;">Included:</span>
+                        <span class="amenity-badge"><i class="fas fa-wifi"></i> Wi-Fi</span>
+                        <span class="amenity-badge"><i class="fas fa-utensils"></i> Meals</span>
+                        <span class="amenity-badge"><i class="fas fa-tv"></i> ICE</span>
+                        ${dist > 3000 ? '<span class="amenity-badge"><i class="fas fa-bed"></i> Blanket</span>' : ''}
+                    </div>
+                </div>
+            `;
+
+            document.getElementById('card-body').innerHTML = bodyContent;
             document.getElementById('flight-card').style.display = 'block';
+            
+            // Re-bind fleet lineup logic if needed, or simple static text
+            // For now, fleet is handled in global function `renderFleetLineup`, but we erased the holder.
+            // Let's re-add the holder logic inline or just use text badges in the loop above.
+            // Simplified: The loop above already shows aircraft type per leg.
+        }
+
+        function renderFleetLineup() {
+             // Retired: Fleet info is now inline in the Flight details card
         }
 
         function renderFleetLineup() {
@@ -1026,43 +1119,732 @@
             fleet.onOrder.forEach(entry => renderChip(entry, true));
         }
 
-        function focusSearch() {
-            document.getElementById('search-input').focus();
-        }
+        function focusSearch() { document.getElementById('search-input').focus(); }
 
-// Calculate distance between two lat/lng points in kilometers
         function getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2) {
-            const R = 6371; // Radius of the earth in km
+            const R = 6371;
             const dLat = deg2rad(lat2 - lat1);
             const dLon = deg2rad(lon2 - lon1);
-            const a = 
-                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
-                Math.sin(dLon / 2) * Math.sin(dLon / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); // Fixed typo here
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
             return R * c;
         }
 
-    
-        function deg2rad(deg) {
-            return deg * (Math.PI / 180);
-        }
-
+        function deg2rad(deg) { return deg * (Math.PI / 180); }
 
         function calculateFlightTime(dist) {
-            const speed = 850; 
-            const totalHours = (dist / speed) + (0.5 * (itinerary.length - 1)); // Add 30 mins per leg
+            const speed = 850;
+            const totalHours = dist / speed + 0.5 * (itinerary.length - 1);
             const h = Math.floor(totalHours);
             const m = Math.round((totalHours - h) * 60);
             return `${h}h ${m}m`;
         }
 
-        // Start
+        // Approximate local time from longitude. Accurate enough for quick glance; not DST-aware.
+        function formatApproxLocalTimeFromLng(lng) {
+            const now = new Date();
+            const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
+            const offsetMinutes = Math.round(lng * 4); // 1° ~= 4 minutes
+            const local = new Date(utcMs + offsetMinutes * 60000);
+            const hh = String(local.getHours()).padStart(2, '0');
+            const mm = String(local.getMinutes()).padStart(2, '0');
+            return `${hh}:${mm}`;
+        }
+
+        // Partial IANA time zone map for DST-aware times. Fallback to approx if missing.
+        const tzMap = {
+            DXB: 'Asia/Dubai', AUH: 'Asia/Dubai', JED: 'Asia/Riyadh', RUH: 'Asia/Riyadh', DMM: 'Asia/Riyadh', MED: 'Asia/Riyadh',
+            KWI: 'Asia/Kuwait', BAH: 'Asia/Bahrain', MCT: 'Asia/Muscat', BEY: 'Asia/Beirut', AMM: 'Asia/Amman', IKA: 'Asia/Tehran',
+            BGW: 'Asia/Baghdad', BSR: 'Asia/Baghdad', EBL: 'Asia/Baghdad',
+            LHR: 'Europe/London', LGW: 'Europe/London', STN: 'Europe/London', MAN: 'Europe/London', BHX: 'Europe/London', GLA: 'Europe/London', EDI: 'Europe/London', NCL: 'Europe/London', DUB: 'Europe/Dublin',
+            CDG: 'Europe/Paris', NCE: 'Europe/Paris', LYS: 'Europe/Paris', TLS: 'Europe/Paris',
+            FRA: 'Europe/Berlin', MUC: 'Europe/Berlin', DUS: 'Europe/Berlin', HAM: 'Europe/Berlin',
+            ZRH: 'Europe/Zurich', GVA: 'Europe/Zurich', VIE: 'Europe/Vienna', PRG: 'Europe/Prague', BUD: 'Europe/Budapest', WAW: 'Europe/Warsaw',
+            FCO: 'Europe/Rome', MXP: 'Europe/Rome', VCE: 'Europe/Rome', BLQ: 'Europe/Rome',
+            MAD: 'Europe/Madrid', BCN: 'Europe/Madrid', LIS: 'Europe/Lisbon', BRU: 'Europe/Brussels',
+            ATH: 'Europe/Athens', LCA: 'Asia/Nicosia', MLA: 'Europe/Malta', BEG: 'Europe/Belgrade', ZAG: 'Europe/Zagreb', OTP: 'Europe/Bucharest', IST: 'Europe/Istanbul', DME: 'Europe/Moscow',
+            CPH: 'Europe/Copenhagen', ARN: 'Europe/Stockholm', OSL: 'Europe/Oslo',
+            JFK: 'America/New_York', EWR: 'America/New_York', BOS: 'America/New_York', IAD: 'America/New_York', ATL: 'America/New_York', MCO: 'America/New_York', MIA: 'America/New_York',
+            ORD: 'America/Chicago', DFW: 'America/Chicago', IAH: 'America/Chicago', AUS: 'America/Chicago',
+            DEN: 'America/Denver',
+            LAX: 'America/Los_Angeles', SFO: 'America/Los_Angeles', SEA: 'America/Los_Angeles',
+            YYZ: 'America/Toronto', YUL: 'America/Toronto',
+            GRU: 'America/Sao_Paulo', GIG: 'America/Sao_Paulo', SCL: 'America/Santiago', EZE: 'America/Argentina/Buenos_Aires', BOG: 'America/Bogota', MEX: 'America/Mexico_City',
+            NRT: 'Asia/Tokyo', HND: 'Asia/Tokyo', KIX: 'Asia/Tokyo', ICN: 'Asia/Seoul',
+            PEK: 'Asia/Shanghai', PVG: 'Asia/Shanghai', CAN: 'Asia/Shanghai', HKG: 'Asia/Hong_Kong', TPE: 'Asia/Taipei',
+            MNL: 'Asia/Manila', CRK: 'Asia/Manila', CEB: 'Asia/Manila',
+            BKK: 'Asia/Bangkok', HKT: 'Asia/Bangkok', SGN: 'Asia/Ho_Chi_Minh', HAN: 'Asia/Ho_Chi_Minh',
+            SIN: 'Asia/Singapore', KUL: 'Asia/Kuala_Lumpur', CGK: 'Asia/Jakarta', DPS: 'Asia/Makassar',
+            BOM: 'Asia/Kolkata', DEL: 'Asia/Kolkata', MAA: 'Asia/Kolkata', BLR: 'Asia/Kolkata', HYD: 'Asia/Kolkata', COK: 'Asia/Kolkata', AMD: 'Asia/Kolkata', CCU: 'Asia/Kolkata', GOI: 'Asia/Kolkata', TRV: 'Asia/Kolkata', CCJ: 'Asia/Kolkata',
+            KHI: 'Asia/Karachi', LHE: 'Asia/Karachi', ISB: 'Asia/Karachi', SKT: 'Asia/Karachi', PEW: 'Asia/Karachi',
+            DAC: 'Asia/Dhaka', CMB: 'Asia/Colombo', MLE: 'Indian/Maldives', CAI: 'Africa/Cairo',
+            JNB: 'Africa/Johannesburg', CPT: 'Africa/Johannesburg', DUR: 'Africa/Johannesburg', LAD: 'Africa/Luanda', HRE: 'Africa/Harare', LUN: 'Africa/Lusaka', NBO: 'Africa/Nairobi', ADD: 'Africa/Addis_Ababa',
+            CMN: 'Africa/Casablanca', ALG: 'Africa/Algiers', TUN: 'Africa/Tunis', LOS: 'Africa/Lagos', ABV: 'Africa/Lagos', ACC: 'Africa/Accra', DSS: 'Africa/Dakar', DAR: 'Africa/Dar_es_Salaam', EBB: 'Africa/Kampala', MRU: 'Indian/Mauritius', SEZ: 'Indian/Mahe',
+            SYD: 'Australia/Sydney', MEL: 'Australia/Melbourne', BNE: 'Australia/Brisbane', PER: 'Australia/Perth', ADL: 'Australia/Adelaide', AKL: 'Pacific/Auckland', CHC: 'Pacific/Auckland',
+            TLV: 'Asia/Jerusalem', LED: 'Europe/Moscow', CKY: 'Africa/Conakry', ABJ: 'Africa/Abidjan', KTM: 'Asia/Kathmandu', MHD: 'Asia/Tehran', SYZ: 'Asia/Tehran', PNH: 'Asia/Phnom_Penh',
+            HGH: 'Asia/Shanghai', SZX: 'Asia/Shanghai', TNR: 'Indian/Antananarivo', SAI: 'Asia/Phnom_Penh'
+        };
+
+        function formatLocalTime(code, lng) {
+            const tz = tzMap[code];
+            if (tz) {
+                try {
+                    return new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: tz }).format(new Date());
+                } catch { /* fallthrough */ }
+            }
+            return formatApproxLocalTimeFromLng(lng) + ' (approx)';
+        }
+
+        function selectAircraft(dist) {
+            if (dist > 13000) return { name: 'Boeing 777-200LR', emoji: '✈️' };
+            if (dist > 8000) return { name: 'Airbus A380-800', emoji: '🛫' };
+            if (dist > 4500) return { name: 'Boeing 777-300ER', emoji: '✈️' };
+            return { name: 'Boeing 777-300ER', emoji: '✈️' };
+        }
+
+        function handleSearchKey(event) {
+            if (event.key === 'Enter') {
+                const query = document.getElementById('search-input').value.trim();
+                parseAndLoadRoute(query);
+            }
+        }
+
+        function parseAndLoadRoute(query) {
+            if (!query) return;
+
+            // Simple route parser: detecting "-" or " to "
+            let parts = null;
+            if (query.includes('-')) parts = query.split('-');
+            else if (query.toLowerCase().includes(' to ')) parts = query.toLowerCase().split(' to ');
+            
+            if (parts && parts.length === 2) {
+                const originStr = parts[0].trim();
+                const destStr = parts[1].trim();
+                
+                const origin = findDestination(originStr);
+                const dest = findDestination(destStr);
+                
+                if (origin && dest) {
+                    if (origin.code === dest.code) return;
+                    
+                    clearItinerary();
+                    itinerary.push(origin);
+                    itinerary.push(dest);
+                    refreshMapState();
+                    renderItineraryUI();
+                    
+                    if (viewMode === '2D' && map) {
+                        const bounds = L.latLngBounds(
+                            [origin.lat, origin.lng],
+                            [dest.lat, dest.lng]
+                        );
+                        map.fitBounds(bounds, { padding: [80, 80], maxZoom: 5 });
+                    } else if (viewMode === '3D' && globe) {
+                        const mid = midpointLatLng(origin.lat, origin.lng, dest.lat, dest.lng);
+                        globe.pointOfView({ lat: mid.lat, lng: mid.lng, altitude: 2.0 }, 1000);
+                    }
+                }
+            }
+        }
+
+        function findDestination(str) {
+            str = str.toLowerCase();
+            // 1. Exact Code Match
+            let match = destinations.find(d => d.code.toLowerCase() === str);
+            if (match) return match;
+            // 2. Exact Name Match
+            match = destinations.find(d => d.name.toLowerCase() === str);
+            if (match) return match;
+            // 3. Partial Name Match
+            return destinations.find(d => d.name.toLowerCase().includes(str));
+        }
+
         window.onload = () => {
             initMap();
             renderFleetLineup();
         };
 
+        // 3D Globe integration
+        function initGlobe() {
+            const container = document.getElementById('globe');
+            if (!container) return;
+            if (typeof Globe !== 'function') {
+                if (globeInitAttempts < 10) {
+                    globeInitAttempts++;
+                    setTimeout(initGlobe, 300);
+                }
+                return;
+            }
+            globe = Globe()
+                (container)
+                .backgroundColor('#0b1220')
+                // Using local 8k texture (ensure file is in same directory)
+                .globeImageUrl('8k_earth_daymap.jpg')
+                .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
+                .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
+                .showAtmosphere(true)
+                .atmosphereColor('#4a90e2') // Reverted to original blue atmosphere
+                .atmosphereAltitude(0.18)
+                .pointAltitude(d => 0.02)
+                .pointRadius(1.1)
+                .pointColor(d => (d.__hover ? '#ffffff' : (d.color || '#d71921')))
+                .pointLabel(d => `${d.name} (${d.code})`)
+                .arcsTransitionDuration(1500)
+                .arcColor(() => ['rgba(215, 25, 33, 0.9)', 'rgba(198, 168, 124, 0.9)'])
+                .arcAltitude(0.15)
+                .arcStroke(1.2)
+                .ringsData([])
+                .ringColor(() => t => `rgba(215, 25, 33, ${0.6 * (1 - t)})`) // Smoother fade-out
+                .ringMaxRadius(8) // Larger ripples
+                .ringPropagationSpeed(1.5) // Slower speed
+                .ringRepeatPeriod(1200) // Consistant pulse
+                .width(container.clientWidth)
+                .height(container.clientHeight);
+
+            // Prefer great-circle arcs and smoother curves on long routes
+            if (globe.arcsUseGreatCircle) globe.arcsUseGreatCircle(true);
+            if (globe.arcCircularResolution) globe.arcCircularResolution(64);
+
+            // Tooltip container for hover info (attach to body to avoid stacking issues)
+            const globeTooltip = document.createElement('div');
+            globeTooltip.id = 'globe-tooltip';
+            globeTooltip.className = 'globe-tooltip';
+            globeTooltip.style.display = 'none';
+            document.body.appendChild(globeTooltip);
+            const moveTooltip = (ev) => {
+                const x = (typeof ev.pageX === 'number') ? ev.pageX : (ev.clientX + window.scrollX);
+                const y = (typeof ev.pageY === 'number') ? ev.pageY : (ev.clientY + window.scrollY);
+                globeTooltip.style.left = (x + 12) + 'px';
+                globeTooltip.style.top = (y + 12) + 'px';
+            };
+
+            // Optional features applied safely after creation
+            if (globe.pointResolution) globe.pointResolution(10);
+            if (globe.showGraticules) globe.showGraticules(true);
+
+                        // Use HTML elements for both nodes and arc bubbles
+                        if (globe.htmlElementsData) {
+                            globe
+                              .htmlElementsData([])
+                              .htmlLat(d => d.lat)
+                              .htmlLng(d => d.lng)
+                              .htmlAltitude(d => d.alt ?? (d.kind === 'node' ? 0.02 : 0.25))
+                              .htmlElement(d => {
+                                  if (d.kind === 'node') {
+                                      const el = document.createElement('div');
+                                      el.className = 'globe-node';
+                                      if (d.hub) el.classList.add('hub');
+                                      if (d.selected) el.classList.add('selected');
+                                      if (d.disabled) el.classList.add('disabled');
+                                      el.title = `${d.name} (${d.code})`;
+                                      el.addEventListener('mouseenter', (ev) => {
+                                          const status = d.selected ? 'Selected' : (d.disabled ? 'Not allowed from here' : 'Click to add');
+                                          const localTime = formatLocalTime(d.code, d.lng);
+                                          globeTooltip.innerHTML = `
+                                              <div class="tt-title">${d.name} (${d.code})</div>
+                                              ${d.country ? `<div class="tt-sub">${d.country}</div>` : ''}
+                                              <div class="tt-hint">Local time: ${localTime}</div>
+                                              <div class="tt-hint">${status}</div>
+                                          `;
+                                          globeTooltip.style.display = 'block';
+                                          moveTooltip(ev);
+                                      });
+                                      el.addEventListener('mousemove', (ev) => moveTooltip(ev));
+                                      el.addEventListener('mouseleave', () => { globeTooltip.style.display = 'none'; });
+                                      el.onclick = (ev) => {
+                                          ev.stopPropagation();
+                                          const dest = destinations.find(x => x.code === d.code);
+                                          if (!dest) return;
+                                          const inx = itinerary.findIndex(i => i.code === d.code);
+                                          if (inx >= 0) {
+                                              removeFromItinerary(inx);
+                                          } else {
+                                              handleMarkerClick(dest);
+                                          }
+                                          if (globe.pointOfView) globe.pointOfView({ lat: dest.lat, lng: dest.lng, altitude: 2.2 }, 700);
+                                          // refreshGlobeState will be called via itinerary mutation handlers
+                                      };
+                                      return el;
+                                      } else if (d.kind === 'plane') {
+                                      const el = document.createElement('div');
+                                      el.innerHTML = '✈️'; // Or replace with SVG icon
+                                      el.style.fontSize = '24px';
+                                      el.style.color = '#fff';
+                                      el.style.textShadow = '0 0 10px #D71921, 0 0 20px #D71921'; // Red glow
+                                      // Rotate plane to face heading (subtract 90 because typical ✈️ icon points up/right depending on font, usually UP is 0deg but icon usually right-facing = 90)
+                                      // Standard unicode ✈️ points up-right (approx 45deg) in some fonts or up.
+                                      // Let's assume UP. Rot = bearing.
+                                      // Actually, let's strictly style it.
+                                      el.style.transform = `translate(-50%, -50%) rotate(${d.rot}deg)`;
+                                      el.style.pointerEvents = 'none';
+                                      return el;
+                                  } else {
+                                      const el = document.createElement('div');
+                                      el.className = 'globe-bubble';
+                                      el.textContent = d.text;
+                                      return el;
+                                  }
+                              });
+                        }
+
+            window.addEventListener('resize', () => {
+                if (!globe) return;
+                const w = container.clientWidth; const h = container.clientHeight;
+                globe.width(w); globe.height(h);
+            });
+            const controls = globe.controls && globe.controls();
+            if (controls) {
+                controls.enableZoom = true;
+                controls.autoRotate = globeAutoRotate;
+                controls.autoRotateSpeed = 0.5;
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.1;
+                controls.minDistance = 120;
+                controls.maxDistance = 1000;
+                controls.zoomSpeed = 1.2;
+                controls.rotateSpeed = 0.8;
+            }
+            globe.enablePointerInteraction && globe.enablePointerInteraction(true);
+            globe.onPointHover && globe.onPointHover((p, prev) => {
+                if (prev) prev.__hover = false;
+                if (p) p.__hover = true;
+                // trigger a re-render by re-setting points data
+                if (globe.pointsData) globe.pointsData(globe.pointsData());
+            });
+            if (globe.onPointClick) {
+                globe.onPointClick(p => {
+                    if (!p || !p.code) return;
+                    const dest = destinations.find(d => d.code === p.code);
+                    if (!dest) return;
+                    handleMarkerClick(dest);
+                    // focus camera near selection
+                    if (globe.pointOfView) globe.pointOfView({ lat: dest.lat, lng: dest.lng, altitude: 2.2 }, 900);
+                    refreshGlobeState();
+                });
+            }
+            if (globe.onGlobeClick) {
+                globe.onGlobeClick((lat, lng) => {
+                    const chosen = nearestAllowedDestination(lat, lng);
+                    if (!chosen) return;
+                    handleMarkerClick(chosen);
+                    refreshGlobeState();
+                });
+            }
+
+            // Idle-based auto-rotate: stop on interaction, resume after delay
+            const resetIdle = () => {
+                if (!globe || !globe.controls) return;
+                const c = globe.controls();
+                if (c) c.autoRotate = false;
+                if (globeIdleTimer) clearTimeout(globeIdleTimer);
+                globeIdleTimer = setTimeout(() => {
+                    const c2 = globe.controls && globe.controls();
+                    if (c2) c2.autoRotate = true;
+                }, 6000);
+            };
+            ['pointerdown','wheel','touchstart','mousedown','mousemove'].forEach(evt => {
+                container.addEventListener(evt, resetIdle, { passive: true });
+            });
+            refreshGlobeState();
+        }
+
+        function refreshGlobeState() {
+            if (!globe) return;
+            const allowedSet = new Set(getAllowedNextCodes());
+            const itineraryCodesArr = itinerary.map(d => d.code);
+            const itineraryCodes = new Set(itineraryCodesArr);
+            globeNodes = destinations.map(d => ({
+                kind: 'node',
+                lat: d.lat, lng: d.lng,
+                name: d.name, code: d.code, country: d.country,
+                hub: !!d.hub,
+                selected: itineraryCodes.has(d.code),
+                disabled: !(itinerary.length === 0 || allowedSet.has(d.code) || itineraryCodes.has(d.code))
+            }));
+            
+            // Add pulsing rings to active airports
+            const rings = destinations
+                .filter(d => itineraryCodes.has(d.code))
+                .map(d => ({ lat: d.lat, lng: d.lng }));
+            if (globe.ringsData) globe.ringsData(rings);
+            
+            updateGlobeArcs();
+        }
+
+        function nearestAllowedDestination(lat, lng) {
+            const allowed = new Set(getAllowedNextCodes());
+            let best = null; let bestD = Infinity;
+            destinations.forEach(d => {
+                if (itinerary.length > 0 && !allowed.has(d.code)) return;
+                const dist = getDistanceFromLatLonInKm(lat, lng, d.lat, d.lng);
+                if (dist < bestD) { bestD = dist; best = d; }
+            });
+            // require click to be within 400km to select something, to avoid accidental picks
+            return bestD < 400 ? best : null;
+        }
+
+        // Global texture and state
+        let routeMeshes = [];
+        let routeAnimFrame = null;
+
+        function updateGlobeArcs() {
+            if (!globe) return;
+            
+            // 1. Clean up old meshes
+            const scene = globe.scene();
+            routeMeshes.forEach(m => {
+                scene.remove(m);
+                if (m.geometry) m.geometry.dispose();
+                if (m.material) m.material.dispose();
+            });
+            routeMeshes = [];
+            
+            // Clear default arcs
+            if (globe.arcsData) globe.arcsData([]);
+            
+            if (itinerary.length < 2) {
+                if (globe.htmlElementsData) globe.htmlElementsData(globeNodes || []);
+                return;
+            }
+
+            const bubbles = [];
+            const newAgents = []; // Track moving pods for animation
+
+            // 2. Build Paths
+            for (let i = 0; i < itinerary.length - 1; i++) {
+                const a = itinerary[i];
+                const b = itinerary[i+1];
+                const d = getDistanceFromLatLonInKm(a.lat, a.lng, b.lat, b.lng);
+                
+                // Labels
+                const mid = midpointLatLng(a.lat, a.lng, b.lat, b.lng);
+                const t = calculateFlightTime(d);
+                const labelAlt = Math.max(0.1, Math.min(0.6, 0.1 + (d/8000)*0.5)) + 0.1;
+                bubbles.push({ kind: 'bubble', lat: mid.lat, lng: mid.lng, alt: labelAlt, text: `${a.code} → ${b.code} — ${Math.round(d).toLocaleString()} km • ${t}` });
+
+                // Spline Generation
+                const points = [];
+                const steps = 60; 
+                const maxAlt = Math.max(0.1, Math.min(0.6, 0.1 + (d / 8000) * 0.5));
+                const baseAlt = 0.02;
+
+                for (let s = 0; s <= steps; s++) {
+                    const t = s / steps;
+                    const pos = interpolateLatLng(a, b, t);
+                    // Sine curve for arc, but start/end at baseAlt
+                    const arcAlt = Math.sin(t * Math.PI) * maxAlt;
+                    const finalAlt = baseAlt + arcAlt;
+                    
+                    if (globe.getCoords) {
+                        const coords = globe.getCoords(pos.lat, pos.lng, finalAlt);
+                        points.push(new THREE.Vector3(coords.x, coords.y, coords.z));
+                    }
+                }
+
+                // Geometry
+                const curve = new THREE.CatmullRomCurve3(points);
+                
+                // --- VISUAL 1: THE RAIL (Static Track) ---
+                // Pure Line
+                const railPoints = curve.getPoints(100);
+                const railGeom = new THREE.BufferGeometry().setFromPoints(railPoints);
+                const railMat = new THREE.LineBasicMaterial({
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 0.2
+                });
+                const railMesh = new THREE.Line(railGeom, railMat);
+                scene.add(railMesh);
+                routeMeshes.push(railMesh);
+
+                // --- VISUAL 2: THE STREAK (Moving Flexible Line) ---
+                // Use TubeGeometry so it bends, but use texture to mask all but a segment
+                // Radius increased to 0.15 for better visibility (thicker)
+                const streakGeom = new THREE.TubeGeometry(curve, 64, 0.15, 12, false); 
+                
+                // Create dashed texture for the streak if not exists
+                if (!window.streakTexture) {
+                    const cvs = document.createElement('canvas');
+                    cvs.width = 1024; cvs.height = 32;
+                    const ctx = cvs.getContext('2d');
+                    // Background: Transparent
+                    ctx.clearRect(0,0,1024,32);
+                    // Draw Streak: Solid Red on the last 15% 
+                    ctx.fillStyle = '#d71921'; 
+                    ctx.fillRect(800, 0, 224, 32); 
+                    
+                    window.streakTexture = new THREE.CanvasTexture(cvs);
+                    window.streakTexture.wrapS = THREE.RepeatWrapping;
+                    window.streakTexture.wrapT = THREE.ClampToEdgeWrapping;
+                }
+                
+                // Clone texture so each arc can have independent offset
+                const localTex = window.streakTexture.clone();
+                localTex.needsUpdate = true;
+                
+                const streakMat = new THREE.MeshBasicMaterial({
+                    map: localTex,
+                    transparent: true,
+                    opacity: 1.0,
+                    side: THREE.BackSide, // Optimization usually, but DoubleSide is safer for tubes
+                });
+                streakMat.side = THREE.DoubleSide; // Force double side
+                
+                const streakMesh = new THREE.Mesh(streakGeom, streakMat);
+                scene.add(streakMesh);
+                routeMeshes.push(streakMesh);
+
+                newAgents.push({
+                    texture: localTex,
+                    speed: 0.005
+                });
+            }
+
+            if (globe.htmlElementsData) {
+                const merged = (globeNodes || []).concat(bubbles);
+                globe.htmlElementsData(merged);
+            }
+            
+            // Animation Loop
+            if (routeAnimFrame) cancelAnimationFrame(routeAnimFrame);
+            
+            const animateAgents = () => {
+                newAgents.forEach(agent => {
+                    if (agent.texture) {
+                        agent.texture.offset.x -= agent.speed; 
+                    }
+                });
+                routeAnimFrame = requestAnimationFrame(animateAgents);
+            };
+            animateAgents();
+            
+            // Focus
+            const lastMid = bubbles[bubbles.length - 1];
+            if (lastMid && globe.pointOfView) {
+                // globe.pointOfView({ lat: lastMid.lat, lng: lastMid.lng, altitude: 2.2 }, 900);
+            }
+        }
+
+        // Great Circle Interpolation
+        function interpolateLatLng(p1, p2, t) {
+            // Convert to Cartesian
+            const lat1 = p1.lat * Math.PI / 180;
+            const lon1 = p1.lng * Math.PI / 180;
+            const lat2 = p2.lat * Math.PI / 180;
+            const lon2 = p2.lng * Math.PI / 180;
+
+            const x1 = Math.cos(lat1) * Math.cos(lon1);
+            const y1 = Math.cos(lat1) * Math.sin(lon1);
+            const z1 = Math.sin(lat1);
+
+            const x2 = Math.cos(lat2) * Math.cos(lon2);
+            const y2 = Math.cos(lat2) * Math.sin(lon2);
+            const z2 = Math.sin(lat2);
+
+            // Slerp
+            const omega = Math.acos(x1*x2 + y1*y2 + z1*z2);
+            const sinOmega = Math.sin(omega);
+
+            if (sinOmega === 0) return { lat: p1.lat, lng: p1.lng };
+
+            const a = Math.sin((1 - t) * omega) / sinOmega;
+            const b = Math.sin(t * omega) / sinOmega;
+
+            const x = a*x1 + b*x2;
+            const y = a*y1 + b*y2;
+            const z = a*z1 + b*z2;
+
+            const lat = Math.atan2(z, Math.sqrt(x*x + y*y));
+            const lon = Math.atan2(y, x);
+
+            return {
+                lat: lat * 180 / Math.PI,
+                lng: lon * 180 / Math.PI
+            };
+        }
+
+        function getBearing(lat1, lon1, lat2, lon2) {
+            const rad = Math.PI / 180;
+            const φ1 = lat1 * rad;
+            const φ2 = lat2 * rad;
+            const Δλ = (lon2 - lon1) * rad;
+
+            const y = Math.sin(Δλ) * Math.cos(φ2);
+            const x = Math.cos(φ1) * Math.sin(φ2) -
+                    Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
+            
+            return Math.atan2(y, x) * 180 / Math.PI;
+        }
+
+        function midpointLatLng(lat1, lon1, lat2, lon2) {
+            const d2r = Math.PI / 180;
+            const r2d = 180 / Math.PI;
+            const φ1 = lat1 * d2r, λ1 = lon1 * d2r;
+            const φ2 = lat2 * d2r, λ2 = lon2 * d2r;
+            const x1 = Math.cos(φ1) * Math.cos(λ1);
+            const y1 = Math.cos(φ1) * Math.sin(λ1);
+            const z1 = Math.sin(φ1);
+            const x2 = Math.cos(φ2) * Math.cos(λ2);
+            const y2 = Math.cos(φ2) * Math.sin(λ2);
+            const z2 = Math.sin(φ2);
+            let x = x1 + x2, y = y1 + y2, z = z1 + z2;
+            const L = Math.hypot(x, y, z);
+            x /= L; y /= L; z /= L;
+            const φm = Math.asin(z);
+            const λm = Math.atan2(y, x);
+            return { lat: φm * r2d, lng: λm * r2d };
+        }
+
+        function setViewMode(mode) {
+            viewMode = mode;
+            const mapEl = document.getElementById('map');
+            const globeEl = document.getElementById('globe');
+            const globeUiEl = document.getElementById('globe-ui');
+            const sidebarEl = document.querySelector('.sidebar');
+            const b2d = document.getElementById('btn-2d');
+            const b3d = document.getElementById('btn-3d');
+            if (mode === '3D') {
+                mapEl.style.display = 'none';
+                globeEl.style.display = 'block';
+                if (sidebarEl) sidebarEl.style.display = 'none';
+                if (globeUiEl) globeUiEl.style.display = 'none';
+                b2d.classList.remove('active');
+                b3d.classList.add('active');
+                if (!globe) initGlobe();
+                refreshGlobeState();
+                // schedule idle rotate soon after entering 3D
+                if (globe && globe.controls) {
+                    const c = globe.controls();
+                    if (c) {
+                        c.autoRotate = false;
+                        if (globeIdleTimer) clearTimeout(globeIdleTimer);
+                        globeIdleTimer = setTimeout(() => { const cc = globe.controls(); if (cc) cc.autoRotate = true; }, 3000);
+                    }
+                }
+            } else {
+                globeEl.style.display = 'none';
+                mapEl.style.display = 'block';
+                if (sidebarEl) sidebarEl.style.display = 'block';
+                if (globeUiEl) globeUiEl.style.display = 'none';
+                b3d.classList.remove('active');
+                b2d.classList.add('active');
+                if (map && map.invalidateSize) {
+                   setTimeout(() => map.invalidateSize(), 100);
+                }
+            }
+        }
+
+        function toggleRotate() {
+            globeAutoRotate = !globeAutoRotate;
+            const btn = document.getElementById('btn-rotate');
+            if (btn) btn.textContent = `Auto Rotate: ${globeAutoRotate ? 'On' : 'Off'}`;
+            if (globe && globe.controls) {
+                const c = globe.controls();
+                if (c) c.autoRotate = globeAutoRotate;
+            }
+        }
+
+        function toggleShowAllowed() {
+            globeShowAllowedOnly = !globeShowAllowedOnly;
+            const btn = document.getElementById('btn-allowed');
+            if (btn) btn.textContent = `Allowed Only: ${globeShowAllowedOnly ? 'On' : 'Off'}`;
+            refreshGlobeState();
+        }
+
+        function toggleTripSummary() {
+            tripSummaryCollapsed = !tripSummaryCollapsed;
+            const body = document.getElementById('card-body');
+            const chevron = document.getElementById('card-chevron');
+            if (tripSummaryCollapsed) {
+                body.classList.add('collapsed');
+                chevron.classList.add('collapsed');
+            } else {
+                body.classList.remove('collapsed');
+                chevron.classList.remove('collapsed');
+            }
+        }
+
+        let draggedIndex = null;
+
+        function handleDragStart(e) {
+            draggedIndex = parseInt(e.currentTarget.dataset.index);
+            e.currentTarget.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            if (e.currentTarget.classList.contains('dragging')) return;
+
+            const rect = e.currentTarget.getBoundingClientRect();
+            const relY = e.clientY - rect.top;
+            const mid = rect.height / 2;
+            
+            // clear previous
+            e.currentTarget.classList.remove('drag-over-top', 'drag-over-bottom');
+
+            if (relY < mid) {
+                e.currentTarget.classList.add('drag-over-top');
+            } else {
+                e.currentTarget.classList.add('drag-over-bottom');
+            }
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over-top', 'drag-over-bottom');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const target = e.currentTarget;
+            target.classList.remove('drag-over-top', 'drag-over-bottom');
+            
+            const dropIndex = parseInt(target.dataset.index);
+            
+            if (draggedIndex !== null && draggedIndex !== dropIndex) {
+                const rect = target.getBoundingClientRect();
+                const relY = e.clientY - rect.top;
+                const insertAfter = relY > (rect.height / 2);
+                
+                // Determine insertion point
+                let targetIndex = insertAfter ? dropIndex + 1 : dropIndex;
+                
+                // Remove item first
+                const [removed] = itinerary.splice(draggedIndex, 1);
+                
+                // Adjust index if we removed an item above the insertion point
+                if (draggedIndex < targetIndex) {
+                    targetIndex--;
+                }
+                
+                itinerary.splice(targetIndex, 0, removed);
+                refreshMapState();
+                renderItineraryUI();
+            }
+        }
+
+        function handleDragEnd(e) {
+            e.currentTarget.classList.remove('dragging');
+            document.querySelectorAll('.itinerary-segment').forEach(el => {
+                el.classList.remove('drag-over-top', 'drag-over-bottom');
+            });
+            draggedIndex = null;
+        }
+
+        function setRouteAnimation(mode) {
+            routeAnimationMode = mode;
+            document.getElementById('btn-arc').classList.toggle('active', mode === 'arc');
+            document.getElementById('btn-plane').classList.toggle('active', mode === 'plane');
+            updateGlobeArcs();
+        }
+
+        function setRouteAnimation(mode) {
+            routeAnimationMode = mode;
+            document.getElementById('btn-arc').classList.toggle('active', mode === 'arc');
+            document.getElementById('btn-plane').classList.toggle('active', mode === 'plane');
+            updateGlobeArcs();
+        }
     </script>
 </body>
 </html>
