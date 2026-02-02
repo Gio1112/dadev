@@ -1,4 +1,4 @@
-﻿window.LinuxOS={
+window.LinuxOS={
     boot:function(){
         const osEl=document.getElementById('linux-os');const bootScreen=document.getElementById('linux-boot-screen');
         const desktop=document.getElementById('linux-desktop');const log=document.getElementById('linux-boot-log');
@@ -47,7 +47,7 @@
         await delay(200);print('<div class="text-gray-500 font-mono text-sm">[INFO] Loading user profile... OK</div>');
         await delay(200);print('<div class="text-gray-500 font-mono text-sm">[INFO] Fetching github repositories... OK</div>');
         await delay(600);
-        print(`<div class="mb-6 pt-4 border-t border-gray-800"><div class="text-yellow-400 font-bold font-mono uppercase tracking-wider mb-2">>> User Configuration (About)</div><div class="text-gray-300 ml-4 border-l-2 border-yellow-600 pl-3"><p>Passionate developer specializing in Discord bots and web applications.</p><p>Combining aviation knowledge with coding skills to build immersive tools.</p></div></div>`);
+        print(`<div class="mb-6 pt-4 border-t border-gray-800"><div class="text-yellow-400 font-bold font-mono uppercase tracking-wider mb-2">>> User Configuration (About)</div><div class="text-gray-300 ml-4 border-l-2 border-yellow-600 pl-3"><p>My name is Giorgio, I'm 15, I'm Italian, and I like planes.</p><p>I am mainly a self-taught coder, learning simple Python at 8 after my dad got me into Scratch.</p><p>I've been expanding ever since, currently learning Rust and C++ as well as some side projects.</p></div></div>`);
         await delay(600);
         print(`<div class="mb-6"><div class="text-blue-400 font-bold font-mono uppercase tracking-wider mb-2">>> Loaded Modules (Skills)</div><div class="text-gray-300 ml-4 grid grid-cols-2 gap-x-4 gap-y-1 max-w-lg font-mono text-sm"><span>[X] JavaScript (ES6+)</span><span>[X] TypeScript</span><span>[X] Python 3</span><span>[X] React / Next.js</span><span>[X] Discord.js</span><span>[X] Tailwind CSS</span></div></div>`);
         await delay(600);
