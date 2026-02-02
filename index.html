@@ -1,0 +1,30 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Giorgio's Portfolio</title><link rel="icon" type="image/png" href="https://win98icons.alexmeub.com/icons/png/computer_explorer-4.png">
+<script src="https://cdn.tailwindcss.com"></script>
+    <link rel='stylesheet' href="css/main.css">
+      <link rel="stylesheet" href="css/bootloader.css">
+<link rel="stylesheet" href="css/linux.theme.css"><link rel="stylesheet" href="css/windowsxp.theme.css">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet"></head>
+<body class="crt">
+<div id="app-root"><div id="bootloader" class="os-container active"><div class="grub-box"><div class="grub-header"><h2>GNU GRUB version 2.06</h2></div><div class="grub-body">
+<ul class="grub-menu" id="grub-menu"><li class="grub-item selected" data-os="linux">Ubuntu Linux (Terminal Mode)</li><li class="grub-item" data-os="windows">Windows XP Professional (GUI Mode)</li><li class="grub-item" data-action="shutdown">System Shutdown</li></ul></div>
+<div class="grub-footer"><p>Use the  and  keys to select.</p><p>Press enter to boot.</p></div><div class="boot-timer" id="boot-timer">Autoboot in 10s...</div></div></div>
+
+    <div id="linux-os" class="os-container"><div id="linux-boot-screen" style="display:none; height:100%; color:#ccc; font-family:'VT323', monospace; font-size:1.2rem;">
+<div id="linux-boot-log"></div></div><div id="linux-desktop" style="display:none;"><div class="terminal-window"><div class="terminal-header"><div class="terminal-dot red"></div>
+<div class="terminal-dot yellow"></div><div class="terminal-dot green"></div><div class="terminal-title">giorgio@terminal: ~</div><div class="visitor-counter">...</div></div><div class="terminal-body"><div class="mb-4">
+<span class="prompt"></span> <span class="cursor"></span></div><div id="terminal-content">
+<div class="text-gray-400">Loading module list...</div></div></div></div></div></div>
+
+    <div id="windows-os" class="os-container"><div id="windows-boot-screen" style="display:none; background:#000; height:100%; display:flex; justify-content:center; align-items:center; flex-direction:column;"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Windows_Logo_%281992-2001%29.svg/2560px-Windows_Logo_%281992-2001%29.svg.png" width="150" style="margin-bottom:20px;">
+<div style="width: 200px; height: 15px; border: 2px solid #555; border-radius: 4px; overflow: hidden; padding: 2px;">
+<div id="xp-progress" style="width: 0%; height: 100%; background: linear-gradient(90deg, #1d4093, #3065d6, #1d4093);"></div></div></div>
+<div id="windows-desktop" style="display:none; width:100%; height:100%; background: url('https://upload.wikimedia.org/wikipedia/en/2/27/Bliss_%28Windows_XP%29.png') no-repeat center center fixed; background-size: cover;">
+<div id="windows-area"></div><div class="xp-taskbar"><div class="xp-start-button"><img src="https://upload.wikimedia.org/wikipedia/commons/4/47/Windows_logo_-_2012_%28dark_blue%29.svg" style="width:18px; filter: drop-shadow(1px 1px 0px rgba(0,0,0,0.3));"><span>start</span>
+</div><div class="border-r border-blue-800 h-full mx-2"></div><div id="taskbar-items" style="display:flex;"></div><div class="xp-tray" id="xp-clock">12:00 PM</div></div></div></div>
+</div>
+  <script src="javascript/audio-manager.js"></script><script src="javascript/linux.js"></script>
+    <script src="javascript/windows.js"></script><script src="javascript/bootloader.js"></script></body></html>

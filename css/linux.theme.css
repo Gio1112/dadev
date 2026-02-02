@@ -1,0 +1,90 @@
+#linux-os {
+    background-color: #0c0c0c;
+    color: #4af626;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    overflow-y: auto;
+    padding: 20px;
+    height: 100vh;
+}
+
+/* Scrollbar for Linux */
+#linux-os::-webkit-scrollbar {
+    width: 10px;
+}
+#linux-os::-webkit-scrollbar-track {
+    background: #000;
+}
+#linux-os::-webkit-scrollbar-thumb {
+    background: #006400; 
+}
+
+/* Ported styles from me.html - Scoped to #linux-os roughly */
+:root {
+    --bg: #0a0a0a;
+    --terminal: #0d1117;
+    --border: #1f2937;
+    --accent: #22c55e;
+    --accent-dim: #16a34a;
+    --text: #a5f3a5;
+    --text-dim: #6b8e6b;
+    --cursor: #22c55e;
+}
+
+#linux-os .terminal-window {
+    background: var(--terminal);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 0 30px rgba(34, 197, 94, 0.15), 0 8px 32px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    margin-bottom: 2rem;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#linux-os .terminal-header {
+    background: #161b22;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid var(--border);
+}
+
+#linux-os .terminal-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+#linux-os .terminal-dot.red { background: #ff5f56; }
+#linux-os .terminal-dot.yellow { background: #ffbd2e; }
+#linux-os .terminal-dot.green { background: #27c93f; }
+
+#linux-os .terminal-body {
+    padding: 24px;
+}
+
+#linux-os .prompt {
+    color: var(--accent);
+}
+
+#linux-os .cursor {
+    display: inline-block;
+    width: 10px;
+    height: 18px;
+    background: var(--cursor);
+    animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+}
+
+/* Helpers ported from Tailwind usage in me.html if possible, or just standard classes */
+#linux-os .text-accent { color: var(--accent); }
+#linux-os .font-bold { font-weight: bold; }
+#linux-os .mb-4 { margin-bottom: 1rem; }
+#linux-os .grid { display: grid; }
+#linux-os .gap-4 { gap: 1rem; }
