@@ -3,7 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emirates PTFS Route Map</title>
+    <title>Emirates Route Map - Interactive Flight Planner</title>
+    
+    <!-- Discord/Social Media Embed Meta Tags -->
+    <meta property="og:title" content="Emirates Route Map - Interactive Flight Planner">
+    <meta property="og:description" content="Plan your Emirates journey with our interactive 2D/3D route planner. Explore 200+ destinations worldwide with real-time flight data.">
+    <meta property="og:image" content="https://upload.wikimedia.org/wikipedia/commons/d/d0/Emirates_logo.svg">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Emirates Route Map">
+    
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Emirates Route Map - Interactive Flight Planner">
+    <meta name="twitter:description" content="Plan your Emirates journey with our interactive 2D/3D route planner. Explore 200+ destinations worldwide.">
+    <meta name="twitter:image" content="https://upload.wikimedia.org/wikipedia/commons/d/d0/Emirates_logo.svg">
+    
+    <meta name="description" content="Interactive Emirates route planner with 2D map and 3D globe views. Plan multi-city itineraries across 200+ destinations with real-time flight data and weather information.">
+    <meta name="keywords" content="Emirates, flight planner, route map, airline routes, travel planning, 3D globe">
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -21,7 +37,7 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        /* Custom Scrollbar */
+        /* Scrollbar */
         ::-webkit-scrollbar { width: 12px; height: 12px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { 
@@ -43,6 +59,104 @@
             color: var(--ek-dark);
         }
 
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--ek-red);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loading-text {
+            margin-top: 20px;
+            color: var(--ek-gray);
+            font-size: 14px;
+        }
+
+        /* Welcome Modal */
+        .welcome-modal {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 9998;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .welcome-modal.active {
+            display: flex;
+        }
+        .welcome-content {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 600px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .welcome-content h2 {
+            color: var(--ek-red);
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        .welcome-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .welcome-feature {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+        .welcome-feature i {
+            color: var(--ek-gold);
+            font-size: 20px;
+        }
+        .welcome-btn {
+            background: var(--ek-red);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 20px;
+            width: 100%;
+        }
+        .welcome-btn:hover {
+            background: var(--ek-red-dark);
+        }
+
         /* Header */
         .header {
             background: white;
@@ -61,10 +175,34 @@
         .logo-img { height: 45px; width: auto; }
         .app-title { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--ek-gray); border-left: 1px solid #ddd; padding-left: 15px; margin-left: 15px; font-weight: 600; }
 
+        /* Header Actions */
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .icon-btn {
+            background: none;
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: var(--ek-gray);
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .icon-btn:hover {
+            background: var(--ek-red);
+            color: white;
+            border-color: var(--ek-red);
+        }
+        .icon-btn i {
+            margin-right: 5px;
+        }
+
         /* Layout */
         .main-container { display: flex; height: calc(100vh - 70px); position: relative; }
         #map { flex: 1; background: #a8d5e2; z-index: 1; }
-
 
         html { scroll-behavior: smooth; }
 
@@ -76,9 +214,9 @@
             z-index: 2;
             overflow-y: auto;
             height: calc(100vh - 70px);
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling on touch devices */
-            scrollbar-width: thin; /* Firefox */
-            scrollbar-color: var(--ek-gold) transparent; /* Firefox */
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: var(--ek-gold) transparent;
         }
 
         /* Sidebar Components */
@@ -115,9 +253,21 @@
         .itinerary-segment:last-child .dashed-connector { display: none; }
         .add-flight-placeholder { padding: 12px; border: 1px dashed #ccc; border-radius: 6px; text-align: center; color: #888; font-size: 13px; margin-top: 10px; cursor: pointer; transition: all 0.2s; }
         .add-flight-placeholder:hover { border-color: var(--ek-gold); color: var(--ek-gold-dark); background: #fffbf5; }
-        .route-actions { display: flex; justify-content: flex-end; margin-top: 15px; }
+        .route-actions { display: flex; justify-content: space-between; margin-top: 15px; gap: 10px; }
         .btn-text { background: none; border: none; color: var(--ek-gray); font-size: 12px; cursor: pointer; text-decoration: underline; }
         .btn-text:hover { color: var(--ek-red); }
+        .btn-primary {
+            background: var(--ek-red);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .btn-primary:hover {
+            background: var(--ek-red-dark);
+        }
 
         /* Flight Card */
         .flight-card { margin: 20px 25px; background: white; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); border: 1px solid #eee; overflow: hidden; display: none; }
@@ -212,8 +362,6 @@
         .globe-tooltip .tt-sub { font-size: 11px; color: #666; }
         .globe-tooltip .tt-hint { font-size: 11px; color: #888; margin-top: 4px; }
 
-        /* 3D Route Chooser (removed) */
-
         /* Markers & Clusters */
         .custom-marker { transition: all 0.3s ease; }
         .marker-pin { width: 14px; height: 14px; background: var(--ek-red); border: 2px solid white; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
@@ -245,13 +393,13 @@
             background: rgba(255, 255, 255, 0.95);
             border-radius: 8px;
             box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-            z-index: 1001; /* Above map/globe */
+            z-index: 1001;
             transition: transform 0.3s ease, opacity 0.3s ease;
             max-height: calc(100vh - 120px);
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            transform: translateX(340px); /* Hidden by default */
+            transform: translateX(340px);
             opacity: 0;
             pointer-events: none;
         }
@@ -288,28 +436,121 @@
         .tt-metric { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #555; margin-top: 4px; border-top: 1px solid #eee; padding-top: 4px; }
         .tt-icon { color: var(--ek-red); width: 14px; text-align: center; }
 
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--ek-dark);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 9999;
+            animation: slideUp 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .toast.success { background: #4CAF50; }
+        .toast.error { background: #f44336; }
+        .toast.info { background: var(--ek-red); }
+        @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
         /* Mobile */
         @media (max-width: 900px) {
             body { overflow-y: auto; }
             .header { padding: 12px 16px; flex-wrap: wrap; gap: 8px; }
+            .header-actions { gap: 5px; }
+            .icon-btn { padding: 6px 10px; font-size: 12px; }
+            .icon-btn span { display: none; }
             .main-container { flex-direction: column; height: auto; }
             .sidebar { width: 100%; box-shadow: none; }
             #map { height: 55vh; min-height: 320px; }
             .flight-card { margin: 16px; }
             .list-scroll-area { max-height: 40vh; }
             .destinations-wrapper { flex: unset; }
+            .right-panel {
+                width: calc(100% - 40px);
+                left: 20px;
+                right: 20px;
+            }
+            .welcome-content {
+                margin: 20px;
+                padding: 30px 20px;
+            }
+            .welcome-features {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading Emirates Route Map...</div>
+    </div>
+
+    <!-- Welcome Modal -->
+    <div class="welcome-modal" id="welcome-modal">
+        <div class="welcome-content">
+            <h2>Welcome to Emirates Route Map</h2>
+            <p style="color: var(--ek-gray); margin-bottom: 20px;">
+                Explore 200+ destinations with our interactive flight planner. Build custom itineraries and discover the world with Emirates.
+            </p>
+            
+            <div class="welcome-features">
+                <div class="welcome-feature">
+                    <i class="fas fa-globe"></i>
+                    <span>2D/3D Views</span>
+                </div>
+                <div class="welcome-feature">
+                    <i class="fas fa-route"></i>
+                    <span>Multi-City Routes</span>
+                </div>
+                <div class="welcome-feature">
+                    <i class="fas fa-plane-departure"></i>
+                    <span>Live Air Traffic</span>
+                </div>
+                <div class="welcome-feature">
+                    <i class="fas fa-cloud-sun"></i>
+                    <span>Real-Time Weather</span>
+                </div>
+            </div>
+
+            <button class="welcome-btn" onclick="closeWelcome()">
+                Start Planning <i class="fas fa-arrow-right"></i>
+            </button>
+        </div>
+    </div>
+
     <div class="header">
         <div class="logo-container">
             <img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/Emirates_logo.svg" alt="Emirates" class="logo-img">
             <div class="app-title">Route Map</div>
         </div>
-        <div class="view-toggle">
-            <button id="btn-2d" class="toggle-btn active" onclick="setViewMode('2D')">2D</button>
-            <button id="btn-3d" class="toggle-btn" onclick="setViewMode('3D')">3D</button>
+        
+        <div class="header-actions">
+            <button class="icon-btn" onclick="shareRoute()" title="Share Route">
+                <i class="fas fa-share-alt"></i>
+                <span>Share</span>
+            </button>
+            <button class="icon-btn" onclick="saveRoute()" title="Save Route">
+                <i class="fas fa-save"></i>
+                <span>Save</span>
+            </button>
+            <button class="icon-btn" onclick="loadRoute()" title="Load Route">
+                <i class="fas fa-folder-open"></i>
+                <span>Load</span>
+            </button>
+            <div class="view-toggle">
+                <button id="btn-2d" class="toggle-btn active" onclick="setViewMode('2D')">2D</button>
+                <button id="btn-3d" class="toggle-btn" onclick="setViewMode('3D')">3D</button>
+            </div>
         </div>
     </div>
 
@@ -338,6 +579,9 @@
                 </div>
                 <div class="route-actions" id="route-actions" style="display: none;">
                     <button class="btn-text" onclick="clearItinerary()">Clear Route</button>
+                    <button class="btn-primary" onclick="exportItinerary()">
+                        <i class="fas fa-download"></i> Export
+                    </button>
                 </div>
             </div>
 
@@ -347,57 +591,7 @@
                     <i id="card-chevron" class="fas fa-chevron-down card-chevron"></i>
                 </div>
                 <div id="card-body" class="card-body">
-                    <div class="stat-grid">
-                        <div class="stat-item">
-                            <span class="stat-label">Total Distance</span>
-                            <span class="stat-value" id="card-distance">-</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Est. Duration</span>
-                            <span class="stat-value" id="card-time">-</span>
-                        </div>
-                    </div>
-                    <div class="stat-grid">
-                        <div class="stat-item">
-                            <span class="stat-label">Legs</span>
-                            <span class="stat-value" id="card-legs">0</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Stops</span>
-                            <span class="stat-value" id="card-stops">0</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Start</span>
-                            <span class="stat-value" id="card-start">-</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">End</span>
-                            <span class="stat-value" id="card-end">-</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Longest Leg</span>
-                            <span class="stat-value" id="card-longest">-</span>
-                        </div>
-                        <div class="stat-item">
-                            <span class="stat-label">Shortest Leg</span>
-                            <span class="stat-value" id="card-shortest">-</span>
-                        </div>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Average Leg</span>
-                        <span class="stat-value" id="card-avg">-</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">Aircraft</span>
-                        <span class="stat-value" id="card-aircraft">Boeing 777-300ER</span>
-                    </div>
-                    <div id="leg-details" class="leg-details"></div>
-                    <div class="fleet-lineup" id="fleet-lineup"></div>
-                    <div class="amenities" style="margin-top: 10px;">
-                        <span class="amenity-badge">First</span>
-                        <span class="amenity-badge">Business</span>
-                        <span class="amenity-badge">Economy</span>
-                    </div>
+                    <!-- Populated by JS -->
                 </div>
             </div>
 
@@ -423,7 +617,6 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
-    <!-- Use specific browser-compatible UMD build of Three.js to fix 'exports' error -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
     <script src="https://unpkg.com/globe.gl"></script>
     <script>
@@ -574,7 +767,6 @@
             { lat: -34.9462, lng: 138.5332, name: "Adelaide", code: "ADL", country: "Australia" },
             { lat: -37.0082, lng: 174.7850, name: "Auckland", code: "AKL", country: "New Zealand" },
             { lat: -43.4864, lng: 172.5369, name: "Christchurch", code: "CHC", country: "New Zealand" },
-            // Expanded Destinations
             { lat: 32.0055, lng: 34.8854, name: "Tel Aviv", code: "TLV", country: "Israel" },
             { lat: 59.8003, lng: 30.2625, name: "St Petersburg", code: "LED", country: "Russia" },
             { lat: 9.577, lng: -13.612, name: "Conakry", code: "CKY", country: "Guinea" },
@@ -617,40 +809,34 @@
         let currentAllowedSet = new Set();
         let tripSummaryCollapsed = false;
 
-        // Fifth-freedom (sample set; editable)
         const fifthFreedomPairs = [
             ['MXP','JFK'],
             ['ATH','EWR'],
             ['BCN','MEX'],
             ['BKK','HKG'],
             ['CMB','MLE'],
-            ['EZE','GIG'], // Rio - Buenos Aires
+            ['EZE','GIG'],
             ['SYD','CHC'],
-            ['MEL','AKL'], // Not standard EK but keeping precedent
-            ['LCA','MLA'], // Larnaca - Malta
-            ['SIN','MEL'], // Singapore - Melbourne
-            ['MIA','BOG'], // Miami - Bogota
-            ['ABJ','ACC'], // Abidjan - Accra (Often triangular)
-            ['HRE','LUN'], // Harare - Lusaka
-            ['CKY','DSS'],  // Conakry - Dakar
-            ['SEZ','TNR'], // Seychelles - Antananarivo
-            ['SIN','SAI']  // Singapore - Siem Reap
+            ['MEL','AKL'],
+            ['LCA','MLA'],
+            ['SIN','MEL'],
+            ['MIA','BOG'],
+            ['ABJ','ACC'],
+            ['HRE','LUN'],
+            ['CKY','DSS'],
+            ['SEZ','TNR'],
+            ['SIN','SAI']
         ];
 
-        // Build a minimal Emirates route network: DXB connects to all, all others connect to DXB.
-        // You can extend this with known fifth-freedom routes if desired.
         const routes = buildRoutesFromDestinations(destinations);
 
         function buildRoutesFromDestinations(dests) {
             const codes = dests.map(d => d.code);
             const map = {};
-            // DXB → everyone except DXB
             map['DXB'] = codes.filter(c => c !== 'DXB');
-            // Everyone else → DXB only (hub-and-spoke)
             codes.forEach(c => {
                 if (c !== 'DXB') map[c] = ['DXB'];
             });
-            // Add fifth-freedom both directions where codes exist
             fifthFreedomPairs.forEach(([a,b]) => {
                 if (!codes.includes(a) || !codes.includes(b)) return;
                 if (!map[a]) map[a] = [];
@@ -667,8 +853,194 @@
             }
             const last = itinerary[itinerary.length - 1].code;
             const allowed = routes[last] || [];
-            // Avoid immediate duplicates (no leg from A → A)
             return allowed.filter(c => c !== last);
+        }
+
+        // Show welcome modal on first visit
+        function checkFirstVisit() {
+            if (!localStorage.getItem('emiratesMapVisited')) {
+                document.getElementById('welcome-modal').classList.add('active');
+            }
+        }
+
+        function closeWelcome() {
+            document.getElementById('welcome-modal').classList.remove('active');
+            localStorage.setItem('emiratesMapVisited', 'true');
+        }
+
+        // Toast notifications
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideUp 0.3s ease reverse';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // Share functionality
+        function shareRoute() {
+            if (itinerary.length === 0) {
+                showToast('Build a route first to share it!', 'info');
+                return;
+            }
+            
+            const routeStr = itinerary.map(d => d.code).join('-');
+            const shareUrl = `${window.location.origin}${window.location.pathname}?route=${routeStr}`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'My Emirates Route',
+                    text: `Check out my Emirates route: ${routeStr}`,
+                    url: shareUrl
+                }).catch(() => copyToClipboard(shareUrl));
+            } else {
+                copyToClipboard(shareUrl);
+            }
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('Route link copied to clipboard!', 'success');
+            }).catch(() => {
+                showToast('Could not copy link', 'error');
+            });
+        }
+
+        // Save/Load routes
+        function saveRoute() {
+            if (itinerary.length === 0) {
+                showToast('Build a route first to save it!', 'info');
+                return;
+            }
+            
+            const routeName = prompt('Enter a name for this route:');
+            if (!routeName) return;
+            
+            const savedRoutes = JSON.parse(localStorage.getItem('emiratesRoutes') || '{}');
+            savedRoutes[routeName] = itinerary.map(d => d.code);
+            localStorage.setItem('emiratesRoutes', JSON.stringify(savedRoutes));
+            
+            showToast(`Route "${routeName}" saved!`, 'success');
+        }
+
+        function loadRoute() {
+            const savedRoutes = JSON.parse(localStorage.getItem('emiratesRoutes') || '{}');
+            const routeNames = Object.keys(savedRoutes);
+            
+            if (routeNames.length === 0) {
+                showToast('No saved routes found', 'info');
+                return;
+            }
+            
+            let optionsHtml = routeNames.map(name => 
+                `<option value="${name}">${name} (${savedRoutes[name].join('-')})</option>`
+            ).join('');
+            
+            const select = document.createElement('select');
+            select.innerHTML = `<option value="">Select a route...</option>${optionsHtml}`;
+            select.style.padding = '8px';
+            select.style.borderRadius = '4px';
+            select.style.border = '1px solid #ddd';
+            select.style.marginTop = '10px';
+            select.style.width = '100%';
+            
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;';
+            
+            const content = document.createElement('div');
+            content.style.cssText = 'background:white;padding:30px;border-radius:12px;max-width:400px;';
+            content.innerHTML = '<h3 style="margin-bottom:15px;">Load Saved Route</h3>';
+            content.appendChild(select);
+            
+            const btnContainer = document.createElement('div');
+            btnContainer.style.cssText = 'display:flex;gap:10px;margin-top:20px;justify-content:flex-end;';
+            
+            const loadBtn = document.createElement('button');
+            loadBtn.textContent = 'Load';
+            loadBtn.className = 'btn-primary';
+            loadBtn.onclick = () => {
+                const routeName = select.value;
+                if (!routeName) return;
+                
+                const codes = savedRoutes[routeName];
+                clearItinerary();
+                codes.forEach(code => {
+                    const dest = destinations.find(d => d.code === code);
+                    if (dest) itinerary.push(dest);
+                });
+                
+                refreshMapState();
+                renderItineraryUI();
+                modal.remove();
+                showToast(`Route "${routeName}" loaded!`, 'success');
+            };
+            
+            const cancelBtn = document.createElement('button');
+            cancelBtn.textContent = 'Cancel';
+            cancelBtn.className = 'icon-btn';
+            cancelBtn.onclick = () => modal.remove();
+            
+            btnContainer.appendChild(cancelBtn);
+            btnContainer.appendChild(loadBtn);
+            content.appendChild(btnContainer);
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+        }
+
+        // Export itinerary
+        function exportItinerary() {
+            if (itinerary.length === 0) {
+                showToast('Build a route first to export it!', 'info');
+                return;
+            }
+            
+            let text = 'EMIRATES FLIGHT ITINERARY\n';
+            text += '='.repeat(50) + '\n\n';
+            
+            itinerary.forEach((dest, i) => {
+                text += `${i + 1}. ${dest.name} (${dest.code}) - ${dest.country}\n`;
+            });
+            
+            text += '\n' + '='.repeat(50) + '\n';
+            text += `Total Stops: ${itinerary.length}\n`;
+            
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `emirates-route-${Date.now()}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showToast('Itinerary exported!', 'success');
+        }
+
+        // Check for route parameter in URL
+        function checkUrlRoute() {
+            const params = new URLSearchParams(window.location.search);
+            const routeParam = params.get('route');
+            
+            if (routeParam) {
+                const codes = routeParam.split('-');
+                codes.forEach(code => {
+                    const dest = destinations.find(d => d.code === code.toUpperCase());
+                    if (dest && routes[itinerary[itinerary.length - 1]?.code || 'DXB']?.includes(dest.code)) {
+                        itinerary.push(dest);
+                    }
+                });
+                
+                if (itinerary.length > 0) {
+                    refreshMapState();
+                    renderItineraryUI();
+                }
+            }
         }
 
         function initMap() {
@@ -682,9 +1054,8 @@
 
             L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-            // Replaced CartoDB Voyager with Esri World Street Map for higher quality details
             L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-                attribution: 'Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom, 2012',
+                attribution: 'Tiles &copy; Esri',
                 maxZoom: 19,
                 detectRetina: true
             }).addTo(map);
@@ -710,7 +1081,6 @@
 
             selectedMarkersLayer = L.layerGroup().addTo(map);
 
-            // Start empty; first click selects departure
             refreshMapState();
             renderItineraryUI();
             renderDestList();
@@ -723,7 +1093,6 @@
             markers = {};
 
             const itineraryCodes = itinerary.map(d => d.code);
-
             const allowedSet = new Set(getAllowedNextCodes());
             currentAllowedSet = allowedSet;
 
@@ -758,10 +1127,6 @@
                 const marker = L.marker([dest.lat, dest.lng], { icon: icon });
                 marker._code = dest.code;
                 
-                // For tooltip, just show sim/cached or simple check
-                // We don't want to spam API on every marker create.
-                // Just use sim data for initial tooltip render, and fetch real on click/hover if we wanted.
-                // Keeping it simple for map perf:
                 const simPlanes = getSimulatedPlaneCount(dest.code, dest.hub);
                 
                 marker.bindTooltip(`${dest.name} (${dest.code})<br><i class="fas fa-plane" style="font-size:10px; margin-right:4px;"></i>~${simPlanes} planes`, { 
@@ -794,17 +1159,16 @@
 
         function handleMarkerClick(dest) {
             if (itinerary.length === 0) {
-                addToItinerary(dest); // choose departure
+                addToItinerary(dest);
                 return;
             }
             const last = itinerary[itinerary.length - 1];
             if (last && last.code === dest.code) {
-                // toggle off last
                 if (itinerary.length > 1) removeFromItinerary(itinerary.length - 1);
                 return;
             }
             const allowed = new Set(getAllowedNextCodes());
-            if (!allowed.has(dest.code)) return; // not a valid Emirates departure from current airport
+            if (!allowed.has(dest.code)) return;
             addToItinerary(dest);
         }
 
@@ -844,7 +1208,6 @@
                 const end = itinerary[i + 1];
                 const latlngs = [[start.lat, start.lng], [end.lat, end.lng]];
 
-                // Base white stroke for contrast
                 const polylineBase = L.polyline(latlngs, {
                     color: '#FFFFFF',
                     weight: 6,
@@ -853,7 +1216,6 @@
                     lineJoin: 'round'
                 }).addTo(map);
 
-                // Main route line
                 const polyline = L.polyline(latlngs, {
                     color: '#D71921',
                     weight: 4,
@@ -862,7 +1224,6 @@
                     lineJoin: 'round'
                 }).addTo(map);
 
-                // Animated dash overlay
                 const animatedLine = L.polyline(latlngs, {
                     color: '#FFFFFF',
                     weight: 2,
@@ -913,7 +1274,7 @@
                 `;
                 
                 el.querySelector('.segment-content').onclick = (e) => {
-                    e.stopPropagation(); // Avoid triggering drag or other event
+                    e.stopPropagation();
                     showAirportPanel(dest);
                 };
                 
@@ -935,7 +1296,6 @@
         function handleSearchInput(event) {
             const query = document.getElementById('search-input').value || '';
             
-            // 1. Update the main list (filter)
             const list = document.getElementById('dest-list');
             list.innerHTML = '';
 
@@ -947,7 +1307,6 @@
 
             filtered.sort((a, b) => a.country.localeCompare(b.country) || a.name.localeCompare(b.name));
             
-            // Re-render dest list logic (simplified from filterDestinations)
             const allowedSet = new Set(getAllowedNextCodes());
             filtered.forEach(dest => {
                 const inItinerary = itinerary.some(i => i.code === dest.code);
@@ -967,7 +1326,6 @@
             });
             document.getElementById('dest-count').innerText = filtered.length;
 
-            // 2. Handle Autocomplete
             updateAutocomplete(query);
         }
 
@@ -982,13 +1340,11 @@
             let routeMode = false;
             let originCode = '';
 
-            // Check if user is building a route
             if (query.includes('-')) {
                 const parts = query.split('-');
                 originCode = parts[0].trim().toUpperCase();
                 const partialDest = parts[1] ? parts[1].trim().toLowerCase() : '';
                 
-                // If origin is valid, suggest destinations
                 const originDest = findDestination(originCode);
                 if (originDest) {
                     routeMode = true;
@@ -998,7 +1354,6 @@
                     );
                 }
             } else {
-                // Standard search
                 suggestions = destinations.filter(d => 
                     d.name.toLowerCase().includes(query.toLowerCase()) || 
                     d.code.toLowerCase().includes(query.toLowerCase())
@@ -1011,7 +1366,7 @@
             }
 
             container.innerHTML = '';
-            suggestions.slice(0, 8).forEach(dest => { // limit to 8 suggestions
+            suggestions.slice(0, 8).forEach(dest => {
                 const el = document.createElement('div');
                 el.className = 'autocomplete-item';
                 
@@ -1019,7 +1374,6 @@
                 let displayCode = dest.code;
                 
                 if (routeMode) {
-                    // Show "LHR - DXB" format
                     displayCode = `${originCode} - ${dest.code}`;
                     displayText = `to ${dest.name}`;
                 }
@@ -1033,15 +1387,12 @@
                 el.onclick = () => {
                     const input = document.getElementById('search-input');
                     if (routeMode) {
-                        // Complete the route
                         input.value = `${originCode}-${dest.code}`;
                         container.style.display = 'none';
                         parseAndLoadRoute(input.value);
                     } else {
-                        // Start the route (append hyphen to hint at next step)
                         input.value = `${dest.code}-`;
                         input.focus();
-                        // Trigger update again to show suggestions for second leg
                         updateAutocomplete(`${dest.code}-`);
                     }
                 };
@@ -1052,11 +1403,9 @@
         }
 
         function filterDestinations() {
-             // Retired in favor of handleSearchInput
              handleSearchInput({ target: document.getElementById('search-input') });
         }
         
-        // Ensure clicking outside closes autocomplete
         document.addEventListener('click', function(e) {
             const container = document.getElementById('autocomplete-results');
             const input = document.getElementById('search-input');
@@ -1073,10 +1422,8 @@
             }
 
             const time = calculateFlightTime(dist);
-            // Approx skywards miles (1 mile per mile flown, simplified)
             const skywardsMiles = Math.round(dist * 0.621371); 
 
-            // Leg analytics
             const legDistances = [];
             let legContentHtml = '';
             const aircraftUsed = new Set();
@@ -1104,7 +1451,6 @@
                 `;
             }
 
-            // Determine display mode (Single leg vs Multi leg)
             const isMulti = legs > 1;
             
             let statsHtml = '';
@@ -1134,7 +1480,6 @@
                     </div>
                 `;
             } else {
-                // Single leg simplified view
                 statsHtml = `
                     <div class="stat-grid">
                         <div class="stat-item">
@@ -1176,31 +1521,6 @@
 
             document.getElementById('card-body').innerHTML = bodyContent;
             document.getElementById('flight-card').style.display = 'block';
-            
-            // Re-bind fleet lineup logic if needed, or simple static text
-            // For now, fleet is handled in global function `renderFleetLineup`, but we erased the holder.
-            // Let's re-add the holder logic inline or just use text badges in the loop above.
-            // Simplified: The loop above already shows aircraft type per leg.
-        }
-
-        function renderFleetLineup() {
-             // Retired: Fleet info is now inline in the Flight details card
-        }
-
-        function renderFleetLineup() {
-            const holder = document.getElementById('fleet-lineup');
-            if (!holder) return;
-            holder.innerHTML = '';
-
-            const renderChip = (entry, onOrder = false) => {
-                const chip = document.createElement('span');
-                chip.className = `fleet-chip${onOrder ? ' on-order' : ''}`;
-                chip.textContent = entry.name;
-                holder.appendChild(chip);
-            };
-
-            fleet.inService.forEach(entry => renderChip(entry, false));
-            fleet.onOrder.forEach(entry => renderChip(entry, true));
         }
 
         function focusSearch() { document.getElementById('search-input').focus(); }
@@ -1224,18 +1544,16 @@
             return `${h}h ${m}m`;
         }
 
-        // Approximate local time from longitude. Accurate enough for quick glance; not DST-aware.
         function formatApproxLocalTimeFromLng(lng) {
             const now = new Date();
             const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
-            const offsetMinutes = Math.round(lng * 4); // 1° ~= 4 minutes
+            const offsetMinutes = Math.round(lng * 4);
             const local = new Date(utcMs + offsetMinutes * 60000);
             const hh = String(local.getHours()).padStart(2, '0');
             const mm = String(local.getMinutes()).padStart(2, '0');
             return `${hh}:${mm}`;
         }
 
-        // Partial IANA time zone map for DST-aware times. Fallback to approx if missing.
         const tzMap = {
             DXB: 'Asia/Dubai', AUH: 'Asia/Dubai', JED: 'Asia/Riyadh', RUH: 'Asia/Riyadh', DMM: 'Asia/Riyadh', MED: 'Asia/Riyadh',
             KWI: 'Asia/Kuwait', BAH: 'Asia/Bahrain', MCT: 'Asia/Muscat', BEY: 'Asia/Beirut', AMM: 'Asia/Amman', IKA: 'Asia/Tehran',
@@ -1281,18 +1599,15 @@
             
             if (!p || !dest) return;
             
-            // Check if panel is already open for a different airport
             if (p.classList.contains('visible') && title.textContent.includes(dest.code)) {
-                return; // Already open for this one
+                return;
             }
 
             const updateContent = async () => {
                 title.textContent = `${dest.name} (${dest.code})`;
                 
-                // Basic Info
                 const localTime = formatLocalTime(dest.code, dest.lng);
                 
-                // Temp loading state for planes
                 let html = `
                     <div class="rp-row">
                         <span class="rp-label">Country</span>
@@ -1316,7 +1631,6 @@
                     </div>
                 `;
                 
-                // Placeholder for weather
                 html += `
                     <div class="rp-weather">
                         <div class="rp-w-icon"><i class="fas fa-spinner fa-spin"></i></div> 
@@ -1329,19 +1643,16 @@
                 
                 content.innerHTML = html;
                 
-                // Parallel Fetch: Weather & Planes
                 const pWeather = fetchWeather(dest.lat, dest.lng);
                 const pPlanes = getRealPlaneCount(dest.lat, dest.lng, dest.code);
 
                 const [w, planeData] = await Promise.all([pWeather, pPlanes]);
 
-                // Update Planes
                 const pEl = content.querySelector('#rp-planes');
                 if (pEl) {
                     const total = planeData.total || 0;
                     const ek = planeData.ek || 0;
                     
-                    // Always show Emirates breakdown to reinforce branding
                     const label = planeData.error ? "simulated" : "total";
                     pEl.innerHTML = `
                         <div style="display:flex; flex-direction:column; gap:4px;">
@@ -1350,7 +1661,6 @@
                         </div>`;
                 }
 
-                // Update Weather
                 if (w) {
                     const weatherBlock = content.querySelector('.rp-weather');
                     if (weatherBlock) {
@@ -1377,7 +1687,6 @@
             };
             
             if (p.classList.contains('visible')) {
-                // Animate change
                 content.classList.add('fading');
                 setTimeout(async () => {
                     await updateContent();
@@ -1389,32 +1698,26 @@
             }
         }
 
-        // Cache for plane counts
         const planeCountCache = {};
 
         async function getRealPlaneCount(lat, lng, code) {
-            // Check cache (5 mins)
             if (planeCountCache[code] && (Date.now() - planeCountCache[code].timestamp < 300000)) {
                 return planeCountCache[code].data;
             }
 
-            // Default: Expanded Box ~1.0 degrees (approx 110km) for better approach detection
             let latMin = lat - 1.0;
             let latMax = lat + 1.0;
             let lngMin = lng - 1.0;
             let lngMax = lng + 1.0;
 
-            // SPECIAL CASE: Dubai Hub (DXB)
-            // Widen the net to catch the 'Bank' structure and approach traffic over Iraq/Gulf
             if (code === 'DXB') {
-                latMin = 22.0; // South of UAE
-                latMax = 34.0; // North of Iraq
-                lngMin = 48.0; // West (Saudi)
-                lngMax = 59.0; // East (Iran/Gulf)
+                latMin = 22.0;
+                latMax = 34.0;
+                lngMin = 48.0;
+                lngMax = 59.0;
             }
 
             try {
-                // OpenSky Network API
                 const url = `https://opensky-network.org/api/states/all?lamin=${latMin}&lomin=${lngMin}&lamax=${latMax}&lomax=${lngMax}`;
                 const res = await fetch(url);
                 const data = await res.json();
@@ -1423,25 +1726,17 @@
                 let ekCount = 0;
 
                 if (data.states && Array.isArray(data.states)) {
-                    // Count ALL traffic in region
                     count = data.states.length;
-                    
-                    // Filter specifically for "UAE" or "EK" callsigns (Emirates ICAO is UAE)
-                    // state[1] is callsign (e.g. "UAE123")
                     ekCount = data.states.filter(s => s[1] && s[1].trim().startsWith('UAE')).length;
                 }
                 
-                // Result Object
                 const result = { total: count, ek: ekCount };
                 
-                // Only fallback to simulation if the region seems completely dead (coverage hole)
-                // If we see 50 Lufthansa planes but 0 Emirates, we trust the 0.
                 if (count === 0) {
                      const sim = getSimulatedPlaneCount(code, code === 'DXB');
                      result.total = sim;
-                     // Only simulate EK presence if we are purely guessing
                      result.ek = (code === 'DXB') ? Math.floor(sim * 0.7) : 1;
-                     result.error = true; // Mark as simulated
+                     result.error = true;
                 }
 
                 planeCountCache[code] = { timestamp: Date.now(), data: result };
@@ -1455,25 +1750,19 @@
         }
 
         function getSimulatedPlaneCount(code, isHub) {
-            // "Real" live ground data requires paid subscriptions (e.g. FlightAware Firehose).
-            // Simulating realistic "busy" traffic for demo purposes.
-            // Emirates Fleet: ~260 aircraft.
-            
             if (code === 'DXB') {
-                // Dubai Hub: Large concentration
-                return Math.floor(Math.random() * 50) + 140; // 140-190 planes
+                return Math.floor(Math.random() * 50) + 140;
             }
             if (isHub) {
-                // Major international gateways (LHR, JFK, SYD etc)
-                return Math.floor(Math.random() * 8) + 4; // 4-12 planes
+                return Math.floor(Math.random() * 8) + 4;
             }
-            // Standard destinations
-            return Math.floor(Math.random() * 3) + 1; // 1-3 planes
+            return Math.floor(Math.random() * 3) + 1;
         }
 
+        const weatherCache = {};
         async function fetchWeather(lat, lng) {
             const key = `${lat.toFixed(2)},${lng.toFixed(2)}`;
-            if (weatherCache[key] && (Date.now() - weatherCache[key].timestamp < 600000)) { // 10 min cache
+            if (weatherCache[key] && (Date.now() - weatherCache[key].timestamp < 600000)) {
                 return weatherCache[key].data;
             }
             try {
@@ -1485,7 +1774,6 @@
                         data: data.current_weather
                     };
                     const w = data.current_weather;
-                    // Add standard mappings for icon logic
                     w.iconClass = 'fa-sun';
                     if (w.rain > 0 || (w.weathercode >= 60 && w.weathercode < 70)) w.iconClass = 'fa-cloud-rain';
                     else if (w.snowfall > 0 || (w.weathercode >= 70 && w.weathercode < 80)) w.iconClass = 'fa-snowflake';
@@ -1505,31 +1793,9 @@
             if (tz) {
                 try {
                     return new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: tz }).format(new Date());
-                } catch { /* fallthrough */ }
+                } catch { }
             }
             return formatApproxLocalTimeFromLng(lng) + ' (approx)';
-        }
-
-        const weatherCache = {};
-        async function fetchWeather(lat, lng) {
-            const key = `${lat.toFixed(2)},${lng.toFixed(2)}`;
-            if (weatherCache[key] && (Date.now() - weatherCache[key].timestamp < 600000)) { // 10 min cache
-                return weatherCache[key].data;
-            }
-            try {
-                const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current_weather=true`);
-                const data = await res.json();
-                if (data.current_weather) {
-                    weatherCache[key] = {
-                        timestamp: Date.now(),
-                        data: data.current_weather
-                    };
-                    return data.current_weather;
-                }
-            } catch (e) {
-                console.error("Weather fetch failed " + key);
-            }
-            return null;
         }
 
         function selectAircraft(dist) {
@@ -1549,7 +1815,6 @@
         function parseAndLoadRoute(query) {
             if (!query) return;
 
-            // Simple route parser: detecting "-" or " to "
             let parts = null;
             if (query.includes('-')) parts = query.split('-');
             else if (query.toLowerCase().includes(' to ')) parts = query.toLowerCase().split(' to ');
@@ -1586,22 +1851,23 @@
 
         function findDestination(str) {
             str = str.toLowerCase();
-            // 1. Exact Code Match
             let match = destinations.find(d => d.code.toLowerCase() === str);
             if (match) return match;
-            // 2. Exact Name Match
             match = destinations.find(d => d.name.toLowerCase() === str);
             if (match) return match;
-            // 3. Partial Name Match
             return destinations.find(d => d.name.toLowerCase().includes(str));
         }
 
         window.onload = () => {
             initMap();
-            renderFleetLineup();
+            checkFirstVisit();
+            checkUrlRoute();
+            
+            setTimeout(() => {
+                document.getElementById('loading-overlay').classList.add('hidden');
+            }, 1500);
         };
 
-        // 3D Globe integration
         function initGlobe() {
             const container = document.getElementById('globe');
             if (!container) return;
@@ -1615,12 +1881,11 @@
             globe = Globe()
                 (container)
                 .backgroundColor('#0b1220')
-                // Using local 8k texture (ensure file is in same directory)
-                .globeImageUrl('8k_earth_daymap.jpg')
+                .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
                 .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
                 .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
                 .showAtmosphere(true)
-                .atmosphereColor('#4a90e2') // Reverted to original blue atmosphere
+                .atmosphereColor('#4a90e2')
                 .atmosphereAltitude(0.18)
                 .pointAltitude(d => 0.02)
                 .pointRadius(1.1)
@@ -1631,18 +1896,16 @@
                 .arcAltitude(0.15)
                 .arcStroke(1.2)
                 .ringsData([])
-                .ringColor(() => t => `rgba(215, 25, 33, ${0.6 * (1 - t)})`) // Smoother fade-out
-                .ringMaxRadius(8) // Larger ripples
-                .ringPropagationSpeed(1.5) // Slower speed
-                .ringRepeatPeriod(1200) // Consistant pulse
+                .ringColor(() => t => `rgba(215, 25, 33, ${0.6 * (1 - t)})`)
+                .ringMaxRadius(8)
+                .ringPropagationSpeed(1.5)
+                .ringRepeatPeriod(1200)
                 .width(container.clientWidth)
                 .height(container.clientHeight);
 
-            // Prefer great-circle arcs and smoother curves on long routes
             if (globe.arcsUseGreatCircle) globe.arcsUseGreatCircle(true);
             if (globe.arcCircularResolution) globe.arcCircularResolution(64);
 
-            // Tooltip container for hover info (attach to body to avoid stacking issues)
             const globeTooltip = document.createElement('div');
             globeTooltip.id = 'globe-tooltip';
             globeTooltip.className = 'globe-tooltip';
@@ -1655,105 +1918,99 @@
                 globeTooltip.style.top = (y + 12) + 'px';
             };
 
-            // Optional features applied safely after creation
             if (globe.pointResolution) globe.pointResolution(10);
             if (globe.showGraticules) globe.showGraticules(true);
 
-                        // Use HTML elements for both nodes and arc bubbles
-                        if (globe.htmlElementsData) {
-                            globe
-                              .htmlElementsData([])
-                              .htmlLat(d => d.lat)
-                              .htmlLng(d => d.lng)
-                              .htmlAltitude(d => d.alt ?? (d.kind === 'node' ? 0.02 : 0.25))
-                              .htmlElement(d => {
-                                  if (d.kind === 'node') {
-                                      const el = document.createElement('div');
-                                      el.className = 'globe-node';
-                                      if (d.hub) el.classList.add('hub');
-                                      if (d.selected) el.classList.add('selected');
-                                      if (d.disabled) el.classList.add('disabled');
-                                      el.title = `${d.name} (${d.code})`;
-                                      el.addEventListener('mouseenter', async (ev) => {
-                                          const status = d.selected ? 'Selected' : (d.disabled ? 'Not allowed from here' : 'Click to add');
-                                          const localTime = formatLocalTime(d.code, d.lng);
-                                          
-                                          globeTooltip.innerHTML = `
-                                              <div class="tt-title">${d.name} (${d.code})</div>
-                                              ${d.country ? `<div class="tt-sub">${d.country}</div>` : ''}
-                                              <div class="tt-hint">Local time: ${localTime}</div>
-                                              <div class="tt-hint" id="tt-weather">Weather: Loading...</div>
-                                              <div class="tt-metric" id="tt-planes"><div class="tt-icon"><i class="fas fa-plane"></i></div> Checking radar...</div>
-                                              <div class="tt-hint">${status}</div>
-                                          `;
-                                          globeTooltip.style.display = 'block';
-                                          moveTooltip(ev);
+            if (globe.htmlElementsData) {
+                globe
+                  .htmlElementsData([])
+                  .htmlLat(d => d.lat)
+                  .htmlLng(d => d.lng)
+                  .htmlAltitude(d => d.alt ?? (d.kind === 'node' ? 0.02 : 0.25))
+                  .htmlElement(d => {
+                      if (d.kind === 'node') {
+                          const el = document.createElement('div');
+                          el.className = 'globe-node';
+                          if (d.hub) el.classList.add('hub');
+                          if (d.selected) el.classList.add('selected');
+                          if (d.disabled) el.classList.add('disabled');
+                          el.title = `${d.name} (${d.code})`;
+                          el.addEventListener('mouseenter', async (ev) => {
+                              const status = d.selected ? 'Selected' : (d.disabled ? 'Not allowed from here' : 'Click to add');
+                              const localTime = formatLocalTime(d.code, d.lng);
+                              
+                              globeTooltip.innerHTML = `
+                                  <div class="tt-title">${d.name} (${d.code})</div>
+                                  ${d.country ? `<div class="tt-sub">${d.country}</div>` : ''}
+                                  <div class="tt-hint">Local time: ${localTime}</div>
+                                  <div class="tt-hint" id="tt-weather">Weather: Loading...</div>
+                                  <div class="tt-metric" id="tt-planes"><div class="tt-icon"><i class="fas fa-plane"></i></div> Checking radar...</div>
+                                  <div class="tt-hint">${status}</div>
+                              `;
+                              globeTooltip.style.display = 'block';
+                              moveTooltip(ev);
 
-                                          // Parallel Fetch
-                                          const pWeather = fetchWeather(d.lat, d.lng);
-                                          const pPlanes = getRealPlaneCount(d.lat, d.lng, d.code);
-                                          
-                                          // Update independent of each other for speed
-                                          pPlanes.then(data => {
-                                              if (globeTooltip.style.display === 'block' && globeTooltip.innerHTML.includes(d.code)) {
-                                                  const pEl = globeTooltip.querySelector('#tt-planes');
-                                                  if(pEl) {
-                                                      const total = data.total || 0;
-                                                      const ek = data.ek || 0;
-                                                      pEl.innerHTML = `<div class="tt-icon"><i class="fas fa-plane" style="color:var(--ek-red)"></i></div> <b>${ek} Emirates flights</b> nearby (${total} total)`;
-                                                  }
-                                              }
-                                          });
-
-                                          pWeather.then(w => {
-                                              if (w && globeTooltip.style.display === 'block') { 
-                                                    const weatherEl = globeTooltip.querySelector('#tt-weather');
-                                                    if (weatherEl) {
-                                                        weatherEl.innerHTML = `Temp: ${w.temperature}°C • Wind: ${w.windspeed} km/h`;
-                                                    }
-                                              } else if (!w && globeTooltip.style.display === 'block') {
-                                                    const weatherEl = globeTooltip.querySelector('#tt-weather');
-                                                    if (weatherEl) weatherEl.innerHTML = `Weather: N/A`;
-                                              }
-                                          });
-                                      });
-                                      el.addEventListener('mousemove', (ev) => moveTooltip(ev));
-                                      el.addEventListener('mouseleave', () => { globeTooltip.style.display = 'none'; });
-                                      el.onclick = (ev) => {
-                                          ev.stopPropagation();
-                                          const dest = destinations.find(x => x.code === d.code);
-                                          if (!dest) return;
-                                          
-                                          // Show Right Panel Details
-                                          showAirportPanel(dest);
-
-                                          const inx = itinerary.findIndex(i => i.code === d.code);
-                                          if (inx >= 0) {
-                                              removeFromItinerary(inx);
-                                          } else {
-                                              handleMarkerClick(dest);
-                                          }
-                                          if (globe.pointOfView) globe.pointOfView({ lat: dest.lat, lng: dest.lng, altitude: 2.2 }, 700);
-                                          // refreshGlobeState will be called via itinerary mutation handlers
-                                      };
-                                      return el;
-                                      } else if (d.kind === 'plane') {
-                                      const el = document.createElement('div');
-                                      el.innerHTML = '<i class="fas fa-plane"></i>';
-                                      el.style.fontSize = '20px';
-                                      el.style.color = '#fff';
-                                      el.style.textShadow = '0 0 10px #D71921'; 
-                                      el.style.transform = `translate(-50%, -50%) rotate(${d.rot}deg)`;
-                                      el.style.pointerEvents = 'none';
-                                      return el;
-                                  } else {
-                                      const el = document.createElement('div');
-                                      el.className = 'globe-bubble';
-                                      el.textContent = d.text;
-                                      return el;
+                              const pWeather = fetchWeather(d.lat, d.lng);
+                              const pPlanes = getRealPlaneCount(d.lat, d.lng, d.code);
+                              
+                              pPlanes.then(data => {
+                                  if (globeTooltip.style.display === 'block' && globeTooltip.innerHTML.includes(d.code)) {
+                                      const pEl = globeTooltip.querySelector('#tt-planes');
+                                      if(pEl) {
+                                          const total = data.total || 0;
+                                          const ek = data.ek || 0;
+                                          pEl.innerHTML = `<div class="tt-icon"><i class="fas fa-plane" style="color:var(--ek-red)"></i></div> <b>${ek} Emirates flights</b> nearby (${total} total)`;
+                                      }
                                   }
                               });
-                        }
+
+                              pWeather.then(w => {
+                                  if (w && globeTooltip.style.display === 'block') { 
+                                        const weatherEl = globeTooltip.querySelector('#tt-weather');
+                                        if (weatherEl) {
+                                            weatherEl.innerHTML = `Temp: ${w.temperature}°C • Wind: ${w.windspeed} km/h`;
+                                        }
+                                  } else if (!w && globeTooltip.style.display === 'block') {
+                                        const weatherEl = globeTooltip.querySelector('#tt-weather');
+                                        if (weatherEl) weatherEl.innerHTML = `Weather: N/A`;
+                                  }
+                              });
+                          });
+                          el.addEventListener('mousemove', (ev) => moveTooltip(ev));
+                          el.addEventListener('mouseleave', () => { globeTooltip.style.display = 'none'; });
+                          el.onclick = (ev) => {
+                              ev.stopPropagation();
+                              const dest = destinations.find(x => x.code === d.code);
+                              if (!dest) return;
+                              
+                              showAirportPanel(dest);
+
+                              const inx = itinerary.findIndex(i => i.code === d.code);
+                              if (inx >= 0) {
+                                  removeFromItinerary(inx);
+                              } else {
+                                  handleMarkerClick(dest);
+                              }
+                              if (globe.pointOfView) globe.pointOfView({ lat: dest.lat, lng: dest.lng, altitude: 2.2 }, 700);
+                          };
+                          return el;
+                      } else if (d.kind === 'plane') {
+                          const el = document.createElement('div');
+                          el.innerHTML = '<i class="fas fa-plane"></i>';
+                          el.style.fontSize = '20px';
+                          el.style.color = '#fff';
+                          el.style.textShadow = '0 0 10px #D71921'; 
+                          el.style.transform = `translate(-50%, -50%) rotate(${d.rot}deg)`;
+                          el.style.pointerEvents = 'none';
+                          return el;
+                      } else {
+                          const el = document.createElement('div');
+                          el.className = 'globe-bubble';
+                          el.textContent = d.text;
+                          return el;
+                      }
+                  });
+            }
 
             window.addEventListener('resize', () => {
                 if (!globe) return;
@@ -1776,7 +2033,6 @@
             globe.onPointHover && globe.onPointHover((p, prev) => {
                 if (prev) prev.__hover = false;
                 if (p) p.__hover = true;
-                // trigger a re-render by re-setting points data
                 if (globe.pointsData) globe.pointsData(globe.pointsData());
             });
             if (globe.onPointClick) {
@@ -1785,7 +2041,6 @@
                     const dest = destinations.find(d => d.code === p.code);
                     if (!dest) return;
                     handleMarkerClick(dest);
-                    // focus camera near selection
                     if (globe.pointOfView) globe.pointOfView({ lat: dest.lat, lng: dest.lng, altitude: 2.2 }, 900);
                     refreshGlobeState();
                 });
@@ -1799,7 +2054,6 @@
                 });
             }
 
-            // Idle-based auto-rotate: stop on interaction, resume after delay
             const resetIdle = () => {
                 if (!globe || !globe.controls) return;
                 const c = globe.controls();
@@ -1830,7 +2084,6 @@
                 disabled: !(itinerary.length === 0 || allowedSet.has(d.code) || itineraryCodes.has(d.code))
             }));
             
-            // Add pulsing rings to active airports
             const rings = destinations
                 .filter(d => itineraryCodes.has(d.code))
                 .map(d => ({ lat: d.lat, lng: d.lng }));
@@ -1847,18 +2100,15 @@
                 const dist = getDistanceFromLatLonInKm(lat, lng, d.lat, d.lng);
                 if (dist < bestD) { bestD = dist; best = d; }
             });
-            // require click to be within 400km to select something, to avoid accidental picks
             return bestD < 400 ? best : null;
         }
 
-        // Global texture and state
         let routeMeshes = [];
         let routeAnimFrame = null;
 
         function updateGlobeArcs() {
             if (!globe) return;
             
-            // 1. Clean up old meshes
             const scene = globe.scene();
             routeMeshes.forEach(m => {
                 scene.remove(m);
@@ -1867,7 +2117,6 @@
             });
             routeMeshes = [];
             
-            // Clear default arcs
             if (globe.arcsData) globe.arcsData([]);
             
             if (itinerary.length < 2) {
@@ -1876,21 +2125,18 @@
             }
 
             const bubbles = [];
-            const newAgents = []; // Track moving pods for animation
+            const newAgents = [];
 
-            // 2. Build Paths
             for (let i = 0; i < itinerary.length - 1; i++) {
                 const a = itinerary[i];
                 const b = itinerary[i+1];
                 const d = getDistanceFromLatLonInKm(a.lat, a.lng, b.lat, b.lng);
                 
-                // Labels
                 const mid = midpointLatLng(a.lat, a.lng, b.lat, b.lng);
                 const t = calculateFlightTime(d);
                 const labelAlt = Math.max(0.1, Math.min(0.6, 0.1 + (d/8000)*0.5)) + 0.1;
                 bubbles.push({ kind: 'bubble', lat: mid.lat, lng: mid.lng, alt: labelAlt, text: `${a.code} → ${b.code} — ${Math.round(d).toLocaleString()} km • ${t}` });
 
-                // Spline Generation
                 const points = [];
                 const steps = 60; 
                 const maxAlt = Math.max(0.1, Math.min(0.6, 0.1 + (d / 8000) * 0.5));
@@ -1899,7 +2145,6 @@
                 for (let s = 0; s <= steps; s++) {
                     const t = s / steps;
                     const pos = interpolateLatLng(a, b, t);
-                    // Sine curve for arc, but start/end at baseAlt
                     const arcAlt = Math.sin(t * Math.PI) * maxAlt;
                     const finalAlt = baseAlt + arcAlt;
                     
@@ -1909,11 +2154,8 @@
                     }
                 }
 
-                // Geometry
                 const curve = new THREE.CatmullRomCurve3(points);
                 
-                // --- VISUAL 1: THE RAIL (Static Track) ---
-                // Pure Line
                 const railPoints = curve.getPoints(100);
                 const railGeom = new THREE.BufferGeometry().setFromPoints(railPoints);
                 const railMat = new THREE.LineBasicMaterial({
@@ -1925,19 +2167,13 @@
                 scene.add(railMesh);
                 routeMeshes.push(railMesh);
 
-                // --- VISUAL 2: THE STREAK (Moving Flexible Line) ---
-                // Use TubeGeometry so it bends, but use texture to mask all but a segment
-                // Radius increased to 0.15 for better visibility (thicker)
                 const streakGeom = new THREE.TubeGeometry(curve, 64, 0.15, 12, false); 
                 
-                // Create dashed texture for the streak if not exists
                 if (!window.streakTexture) {
                     const cvs = document.createElement('canvas');
                     cvs.width = 1024; cvs.height = 32;
                     const ctx = cvs.getContext('2d');
-                    // Background: Transparent
                     ctx.clearRect(0,0,1024,32);
-                    // Draw Streak: Solid Red on the last 15% 
                     ctx.fillStyle = '#d71921'; 
                     ctx.fillRect(800, 0, 224, 32); 
                     
@@ -1946,7 +2182,6 @@
                     window.streakTexture.wrapT = THREE.ClampToEdgeWrapping;
                 }
                 
-                // Clone texture so each arc can have independent offset
                 const localTex = window.streakTexture.clone();
                 localTex.needsUpdate = true;
                 
@@ -1954,9 +2189,9 @@
                     map: localTex,
                     transparent: true,
                     opacity: 1.0,
-                    side: THREE.BackSide, // Optimization usually, but DoubleSide is safer for tubes
+                    side: THREE.BackSide,
                 });
-                streakMat.side = THREE.DoubleSide; // Force double side
+                streakMat.side = THREE.DoubleSide;
                 
                 const streakMesh = new THREE.Mesh(streakGeom, streakMat);
                 scene.add(streakMesh);
@@ -1973,7 +2208,6 @@
                 globe.htmlElementsData(merged);
             }
             
-            // Animation Loop
             if (routeAnimFrame) cancelAnimationFrame(routeAnimFrame);
             
             const animateAgents = () => {
@@ -1985,17 +2219,9 @@
                 routeAnimFrame = requestAnimationFrame(animateAgents);
             };
             animateAgents();
-            
-            // Focus
-            const lastMid = bubbles[bubbles.length - 1];
-            if (lastMid && globe.pointOfView) {
-                // globe.pointOfView({ lat: lastMid.lat, lng: lastMid.lng, altitude: 2.2 }, 900);
-            }
         }
 
-        // Great Circle Interpolation
         function interpolateLatLng(p1, p2, t) {
-            // Convert to Cartesian
             const lat1 = p1.lat * Math.PI / 180;
             const lon1 = p1.lng * Math.PI / 180;
             const lat2 = p2.lat * Math.PI / 180;
@@ -2009,7 +2235,6 @@
             const y2 = Math.cos(lat2) * Math.sin(lon2);
             const z2 = Math.sin(lat2);
 
-            // Slerp
             const omega = Math.acos(x1*x2 + y1*y2 + z1*z2);
             const sinOmega = Math.sin(omega);
 
@@ -2029,19 +2254,6 @@
                 lat: lat * 180 / Math.PI,
                 lng: lon * 180 / Math.PI
             };
-        }
-
-        function getBearing(lat1, lon1, lat2, lon2) {
-            const rad = Math.PI / 180;
-            const φ1 = lat1 * rad;
-            const φ2 = lat2 * rad;
-            const Δλ = (lon2 - lon1) * rad;
-
-            const y = Math.sin(Δλ) * Math.cos(φ2);
-            const x = Math.cos(φ1) * Math.sin(φ2) -
-                    Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
-            
-            return Math.atan2(y, x) * 180 / Math.PI;
         }
 
         function midpointLatLng(lat1, lon1, lat2, lon2) {
@@ -2067,20 +2279,18 @@
             viewMode = mode;
             const mapEl = document.getElementById('map');
             const globeEl = document.getElementById('globe');
-            const globeUiEl = document.getElementById('globe-ui');
             const sidebarEl = document.querySelector('.sidebar');
             const b2d = document.getElementById('btn-2d');
             const b3d = document.getElementById('btn-3d');
+            
             if (mode === '3D') {
                 mapEl.style.display = 'none';
                 globeEl.style.display = 'block';
                 if (sidebarEl) sidebarEl.style.display = 'none';
-                if (globeUiEl) globeUiEl.style.display = 'none';
                 b2d.classList.remove('active');
                 b3d.classList.add('active');
                 if (!globe) initGlobe();
                 refreshGlobeState();
-                // schedule idle rotate soon after entering 3D
                 if (globe && globe.controls) {
                     const c = globe.controls();
                     if (c) {
@@ -2093,30 +2303,12 @@
                 globeEl.style.display = 'none';
                 mapEl.style.display = 'block';
                 if (sidebarEl) sidebarEl.style.display = 'block';
-                if (globeUiEl) globeUiEl.style.display = 'none';
                 b3d.classList.remove('active');
                 b2d.classList.add('active');
                 if (map && map.invalidateSize) {
                    setTimeout(() => map.invalidateSize(), 100);
                 }
             }
-        }
-
-        function toggleRotate() {
-            globeAutoRotate = !globeAutoRotate;
-            const btn = document.getElementById('btn-rotate');
-            if (btn) btn.textContent = `Auto Rotate: ${globeAutoRotate ? 'On' : 'Off'}`;
-            if (globe && globe.controls) {
-                const c = globe.controls();
-                if (c) c.autoRotate = globeAutoRotate;
-            }
-        }
-
-        function toggleShowAllowed() {
-            globeShowAllowedOnly = !globeShowAllowedOnly;
-            const btn = document.getElementById('btn-allowed');
-            if (btn) btn.textContent = `Allowed Only: ${globeShowAllowedOnly ? 'On' : 'Off'}`;
-            refreshGlobeState();
         }
 
         function toggleTripSummary() {
@@ -2149,7 +2341,6 @@
             const relY = e.clientY - rect.top;
             const mid = rect.height / 2;
             
-            // clear previous
             e.currentTarget.classList.remove('drag-over-top', 'drag-over-bottom');
 
             if (relY < mid) {
@@ -2175,13 +2366,10 @@
                 const relY = e.clientY - rect.top;
                 const insertAfter = relY > (rect.height / 2);
                 
-                // Determine insertion point
                 let targetIndex = insertAfter ? dropIndex + 1 : dropIndex;
                 
-                // Remove item first
                 const [removed] = itinerary.splice(draggedIndex, 1);
                 
-                // Adjust index if we removed an item above the insertion point
                 if (draggedIndex < targetIndex) {
                     targetIndex--;
                 }
@@ -2200,19 +2388,19 @@
             draggedIndex = null;
         }
 
-        function setRouteAnimation(mode) {
-            routeAnimationMode = mode;
-            document.getElementById('btn-arc').classList.toggle('active', mode === 'arc');
-            document.getElementById('btn-plane').classList.toggle('active', mode === 'plane');
-            updateGlobeArcs();
-        }
-
-        function setRouteAnimation(mode) {
-            routeAnimationMode = mode;
-            document.getElementById('btn-arc').classList.toggle('active', mode === 'arc');
-            document.getElementById('btn-plane').classList.toggle('active', mode === 'plane');
-            updateGlobeArcs();
-        }
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                if (e.key === 's') {
+                    e.preventDefault();
+                    saveRoute();
+                }
+                if (e.key === 'o') {
+                    e.preventDefault();
+                    loadRoute();
+                }
+            }
+        });
     </script>
 </body>
 </html>
