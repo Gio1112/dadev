@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VATI Student Syllabus - Virtual Aviation Training Institute</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-orange: #f07f4e;
+            --secondary-orange: #ff8c61;
+            --dark-orange: #e66b3a;
+            --light-orange: #fff5f0;
+            --accent-coral: #e76f51;
+            --text-dark: #1f2937;
+            --text-gray: #6b7280;
+            --border-gray: #e5e7eb;
+            --white: #ffffff;
+            --light-bg: #f9fafb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--white);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        nav {
+            background: var(--white);
+            border-bottom: 1px solid var(--border-gray);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .vati-nav-wrap {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .vati-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .vati-logo img {
+            height: 50px;
+            width: auto;
+        }
+
+        .vati-logo-text {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-orange);
+            letter-spacing: 1px;
+        }
+
+        .vati-nav-list {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        .vati-nav-list a {
+            color: var(--text-dark);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .vati-nav-list a:hover {
+            background: var(--light-bg);
+            color: var(--primary-orange);
+        }
+
+        .vati-nav-list a.active {
+            background: var(--primary-orange);
+            color: var(--white);
+        }
+
+        .vati-contact {
+            background: var(--primary-orange);
+            color: var(--white);
+            padding: 0.6rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            display: inline-block;
+        }
+
+        .vati-contact:hover {
+            background: var(--dark-orange);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(240, 127, 78, 0.3);
+        }
+
+        .vati-burger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 0.5rem;
+            z-index: 100;
+        }
+
+        .vati-burger span {
+            width: 28px;
+            height: 3px;
+            background: var(--primary-orange);
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        .vati-burger.active span:nth-child(1) {
+            transform: translateY(8px) rotate(45deg);
+        }
+
+        .vati-burger.active span:nth-child(2) {
+            opacity: 0;
+            transform: scaleX(0);
+        }
+
+        .vati-burger.active span:nth-child(3) {
+            transform: translateY(-8px) rotate(-45deg);
+        }
+
+        .vati-soon {
+            background: #fef3c7;
+            color: #92400e;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .vati-soon {
+                background: #f59e0b;
+                color: var(--white);
+                font-weight: 700;
+            }
+        }
+
+        .vati-hero {
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--accent-coral) 100%);
+            color: var(--white);
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .vati-hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .vati-hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .vati-hero-tagline {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 400;
+        }
+
+        .vati-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .vati-section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-orange);
+            margin-bottom: 1rem;
+        }
+
+        .vati-about {
+            background: var(--light-bg);
+            border: 1px solid var(--border-gray);
+            border-radius: 8px;
+            padding: 2.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .vati-about p {
+            font-size: 1rem;
+            line-height: 1.8;
+            color: var(--text-gray);
+            margin-bottom: 1rem;
+        }
+
+        .vati-about p:last-child {
+            margin-bottom: 0;
+        }
+
+        .vati-programs-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .vati-programs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .vati-program-card {
+            background: var(--white);
+            border: 1px solid var(--border-gray);
+            border-radius: 8px;
+            padding: 2rem;
+            transition: all 0.2s ease;
+        }
+
+        .vati-program-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-color: var(--secondary-orange);
+        }
+
+        .vati-program-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--light-orange);
+        }
+
+        .vati-program-badge {
+            background: var(--primary-orange);
+            color: var(--white);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .vati-program-title {
+            flex: 1;
+        }
+
+        .vati-program-title h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .vati-program-title p {
+            font-size: 0.9rem;
+            color: var(--text-gray);
+        }
+
+        .vati-program-desc {
+            color: var(--text-gray);
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+
+        .vati-modules-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+        }
+
+        .vati-modules-list {
+            list-style: none;
+        }
+
+        .vati-module-item {
+            background: var(--light-bg);
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-radius: 6px;
+            border-left: 3px solid var(--secondary-orange);
+        }
+
+        .vati-module-code {
+            font-weight: 600;
+            color: var(--primary-orange);
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .vati-module-desc {
+            color: var(--text-gray);
+            font-size: 0.95rem;
+        }
+
+        .vati-program-detail {
+            margin-top: 2rem;
+        }
+
+        .vati-detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .vati-detail-card {
+            background: var(--white);
+            border: 1px solid var(--border-gray);
+            border-radius: 8px;
+            padding: 2rem;
+        }
+
+        .vati-detail-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-orange);
+            margin-bottom: 1rem;
+        }
+
+        .vati-detail-card p {
+            color: var(--text-gray);
+            line-height: 1.7;
+        }
+
+        .vati-partners-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .vati-partner-card {
+            background: var(--white);
+            border: 1px solid var(--border-gray);
+            border-radius: 8px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 220px;
+        }
+
+        .vati-partner-card:hover {
+            border-color: var(--secondary-orange);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+        }
+
+        .vati-partner-logo {
+            width: 160px;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.25rem;
+            background: #ffffff;
+            border: 2px solid var(--border-gray);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .vati-partner-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 10px;
+        }
+
+        .vati-partner-name {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 0.75rem;
+        }
+
+        .vati-partner-desc {
+            font-size: 0.95rem;
+            color: var(--text-gray);
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .vati-partner-status {
+            background: var(--light-orange);
+            color: var(--primary-orange);
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        footer {
+            background: var(--light-bg);
+            border-top: 1px solid var(--border-gray);
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-gray);
+            font-size: 0.9rem;
+        }
+
+        .is-hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .vati-programs-grid,
+            .vati-detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .vati-burger {
+                display: flex;
+            }
+
+            .vati-nav-list {
+                position: fixed;
+                top: 73px;
+                right: -100%;
+                width: 280px;
+                height: calc(100vh - 73px);
+                background: var(--white);
+                flex-direction: column;
+                gap: 0;
+                padding: 2rem 0;
+                box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+                transition: right 0.3s ease;
+                z-index: 99;
+            }
+
+            .vati-nav-list.active {
+                right: 0;
+            }
+
+            .vati-nav-list li {
+                width: 100%;
+            }
+
+            .vati-nav-list a {
+                display: block;
+                width: 100%;
+                padding: 1rem 2rem;
+                border-radius: 0;
+                color: var(--text-dark);
+                font-weight: 600;
+                font-size: 1rem;
+            }
+
+            .vati-nav-list a:hover {
+                background: var(--light-bg);
+            }
+
+            .vati-nav-list a.active {
+                border-left: 4px solid var(--primary-orange);
+                background: var(--primary-orange);
+                color: var(--white);
+            }
+
+            .vati-contact {
+                margin: 1rem 2rem;
+                text-align: center;
+                display: block;
+                background: var(--primary-orange);
+                color: var(--white);
+                font-weight: 700;
+                font-size: 1rem;
+                box-shadow: 0 2px 8px rgba(240, 127, 78, 0.3);
+            }
+
+            .vati-contact:hover {
+                background: var(--dark-orange);
+            }
+
+            .vati-nav-wrap {
+                padding: 1rem;
+            }
+
+            .vati-logo img {
+                height: 40px;
+            }
+
+            .vati-logo-text {
+                font-size: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="vati-nav-wrap">
+            <div class="vati-logo">
+                <img src="https://cdn.discordapp.com/attachments/1470738091374546965/1470738448032731284/logo.webp?ex=699100ab&is=698faf2b&hm=624e8e453b9d103c3e94641a68f9b99b4ddd597aadb8cd9387bfd23eaffdc961&" alt="VATI Logo" onerror="this.style.display='none'; document.querySelector('.vati-logo-text').style.display='block';">
+                <span class="vati-logo-text" style="display: none;">VATI</span>
+            </div>
+            
+            <div class="vati-burger" id="vatiBurger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+
+            <ul class="vati-nav-list" id="vatiNavLinks">
+                <li><a href="#home" class="vati-nav-item active" data-section="home">Home</a></li>
+                <li><a href="#apc" class="vati-nav-item" data-section="apc">APC</a></li>
+                <li><a href="#ccc" class="vati-nav-item" data-section="ccc">CCC</a></li>
+                <li><a href="#partners" class="vati-nav-item" data-section="partners">Partners</a></li>
+                <li><a href="#atc24" class="vati-nav-item">ATC24<span class="vati-soon">COMING SOON</span></a></li>
+                <li><a href="https://discord.gg/n73HkC3Jkj" class="vati-contact" target="_blank">Contact Us</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section id="home" class="section-content">
+        <div class="vati-hero">
+            <div class="vati-hero-content">
+                <h1>Virtual Aviation Training Institute</h1>
+                <p class="vati-hero-tagline">Training Virtual Aviators to Real Standards.</p>
+            </div>
+        </div>
+
+        <div class="vati-container">
+            <div class="vati-about">
+                <h2 class="vati-section-title">About VATI</h2>
+                <p>At VATI, trainings are the core of our activity. We ensure they are at the top to push each trainee further and make them fully understand the objectives future airlines might ask them before entering their airline.</p>
+                <p>All our courses are divided into 2 or more Modules which are all essential for the success of the cadet in passing his formation at our school. All our courses are supervised and structured by Certified Instructors which teach the material cadets need to learn in order to obtain their diploma.</p>
+                <p>Each course has 1 final exam reviewing everything that was covered in previous Modules. This final exam will always be evaluated by the Head Instructor which would then give a mark out of 50 to the cadet. Depending on this grade, you will be awarded their diploma if you have achieved the required grade or scored above.</p>
+            </div>
+
+            <h2 class="vati-programs-title">2 Programs within our School</h2>
+
+            <div class="vati-programs-grid">
+                <div class="vati-program-card">
+                    <div class="vati-program-header">
+                        <div class="vati-program-badge">APC</div>
+                        <div class="vati-program-title">
+                            <h3>Airline Pilot Certification</h3>
+                            <p>Professional Pilot Training</p>
+                        </div>
+                    </div>
+                    <p class="vati-program-desc">Composed of 3 components, you will first dive into theoretical work before putting your knowledge to test within PTFS on airliners. Finally, you will have to pass one final exam to receive your diploma from our school. Obtaining your APC can also be of great use when applying at PTC airlines.</p>
+                    <div class="vati-modules-title">Course Modules:</div>
+                    <ul class="vati-modules-list">
+                        <li class="vati-module-item">
+                            <span class="vati-module-code">APC-101</span>
+                            <span class="vati-module-desc">Theoretical work. (Taxiing, taking-off, landings, VFR, IFR, ILS, PAPI, etc...)</span>
+                        </li>
+                        <li class="vati-module-item">
+                            <span class="vati-module-code">APC-201</span>
+                            <span class="vati-module-desc">Practical work. (Everything learned in class put into practice in-game)</span>
+                        </li>
+                        <li class="vati-module-item">
+                            <span class="vati-module-code">APC-301</span>
+                            <span class="vati-module-desc">Review and final examination course.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="vati-program-card">
+                    <div class="vati-program-header">
+                        <div class="vati-program-badge">CCC</div>
+                        <div class="vati-program-title">
+                            <h3>Cabin Crew Certification</h3>
+                            <p>Professional Cabin Service</p>
+                        </div>
+                    </div>
+                    <p class="vati-program-desc">Composed of 2 components, the Cabin Crew Certification will make you practice daily work methods and ethics of Cabin Crews, but also how to react in emergency situations and have you well prepared for future PTC airlines you wish to apply at.</p>
+                    <div class="vati-modules-title">Course Modules:</div>
+                    <ul class="vati-modules-list">
+                        <li class="vati-module-item">
+                            <span class="vati-module-code">CCC-101</span>
+                            <span class="vati-module-desc">Cabin Crew duties and how to respond in emergency situations.</span>
+                        </li>
+                        <li class="vati-module-item">
+                            <span class="vati-module-code">CCC-201</span>
+                            <span class="vati-module-desc">Review and final examination course.</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="apc" class="section-content is-hidden">
+        <div class="vati-hero">
+            <div class="vati-hero-content">
+                <h1>Airline Pilot Certification (APC)</h1>
+                <p class="vati-hero-tagline">Professional Pilot Training Program</p>
+            </div>
+        </div>
+
+        <div class="vati-container">
+            <div class="vati-about">
+                <h2 class="vati-section-title">Program Overview</h2>
+                <p>Composed of 3 components, you will first dive into theoretical work before putting your knowledge to test within PTFS on airliners. Finally, you will have to pass one final exam to receive your diploma from our school.</p>
+                <p>Obtaining your APC can also be of great use when applying at PTC airlines.</p>
+            </div>
+
+            <div class="vati-program-detail">
+                <div class="vati-detail-grid">
+                    <div class="vati-detail-card">
+                        <h3>APC-101: Theoretical Work</h3>
+                        <p>Master the foundational knowledge of flight operations including taxiing, taking-off, landings, VFR, IFR, ILS, PAPI, and more. This module covers all the essential theory you need to become a proficient pilot.</p>
+                    </div>
+                    <div class="vati-detail-card">
+                        <h3>APC-201: Practical Work</h3>
+                        <p>Everything learned in class put into practice in-game. Apply your theoretical knowledge in real flight scenarios within PTFS, operating airliners under various conditions.</p>
+                    </div>
+                    <div class="vati-detail-card">
+                        <h3>APC-301: Final Examination</h3>
+                        <p>Review and final examination course covering all aspects of your training. Successfully pass this comprehensive exam to receive your APC diploma.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="ccc" class="section-content is-hidden">
+        <div class="vati-hero">
+            <div class="vati-hero-content">
+                <h1>Cabin Crew Certification (CCC)</h1>
+                <p class="vati-hero-tagline">Professional Cabin Service Training</p>
+            </div>
+        </div>
+
+        <div class="vati-container">
+            <div class="vati-about">
+                <h2 class="vati-section-title">Program Overview</h2>
+                <p>Composed of 2 components, the Cabin Crew Certification will make you practice daily work methods and ethics of Cabin Crews, but also how to react in emergency situations.</p>
+                <p>This program will have you well prepared for future PTC airlines you wish to apply at.</p>
+            </div>
+
+            <div class="vati-program-detail">
+                <div class="vati-detail-grid">
+                    <div class="vati-detail-card">
+                        <h3>CCC-101: Cabin Crew Duties & Emergency Response</h3>
+                        <p>Learn essential cabin crew duties, professional service standards, and comprehensive emergency response procedures. Master the skills needed to ensure passenger safety and comfort.</p>
+                    </div>
+                    <div class="vati-detail-card">
+                        <h3>CCC-201: Review & Final Examination</h3>
+                        <p>Comprehensive review and final examination course covering all aspects of cabin crew operations. Demonstrate your mastery to earn your certification.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="partners" class="section-content is-hidden">
+        <div class="vati-hero">
+            <div class="vati-hero-content">
+                <h1>Our Airline Partners</h1>
+                <p class="vati-hero-tagline">Building Success Together in Virtual Aviation</p>
+            </div>
+        </div>
+
+        <div class="vati-container">
+            <div class="vati-about">
+                <h2 class="vati-section-title">Partner Airlines</h2>
+                <p>VATI is proud to partner with leading virtual airlines within the PTFS community. Our graduates are highly sought after by these prestigious carriers, who recognize the quality and thoroughness of our training programs.</p>
+                <p>Through our partnership program, airlines gain access to certified pilots and cabin crew who have demonstrated mastery of aviation fundamentals and professional standards.</p>
+            </div>
+
+            <div class="vati-partners-grid">
+                <div class="vati-partner-card">
+                    <div class="vati-partner-logo">
+                        <img src="https://th.bing.com/th/id/OIP.uvBemsKe5K6nHVS4aDMPYAHaB9?w=329&h=92&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3" alt="Global Airlines" onerror="this.parentElement.innerHTML='GA'">
+                    </div>
+                    <div class="vati-partner-name">Global Airlines PTFS</div>
+                    <p class="vati-partner-desc">International carrier</p>
+                    <div class="vati-partner-status">Active Partner</div>
+                </div>
+                <div class="vati-partner-card">
+                    <div class="vati-partner-logo">
+                        <img src="https://planesticker.com/cdn/shop/files/DHLTaillogo.png?v=1767602077&width=823" alt="DHL" onerror="this.parentElement.innerHTML='DHL'">
+                    </div>
+                    <div class="vati-partner-name">DHL Cargo PTFS/ATC24</div>
+                    <p class="vati-partner-desc">Cargo operations</p>
+                    <div class="vati-partner-status">Active Partner</div>
+                </div>
+                <div class="vati-partner-card">
+                    <div class="vati-partner-logo">
+                        <img src="https://planesticker.com/cdn/shop/files/LufthansaTailLogo.png" alt="Lufthansa" onerror="this.parentElement.innerHTML='LH'">
+                    </div>
+                    <div class="vati-partner-name">Lufthansa PTFS</div>
+                    <p class="vati-partner-desc">German flagship carrier</p>
+                    <div class="vati-partner-status">Active Partner</div>
+                </div>
+                <div class="vati-partner-card">
+                    <div class="vati-partner-logo">
+                        <img src="https://planesticker.com/cdn/shop/files/CondorTailLogo.png" alt="Condor" onerror="this.parentElement.innerHTML='DE'">
+                    </div>
+                    <div class="vati-partner-name">Condor</div>
+                    <p class="vati-partner-desc">Leisure airline</p>
+                    <div class="vati-partner-status">Active Partner</div>
+                </div>
+                <div class="vati-partner-card">
+                    <div class="vati-partner-logo">
+                        <img src="https://planesticker.com/cdn/shop/files/QantasTailLogo_233ba2c9-3665-41ec-83ea-f48ffe89a991.png?v=1699159516&width=533" alt="Qantas" onerror="this.parentElement.innerHTML='QF'">
+                    </div>
+                    <div class="vati-partner-name">Qantas | PTFS</div>
+                    <p class="vati-partner-desc">Australian carrier</p>
+                    <div class="vati-partner-status">Active Partner</div>
+                </div>
+                <div class="vati-partner-card">
+                    <div class="vati-partner-logo">
+                        <img src="https://planesticker.com/cdn/shop/files/SwissTailLogo.png" alt="Swiss" onerror="this.parentElement.innerHTML='LX'">
+                    </div>
+                    <div class="vati-partner-name">Swiss Airlines | PTFS</div>
+                    <p class="vati-partner-desc">Swiss international airline</p>
+                    <div class="vati-partner-status">Active Partner</div>
+                </div>
+                <div class="vati-partner-card">
+                    <div class="vati-partner-logo">
+                        <img src="https://planesticker.com/cdn/shop/files/KLMTaillogo.png?v=1719062457&width=533" alt="KLM" onerror="this.parentElement.innerHTML='KL'">
+                    </div>
+                    <div class="vati-partner-name">KLM | Virtual</div>
+                    <p class="vati-partner-desc">Dutch carrier</p>
+                    <div class="vati-partner-status">Active Partner</div>
+                </div>
+                <div class="vati-partner-card">
+                    <div class="vati-partner-logo">
+                        <img src="https://planesticker.com/cdn/shop/files/AmericanTailLogo.png?v=1699187789&width=533" alt="American Airlines" onerror="this.parentElement.innerHTML='AA'">
+                    </div>
+                    <div class="vati-partner-name">American Airlines PTFS</div>
+                    <p class="vati-partner-desc">Major US carrier</p>
+                    <div class="vati-partner-status">Active Partner</div>
+                </div>
+                <div class="vati-partner-card">
+                    <div class="vati-partner-logo">
+                        <img src="https://planesticker.com/cdn/shop/files/EmiratesTail2Logo.png?v=1719054129&width=533" alt="Emirates" onerror="this.parentElement.innerHTML='EK'">
+                    </div>
+                    <div class="vati-partner-name">Emirates PTFS</div>
+                    <p class="vati-partner-desc">Dubai-based airline</p>
+                    <div class="vati-partner-status">Active Partner</div>
+                </div>
+                <div class="vati-partner-card">
+                    <div class="vati-partner-logo">
+                        <img src="https://planesticker.com/cdn/shop/files/AirFranceTaillogo.png?v=1699187199&width=533" alt="Air France" onerror="this.parentElement.innerHTML='AF'">
+                    </div>
+                    <div class="vati-partner-name">Air France | PTFS</div>
+                    <p class="vati-partner-desc">French flag carrier</p>
+                    <div class="vati-partner-status">Active Partner</div>
+                </div>
+                <div class="vati-partner-card">
+                    <div class="vati-partner-logo">
+                        <img src="https://planesticker.com/cdn/shop/files/BritishAirwaysTaillogo.png" alt="British Airways" onerror="this.parentElement.innerHTML='BA'">
+                    </div>
+                    <div class="vati-partner-name">British Airways | PTFS</div>
+                    <p class="vati-partner-desc">UK flag carrier</p>
+                    <div class="vati-partner-status">Active Partner</div>
+                </div>
+                <div class="vati-partner-card">
+                    <div class="vati-partner-logo">
+                        <img src="https://planesticker.com/cdn/shop/files/UnitedTailLogo.png" alt="United Airlines" onerror="this.parentElement.innerHTML='UA'">
+                    </div>
+                    <div class="vati-partner-name">United Airlines | PTFS</div>
+                    <p class="vati-partner-desc">Major US carrier</p>
+                    <div class="vati-partner-status">Active Partner</div>
+                </div>
+                <div class="vati-partner-card">
+                    <div class="vati-partner-logo">
+                        <img src="https://planesticker.com/cdn/shop/files/JetBlueTailLogo.png" alt="JetBlue" onerror="this.parentElement.innerHTML='B6'">
+                    </div>
+                    <div class="vati-partner-name">JetBlue Airways | PTFS</div>
+                    <p class="vati-partner-desc">US low-cost carrier</p>
+                    <div class="vati-partner-status">Active Partner</div>
+                </div>
+            </div>
+
+            <div class="vati-about" style="margin-top: 3rem;">
+                <h2 class="vati-section-title">Become a Partner</h2>
+                <p>Are you a virtual airline looking for professionally trained pilots and cabin crew? VATI's partnership program offers your airline priority access to our certified graduates who have completed rigorous training programs.</p>
+                <p>Contact us to learn more about partnership opportunities and how VATI can support your airline's growth with skilled, professional aviation staff.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Virtual Aviation Training Institute. All rights reserved.</p>
+    </footer>
+
+    <script>
+        const navLinks = document.querySelectorAll('.vati-nav-item');
+        const sections = document.querySelectorAll('.section-content');
+        const hamburger = document.getElementById('vatiBurger');
+        const navLinksContainer = document.getElementById('vatiNavLinks');
+
+        const setMenuState = (shouldOpen) => {
+            if (shouldOpen) {
+                hamburger.classList.add('active');
+                navLinksContainer.classList.add('active');
+            } else {
+                hamburger.classList.remove('active');
+                navLinksContainer.classList.remove('active');
+            }
+        };
+
+        const closeMenu = () => {
+            setMenuState(false);
+        };
+
+        const openMenu = () => {
+            setMenuState(true);
+        };
+
+        const toggleMenu = () => {
+            const menuIsOpen = navLinksContainer.classList.contains('active');
+            if (menuIsOpen) {
+                closeMenu();
+            } else {
+                openMenu();
+            }
+        };
+
+        const clearActiveLinks = () => {
+            for (let i = 0; i < navLinks.length; i += 1) {
+                const currentLink = navLinks[i];
+                currentLink.classList.remove('active');
+            }
+        };
+
+        const showOnlySection = (targetSectionId) => {
+            for (let i = 0; i < sections.length; i += 1) {
+                const currentSection = sections[i];
+                if (currentSection.id === targetSectionId) {
+                    currentSection.classList.remove('is-hidden');
+                } else {
+                    currentSection.classList.add('is-hidden');
+                }
+            }
+        };
+
+        const activateLink = (linkElement) => {
+            clearActiveLinks();
+            linkElement.classList.add('active');
+        };
+
+        hamburger.addEventListener('click', () => {
+            toggleMenu();
+        });
+
+        for (let i = 0; i < navLinks.length; i += 1) {
+            const link = navLinks[i];
+            link.addEventListener('click', (event) => {
+                const targetSection = link.getAttribute('data-section');
+
+                if (targetSection) {
+                    event.preventDefault();
+                    activateLink(link);
+                    showOnlySection(targetSection);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    closeMenu();
+                }
+            });
+        }
+
+        document.addEventListener('click', (event) => {
+            const clickedInsideNav = Boolean(event.target.closest('nav'));
+            if (!clickedInsideNav) {
+                closeMenu();
+            }
+        });
+    </script>
+</body>
+</html>
