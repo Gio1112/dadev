@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Air Canada - Welcome</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="shared-styles.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gallery-item:hover img {
+            transform: scale(1.05);
+            transition: transform 0.3s ease;
+        }
+
+        .ac-red {
+            background-color: #E31837;
+        }
+        .ac-red-text {
+            color: #E31837;
+        }
+        .ac-red-hover:hover {
+            color: #E31837;
+        }
+        .ac-black {
+            background-color: #000000;
+        }
+
+        /* Animations moved to shared-styles.css for consistent, subtle motion */
+    </style>
+</head>
+<body class="bg-gray-50">
+    
+    <!-- Top Bar -->
+    <div class="bg-gray-100 border-b border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-end items-center h-10 text-sm space-x-6">
+                <a href="#" class="text-gray-700 ac-red-hover">Help</a>
+                <button class="flex items-center space-x-1 text-gray-700 ac-red-hover">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span>EN/FR</span>
+                </button>
+        </div>
+    </div>
+
+    <!-- Main Navigation -->
+    <nav class="ac-black shadow-sm sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <a href="index.html" class="flex items-center space-x-3 fade-in">
+                    <img src="images/image-142-4.png" alt="Maple Logo" class="h-8 w-auto object-contain">
+                </a>
+
+                <div class="hidden lg:flex items-center space-x-8">
+                    <a href="about-us.html" class="text-white hover:text-red-500 font-medium transition" data-i18n="aboutUs">About Us</a>
+                    <a href="staff-team.html" class="text-white hover:text-red-500 font-medium transition" data-i18n="ourTeam">Our Team</a>
+                    <a href="route-map.html" class="text-white hover:text-red-500 font-medium transition">Route Map</a>
+                </div>
+
+                <button onclick="toggleMobileMenu()" class="lg:hidden p-2 text-white">
+                    <svg id="menuIcon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                    <svg id="closeIcon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="h-1 ac-red"></div>
+    </nav>
+
+    <!-- Mobile Navigation -->
+    <div id="mobileMenu" class="lg:hidden ac-black border-b border-gray-800 shadow-lg hidden">
+        <div class="px-4 py-4 space-y-3">
+            <a href="about-us.html" class="block py-2 text-white hover:text-red-500 font-medium transition">About Us</a>
+            <a href="staff-team.html" class="block py-2 text-white hover:text-red-500 font-medium transition">Our Team</a>
+            <a href="route-map.html" class="block py-2 text-white hover:text-red-500 font-medium transition">Route Map</a>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="relative h-screen overflow-hidden">
+        <div class="absolute inset-0 parallax">
+            <img src="images/image1.png" alt="Air Canada cabin" class="w-full h-full object-cover">
+            <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-black/30"></div>
+        </div>
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
+            <div class="text-white fade-in-up">
+                <h1 class="text-6xl md:text-8xl font-light mb-6 leading-tight">
+                    Welcome to<br>
+                    <span class="gradient-text">Air Canada</span>
+                </h1>
+                <p class="text-2xl md:text-3xl text-gray-200 mb-10 font-light">Connecting Canada to the world</p>
+                <div class="flex flex-wrap gap-6">
+                    <a href="#destinations" class="px-10 py-4 bg-white text-red-600 rounded-lg hover:bg-gray-100 transition-all duration-300 font-medium hover-lift shadow-xl">
+                        Explore Destinations
+                    </a>
+                    <a href="about-us.html" class="px-10 py-4 border-2 border-white text-white rounded-lg hover:bg-white hover:text-red-600 transition-all duration-300 font-medium hover-lift">
+                        Learn More
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="absolute bottom-10 left-1/2 transform -translate-x-1/2 scroll-arrow">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Quick Links Section -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24">
+        <div class="text-center mb-16 animate-on-scroll">
+            <h2 class="text-4xl md:text-5xl font-light text-gray-900 mb-4">Explore Air Canada</h2>
+            <div class="w-24 h-1 ac-red mx-auto"></div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+            <a href="about-us.html" class="group bg-white rounded-2xl shadow-lg overflow-hidden hover-lift animate-on-scroll">
+                <div class="h-64 image-overlay media-card">
+                    <img src="images/image1.png" alt="Air Canada experience" class="media-img">
+                    <div class="media-gradient"></div>
+                </div>
+                <div class="p-8">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3 group-hover:ac-red-text transition">About Us</h3>
+                    <p class="text-gray-600 leading-relaxed">Discover our history, values, and commitment to excellence</p>
+                </div>
+            </a>
+
+            <a href="staff-team.html" class="group bg-white rounded-2xl shadow-lg overflow-hidden hover-lift animate-on-scroll">
+                <div class="h-64 image-overlay media-card">
+                    <img src="images/image2.png" alt="Air Canada team" class="media-img">
+                    <div class="media-gradient"></div>
+                </div>
+                <div class="p-8">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3 group-hover:ac-red-text transition">Our Team</h3>
+                    <p class="text-gray-600 leading-relaxed">Meet the dedicated professionals behind Air Canada</p>
+                </div>
+            </a>
+
+            <a href="#destinations" class="group bg-white rounded-2xl shadow-lg overflow-hidden hover-lift animate-on-scroll">
+                <div class="h-64 image-overlay media-card">
+                    <img src="images/image3.png" alt="Air Canada destinations" class="media-img">
+                    <div class="media-gradient"></div>
+                </div>
+                <div class="p-8">
+                    <h3 class="text-2xl font-semibold text-gray-900 mb-3 group-hover:ac-red-text transition">Destinations</h3>
+                    <p class="text-gray-600 leading-relaxed">Explore the places we connect across Canada and beyond</p>
+                </div>
+            </a>
+        </div>
+    </section>
+
+    <!-- Destinations Gallery -->
+    <section id="destinations" class="bg-gradient-to-b from-white to-gray-50 py-24">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 animate-on-scroll">
+                <h2 class="text-4xl md:text-6xl font-light text-gray-900 mb-4">Our Destinations</h2>
+                <p class="text-gray-600 text-xl">Explore the world with Air Canada</p>
+                <div class="w-24 h-1 ac-red mx-auto mt-6"></div>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div class="group relative overflow-hidden rounded-2xl cursor-pointer h-80 animate-on-scroll image-overlay">
+                    <div class="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 group-hover:scale-110 transition-transform duration-700"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                    <div class="absolute bottom-8 left-8 text-white">
+                        <h3 class="text-4xl font-light mb-2">Toronto</h3>
+                        <p class="text-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-300">Canada's largest city</p>
+                    </div>
+                </div>
+                <div class="group relative overflow-hidden rounded-2xl cursor-pointer h-80 animate-on-scroll image-overlay">
+                    <div class="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 group-hover:scale-110 transition-transform duration-700"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                    <div class="absolute bottom-8 left-8 text-white">
+                        <h3 class="text-4xl font-light mb-2">Vancouver</h3>
+                        <p class="text-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-300">West Coast beauty</p>
+                    </div>
+                </div>
+                <div class="group relative overflow-hidden rounded-2xl cursor-pointer h-80 animate-on-scroll image-overlay">
+                    <div class="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 group-hover:scale-110 transition-transform duration-700"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                    <div class="absolute bottom-8 left-8 text-white">
+                        <h3 class="text-4xl font-light mb-2">Montreal</h3>
+                        <p class="text-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-300">Cultural capital</p>
+                    </div>
+                </div>
+                <div class="group relative overflow-hidden rounded-2xl cursor-pointer h-80 animate-on-scroll image-overlay">
+                    <div class="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 group-hover:scale-110 transition-transform duration-700"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                    <div class="absolute bottom-8 left-8 text-white">
+                        <h3 class="text-4xl font-light mb-2">New York</h3>
+                        <p class="text-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-300">The Big Apple</p>
+                    </div>
+                </div>
+                <div class="group relative overflow-hidden rounded-2xl cursor-pointer h-80 animate-on-scroll image-overlay">
+                    <div class="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 group-hover:scale-110 transition-transform duration-700"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                    <div class="absolute bottom-8 left-8 text-white">
+                        <h3 class="text-4xl font-light mb-2">London</h3>
+                        <p class="text-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-300">Historic elegance</p>
+                    </div>
+                </div>
+                <div class="group relative overflow-hidden rounded-2xl cursor-pointer h-80 animate-on-scroll image-overlay">
+                    <div class="w-full h-full bg-gradient-to-br from-gray-800 to-gray-900 group-hover:scale-110 transition-transform duration-700"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                    <div class="absolute bottom-8 left-8 text-white">
+                        <h3 class="text-4xl font-light mb-2">Paris</h3>
+                        <p class="text-gray-200 opacity-0 group-hover:opacity-100 transition-opacity duration-300">City of Light</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="ac-black text-white mt-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <h4 class="font-semibold mb-4 text-sm uppercase">About Air Canada</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="about-us.html" class="text-gray-400 hover:text-white transition">Company</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Press</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Careers</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4 text-sm uppercase">Services</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#destinations" class="text-gray-400 hover:text-white transition">Destinations</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Travel Info</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4 text-sm uppercase">Support</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Contact</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">FAQs</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4 text-sm uppercase">Connect</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Facebook</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Twitter</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white transition">Instagram</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center text-sm text-gray-400">
+                <p>© 2025 Air Canada. All rights reserved.</p>
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="hover:text-white transition">Privacy Policy</a>
+                    <a href="#" class="hover:text-white transition">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobileMenu');
+            const menuIcon = document.getElementById('menuIcon');
+            const closeIcon = document.getElementById('closeIcon');
+            
+            menu.classList.toggle('hidden');
+            menuIcon.classList.toggle('hidden');
+            closeIcon.classList.toggle('hidden');
+        }
+
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animated', 'fade-in-up');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+            observer.observe(el);
+        });
+
+    </script>
+    
+    </body>
+    </html>
