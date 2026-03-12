@@ -709,7 +709,7 @@ async function loadSidebarFlights(origin='', dest='', date='') {
         if (origin) qs.set('origin',origin);
         if (dest)   qs.set('destination',dest);
         if (date)   qs.set('date',date);
-        const endpoint = (origin||dest||date) ? `/api/flights?${qs}` : '/api/flights/popular';
+        const endpoint = (origin||dest||date) ? `${API}/api/flights?${qs}` : `${API}/api/flights/popular`;
         const res  = await fetch(endpoint);
         const data = await res.json();
         S.flights = data;
