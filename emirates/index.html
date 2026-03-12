@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emirates — Book & Manage</title>
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/Gio1112/dadev/main/emirates/favicon.png">
+    <link rel="shortcut icon" type="image/png" href="https://raw.githubusercontent.com/Gio1112/dadev/main/emirates/favicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+:root {
+    --ek-red: #D71921;
+    --ek-red-dark: #b01419;
+    --ek-gold: #C6A87C;
+    --ek-gold-light: #e0c8a0;
+    --ek-dark: #333333;
+    --ek-light: #f9f9f9;
+    --ek-gray: #666666;
+    --shadow: 0 4px 12px rgba(0,0,0,0.12);
+    --shadow-lg: 0 8px 24px rgba(0,0,0,0.16);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+::-webkit-scrollbar { width:12px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--ek-gold); border-radius:6px; border:3px solid transparent; background-clip:content-box; }
+::-webkit-scrollbar-thumb:hover { background:var(--ek-red); border:3px solid transparent; background-clip:content-box; }
+body { font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; background:var(--ek-light); color:var(--ek-dark); overflow-x:hidden; }
+a { color:inherit; text-decoration:none; }
+button,input,select { font-family:inherit; }
+button { cursor:pointer; }
+
+/* LOADING */
+.loading-overlay { position:fixed;inset:0;background:rgba(255,255,255,0.96);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:1;transition:opacity .5s; }
+.loading-overlay.hidden { opacity:0;pointer-events:none; }
+.loading-spinner { width:50px;height:50px;border:4px solid #f3f3f3;border-top:4px solid var(--ek-red);border-radius:50%;animation:spin 1s linear infinite; }
+@keyframes spin { 0%{transform:rotate(0deg)}100%{transform:rotate(360deg)} }
+.loading-text { margin-top:20px;color:var(--ek-gray);font-size:14px; }
+
+/* HEADER */
+.header { background:white;height:70px;padding:0 30px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 10px rgba(0,0,0,0.05);z-index:1000;position:sticky;top:0;border-bottom:3px solid var(--ek-red); }
+.logo-container { display:flex;align-items:center;gap:15px; }
+.logo-img { height:45px;width:auto; }
+.app-title { font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--ek-gray);border-left:1px solid #ddd;padding-left:15px;margin-left:15px;font-weight:600; }
+.header-actions { display:flex;gap:8px;align-items:center; }
+.icon-btn { background:none;border:1px solid #ddd;padding:8px 12px;border-radius:6px;color:var(--ek-gray);font-size:13px;transition:all .2s; }
+.icon-btn:hover { background:var(--ek-red);color:white;border-color:var(--ek-red); }
+.icon-btn.active { background:var(--ek-red);color:white;border-color:var(--ek-red); }
+.icon-btn i { margin-right:5px; }
+.btn-discord { background:#5865F2;color:white;border:none;padding:9px 14px;border-radius:6px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:7px;transition:background .2s; }
+.btn-discord:hover { background:#4752c4; }
+
+/* TOAST */
+.toast { position:fixed;bottom:30px;right:30px;background:var(--ek-dark);color:white;padding:14px 20px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.3);z-index:9999;animation:slideUp .3s ease;display:flex;align-items:center;gap:10px;font-size:14px;max-width:340px; }
+.toast.success { background:#4CAF50; }
+.toast.error   { background:#f44336; }
+.toast.info    { background:var(--ek-red); }
+@keyframes slideUp { from{transform:translateY(80px);opacity:0}to{transform:translateY(0);opacity:1} }
+
+/* USER PILL */
+.user-pill { display:flex;align-items:center;gap:9px;background:#f9f9f9;border:1px solid #eee;padding:5px 13px 5px 6px;border-radius:40px;cursor:pointer;transition:background .2s; }
+.user-pill:hover { background:#f0f0f0; }
+.user-pill img { width:30px;height:30px;border-radius:50%;border:2px solid var(--ek-gold); }
+.up-name { font-size:13px;font-weight:600;color:var(--ek-dark); }
+.up-sub  { font-size:10px;color:var(--ek-gold);font-weight:600; }
+
+/* PAGES */
+.page { display:none; }
+.page.active { display:block; }
+
+/* LAYOUT */
+.main-layout { display:flex;height:calc(100vh - 70px);overflow:hidden; }
+
+/* SIDEBAR */
+.sidebar { width:400px;background:white;box-shadow:-5px 0 15px rgba(0,0,0,0.05);z-index:2;overflow-y:auto;flex-shrink:0;scrollbar-width:thin;scrollbar-color:var(--ek-gold) transparent; }
+.sidebar-header { padding:25px 25px 15px;background:#fff; }
+.sidebar-title { font-family:'Georgia',serif;font-size:24px;color:var(--ek-dark);margin-bottom:5px; }
+.sidebar-subtitle { font-size:13px;color:var(--ek-gray); }
+
+/* Search widget */
+.search-widget { padding:0 25px 20px;border-bottom:1px solid #eee; }
+.tab-row { display:flex;margin-bottom:14px;border-bottom:1px solid #eee; }
+.tab-btn { background:none;border:none;padding:9px 13px 7px;font-size:12px;color:var(--ek-gray);position:relative;transition:color .2s;font-weight:500; }
+.tab-btn.active { color:var(--ek-red); }
+.tab-btn.active::after { content:'';position:absolute;bottom:-1px;left:0;right:0;height:2px;background:var(--ek-red); }
+.field-row { display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px; }
+.fg { display:flex;flex-direction:column;gap:4px; }
+.fg label { font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ek-gold);font-weight:700; }
+.fg select, .fg input { border:1px solid #ddd;border-radius:6px;padding:9px 10px;font-size:13px;color:var(--ek-dark);background:#f9f9f9;outline:none;transition:border-color .2s;-webkit-appearance:none;width:100%; }
+.fg select:focus, .fg input:focus { border-color:var(--ek-gold);background:white; }
+.btn-search { width:100%;background:var(--ek-red);color:white;border:none;padding:10px;border-radius:6px;font-size:13px;font-weight:600;margin-top:5px;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .2s; }
+.btn-search:hover { background:var(--ek-red-dark); }
+
+/* Flights list */
+.flights-section { padding:0 25px 25px; }
+.list-header { font-size:11px;font-weight:700;color:var(--ek-gray);margin:18px 0 10px;display:flex;justify-content:space-between;align-items:center; }
+.list-header span:last-child { color:var(--ek-gold);font-size:10px;letter-spacing:.5px; }
+
+/* Sidebar flight card */
+.sb-flight {
+    border:1px solid #eee;border-radius:8px;padding:13px;margin-bottom:10px;
+    cursor:pointer;transition:all .2s;background:white;
+}
+.sb-flight:hover { border-color:var(--ek-gold-light);box-shadow:0 4px 12px rgba(0,0,0,0.08);transform:translateX(3px); }
+.sb-flight.selected { border-color:var(--ek-red);background:#fffaf9; }
+.sbf-top { display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px; }
+.sbf-num { font-size:10px;color:var(--ek-gold);font-weight:700;letter-spacing:1px; }
+.sbf-status-dot { width:7px;height:7px;border-radius:50%;background:#4CAF50;flex-shrink:0;margin-top:3px; }
+.sbf-route { display:flex;align-items:center;gap:8px;margin-bottom:6px; }
+.sbf-iata { font-family:'Georgia',serif;font-size:20px;font-weight:400;color:var(--ek-dark); }
+.sbf-mid { flex:1;display:flex;flex-direction:column;align-items:center;gap:2px; }
+.sbf-dur { font-size:10px;color:#aaa; }
+.sbf-line { width:100%;height:1px;background:#ddd;position:relative; }
+.sbf-line::after { content:'\f072';font-family:'Font Awesome 6 Free';font-weight:900;font-size:9px;position:absolute;right:0;top:-6px;color:var(--ek-red); }
+.sbf-bottom { display:flex;justify-content:space-between;align-items:center; }
+.sbf-time { font-size:11px;color:var(--ek-gray); }
+.sbf-price { font-family:'Georgia',serif;font-size:16px;color:var(--ek-dark); }
+.sbf-from { font-size:9px;color:#aaa;text-transform:uppercase;letter-spacing:.5px; }
+.sbf-seats { font-size:10px;color:var(--ek-red);font-weight:600; }
+.btn-book-sm { background:var(--ek-red);color:white;border:none;padding:6px 12px;border-radius:5px;font-size:11px;font-weight:600;transition:background .2s;margin-top:10px;width:100%; }
+.btn-book-sm:hover { background:var(--ek-red-dark); }
+
+/* Loading state for sidebar */
+.sb-loading { text-align:center;padding:30px;color:#ccc;font-size:13px; }
+.sb-loading i { display:block;font-size:24px;margin-bottom:8px;animation:spin 1s linear infinite; }
+
+/* CONTENT AREA */
+.content-area { flex:1;overflow-y:auto;background:var(--ek-light); }
+
+/* Welcome / empty state */
+.welcome-state { max-width:680px;margin:0 auto;padding:40px 25px; }
+.ws-eyebrow { font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--ek-gold);font-weight:700;margin-bottom:8px; }
+.ws-title { font-family:'Georgia',serif;font-size:32px;font-weight:400;color:var(--ek-dark);margin-bottom:8px; }
+.ws-sub { font-size:13px;color:var(--ek-gray);margin-bottom:32px;line-height:1.6; }
+
+/* Flight detail panel (right side when flight selected) */
+.flight-detail { max-width:680px;margin:0 auto;padding:28px 25px; }
+.fd-back { background:none;border:1px solid #ddd;color:var(--ek-gray);padding:7px 12px;border-radius:6px;font-size:12px;margin-bottom:20px;display:inline-flex;align-items:center;gap:5px;transition:all .2s; }
+.fd-back:hover { border-color:var(--ek-red);color:var(--ek-red); }
+
+/* Big flight card */
+.big-flight-card { background:white;border-radius:8px;border:1px solid #eee;box-shadow:var(--shadow);overflow:hidden;margin-bottom:16px; }
+.bfc-header { background:linear-gradient(135deg,var(--ek-red) 0%,var(--ek-red-dark) 100%);color:white;padding:14px 18px;display:flex;justify-content:space-between;align-items:center; }
+.bfc-fn { font-size:14px;font-weight:700;letter-spacing:1px; }
+.bfc-ac { font-size:11px;opacity:.75;margin-top:2px; }
+.bfc-status { font-size:10px;letter-spacing:1px;text-transform:uppercase;background:rgba(255,255,255,0.15);padding:4px 10px;border-radius:20px; }
+.bfc-body { padding:20px; }
+.bfc-route { display:flex;align-items:center;gap:20px;margin-bottom:18px; }
+.bfc-iata { font-family:'Georgia',serif;font-size:36px;font-weight:400;color:var(--ek-dark); }
+.bfc-city { font-size:11px;color:var(--ek-gray);margin-top:2px; }
+.bfc-mid { flex:1;display:flex;flex-direction:column;align-items:center;gap:4px; }
+.bfc-dur { font-size:12px;color:var(--ek-gray); }
+.bfc-line { width:100%;display:flex;align-items:center;color:var(--ek-red); }
+.bfc-line::before,.bfc-line::after { content:'';flex:1;height:1px;background:#ddd; }
+.bfc-plane { font-size:14px;margin:0 8px; }
+.bfc-date { font-size:11px;color:#aaa; }
+.stat-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding-top:16px;border-top:1px solid #eee;margin-bottom:16px; }
+.stat-item .stat-label { font-size:10px;color:#aaa;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px; }
+.stat-item .stat-value { font-size:13px;font-weight:700;color:var(--ek-dark); }
+.amenities { display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;padding-top:0; }
+.amenity-badge { font-size:10px;padding:3px 8px;border-radius:4px;background:#f5f5f5;color:#666;border:1px solid #eee; }
+.bfc-book-btn { background:var(--ek-red);color:white;border:none;width:100%;padding:13px;border-radius:6px;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .2s; }
+.bfc-book-btn:hover { background:var(--ek-red-dark); }
+
+/* ─────────────────────────────────────────
+   BOOKING WIZARD MODAL
+───────────────────────────────────────── */
+.modal-overlay { position:fixed;inset:0;z-index:5000;background:rgba(0,0,0,0.7);display:none;align-items:flex-end;justify-content:center; }
+.modal-overlay.active { display:flex; }
+.wizard { background:white;border-radius:16px 16px 0 0;width:100%;max-width:700px;max-height:92vh;overflow-y:auto;box-shadow:0 -10px 40px rgba(0,0,0,0.25);animation:sheetUp .35s cubic-bezier(.32,.72,0,1); }
+@keyframes sheetUp { from{transform:translateY(100%)}to{transform:translateY(0)} }
+
+/* Wizard header */
+.wiz-header { padding:20px 24px 0;border-bottom:1px solid #eee;position:sticky;top:0;background:white;z-index:10; }
+.wiz-top { display:flex;justify-content:space-between;align-items:center;margin-bottom:14px; }
+.wiz-title { font-family:'Georgia',serif;font-size:20px;color:var(--ek-dark); }
+.wiz-close { background:none;border:none;color:#aaa;font-size:24px;line-height:1;transition:color .2s; }
+.wiz-close:hover { color:var(--ek-red); }
+
+/* Step indicator */
+.step-bar { display:flex;align-items:center;gap:0;padding-bottom:0;overflow:hidden; }
+.step-item { display:flex;align-items:center;flex:1;position:relative;padding-bottom:12px; }
+.step-item:last-child { flex:0;padding-right:0; }
+.step-dot { width:26px;height:26px;border-radius:50%;border:2px solid #ddd;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#bbb;background:white;flex-shrink:0;transition:all .3s;z-index:1; }
+.step-item.done .step-dot { border-color:var(--ek-gold);background:var(--ek-gold);color:white; }
+.step-item.active .step-dot { border-color:var(--ek-red);background:var(--ek-red);color:white; }
+.step-label { font-size:10px;letter-spacing:.5px;color:#bbb;margin-left:6px;white-space:nowrap;font-weight:500; }
+.step-item.done .step-label, .step-item.active .step-label { color:var(--ek-dark); }
+.step-line { flex:1;height:1px;background:#eee;margin:0 6px;margin-bottom:12px; }
+.step-item.done + .step-line { background:var(--ek-gold); }
+
+/* Wizard body */
+.wiz-body { padding:24px; }
+.wiz-footer { padding:16px 24px 24px;border-top:1px solid #eee;display:flex;gap:10px;justify-content:space-between;align-items:center;position:sticky;bottom:0;background:white; }
+.wiz-footer-right { display:flex;gap:10px; }
+
+/* Flight summary strip */
+.flight-strip { background:#f9f9f9;border:1px solid #eee;border-radius:8px;padding:12px 16px;margin-bottom:20px;display:flex;align-items:center;gap:16px; }
+.fs-route { font-family:'Georgia',serif;font-size:18px;color:var(--ek-dark); }
+.fs-arrow { color:var(--ek-red);font-size:12px;margin:0 4px; }
+.fs-meta { font-size:11px;color:var(--ek-gray);margin-top:2px; }
+.fs-right { margin-left:auto;text-align:right; }
+.fs-price { font-family:'Georgia',serif;font-size:22px;color:var(--ek-dark); }
+.fs-miles { font-size:11px;color:#4CAF50;font-weight:700; }
+
+/* ── STEP 1: CLASS SELECTION ── */
+.class-grid { display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px; }
+.class-card {
+    border:2px solid #eee;border-radius:10px;padding:18px 16px;cursor:pointer;transition:all .2s;position:relative;text-align:center;
+}
+.class-card:hover:not(.locked) { border-color:var(--ek-gold-light);box-shadow:var(--shadow); }
+.class-card.selected { border-color:var(--ek-red);background:#fffaf9; }
+.class-card.locked { opacity:.5;cursor:not-allowed; }
+.class-card.locked::after { content:'Requires higher tier';position:absolute;bottom:-1px;left:0;right:0;background:rgba(0,0,0,0.6);color:white;font-size:9px;letter-spacing:.5px;padding:5px;border-radius:0 0 8px 8px;text-align:center; }
+.cc-icon { font-size:26px;margin-bottom:12px; }
+.cc-name { font-size:14px;font-weight:700;color:var(--ek-dark);margin-bottom:4px; }
+.cc-desc { font-size:11px;color:var(--ek-gray);margin-bottom:12px;line-height:1.4; }
+.cc-price { font-family:'Georgia',serif;font-size:24px;color:var(--ek-dark); }
+.cc-miles { font-size:10px;color:#4CAF50;font-weight:700;margin-top:2px; }
+.cc-seats { font-size:10px;color:var(--ek-gray);margin-top:6px; }
+.cc-seats-warn { color:var(--ek-red);font-weight:600; }
+.cc-check { position:absolute;top:10px;right:10px;width:20px;height:20px;border-radius:50%;background:var(--ek-red);color:white;font-size:10px;display:none;align-items:center;justify-content:center; }
+.class-card.selected .cc-check { display:flex; }
+.tier-badge { display:inline-flex;align-items:center;gap:5px;background:rgba(198,168,124,0.12);border:1px solid rgba(198,168,124,.35);border-radius:20px;padding:5px 12px;font-size:11px;color:#7a5a2a;font-weight:600;margin-bottom:18px; }
+.tier-badge i { color:var(--ek-gold); }
+
+/* ── STEP 2: SEAT MAP ── */
+.seat-map-wrap { overflow-x:auto; }
+.seat-map { display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 0 20px;min-width:360px; }
+.plane-nose { width:60px;height:30px;border:2px solid #ddd;border-bottom:none;border-radius:30px 30px 0 0;margin-bottom:8px;background:#fafafa; }
+.cabin-label { font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--ek-gold);font-weight:700;margin:8px 0 4px;width:100%;text-align:center; }
+.seat-row { display:flex;align-items:center;gap:4px; }
+.seat-row-num { width:20px;font-size:10px;color:#aaa;text-align:right;flex-shrink:0; }
+.aisle { width:14px;flex-shrink:0; }
+.seat {
+    width:30px;height:30px;border-radius:6px 6px 4px 4px;
+    border:1px solid #ddd;background:white;font-size:9px;font-weight:700;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;transition:all .15s;color:#999;position:relative;
+    flex-shrink:0;
+}
+.seat:hover { border-color:var(--ek-gold);background:#fffaf5;color:var(--ek-dark); }
+.seat.taken { background:#f0f0f0;color:#ccc;cursor:not-allowed;border-color:#e5e5e5; }
+.seat.taken:hover { background:#f0f0f0;color:#ccc;border-color:#e5e5e5; }
+.seat.selected { background:var(--ek-red);border-color:var(--ek-red);color:white; }
+.seat.selected:hover { background:var(--ek-red-dark);border-color:var(--ek-red-dark); }
+.seat.exit-row { border-color:#f1c40f; }
+.seat.window { border-left-width:3px;border-left-color:#a8d8ea; }
+.seat.window-r { border-right-width:3px;border-right-color:#a8d8ea; }
+.seat-col-headers { display:flex;align-items:center;gap:4px;margin-bottom:2px; }
+.sch-num { width:20px; }
+.sch-lbl { width:30px;text-align:center;font-size:9px;color:#bbb;font-weight:600; }
+.sch-aisle { width:14px; }
+.seat-legend { display:flex;gap:14px;justify-content:center;margin-top:16px;flex-wrap:wrap; }
+.sl-item { display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ek-gray); }
+.sl-dot { width:14px;height:14px;border-radius:3px;border:1px solid #ddd; }
+.sl-dot.avail { background:white; }
+.sl-dot.taken-d { background:#f0f0f0;border-color:#e5e5e5; }
+.sl-dot.sel-d  { background:var(--ek-red);border-color:var(--ek-red); }
+.sl-dot.exit-d { border-color:#f1c40f; }
+.selected-seat-info { background:#fffaf9;border:1px solid rgba(215,25,33,.2);border-radius:8px;padding:12px 16px;margin-top:16px;display:flex;align-items:center;gap:12px; }
+.ssi-seat { font-family:'Georgia',serif;font-size:28px;color:var(--ek-red); }
+.ssi-label { font-size:11px;color:var(--ek-gray); }
+.ssi-detail { font-size:13px;font-weight:600;color:var(--ek-dark); }
+
+/* ── STEP 3: PASSENGER DETAILS ── */
+.pass-grid { display:grid;grid-template-columns:1fr 1fr;gap:14px; }
+.fg-full { grid-column:span 2; }
+.pass-notice { background:#fffaf5;border:1px solid #f0d9b0;border-radius:8px;padding:12px 14px;font-size:12px;color:#7a5a2a;display:flex;gap:9px;align-items:flex-start;margin-top:16px; }
+.pass-notice i { color:var(--ek-gold);flex-shrink:0;margin-top:1px; }
+
+/* ── STEP 4: REVIEW ── */
+.review-section { margin-bottom:20px; }
+.review-section-title { font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ek-gold);font-weight:700;margin-bottom:10px; }
+.review-card { background:#f9f9f9;border:1px solid #eee;border-radius:8px;overflow:hidden; }
+.review-row { display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-bottom:1px solid #f0f0f0; }
+.review-row:last-child { border-bottom:none; }
+.rl { font-size:12px;color:var(--ek-gray); }
+.rv { font-size:13px;font-weight:600;color:var(--ek-dark);text-align:right; }
+.rv.big { font-family:'Georgia',serif;font-size:22px;color:var(--ek-dark); }
+.rv.green { color:#4CAF50; }
+.review-class-badge { display:inline-block;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase; }
+.rcb-economy  { background:rgba(102,102,102,.1);color:#555; }
+.rcb-business { background:rgba(198,168,124,.15);color:#7a5a2a; }
+.rcb-first    { background:rgba(215,25,33,.08);color:var(--ek-red); }
+
+/* ── STEP 5: SUCCESS ── */
+.success-screen { text-align:center;padding:40px 20px; }
+.success-icon { width:70px;height:70px;border-radius:50%;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);display:flex;align-items:center;justify-content:center;font-size:28px;color:#16a34a;margin:0 auto 18px;animation:popIn .4s cubic-bezier(.175,.885,.32,1.275); }
+@keyframes popIn { from{transform:scale(0)}to{transform:scale(1)} }
+.succ-label { font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--ek-gray);margin-bottom:5px; }
+.succ-pnr   { font-family:'Georgia',serif;font-size:48px;color:var(--ek-red);letter-spacing:6px;margin-bottom:14px; }
+.succ-route { font-family:'Georgia',serif;font-size:22px;color:var(--ek-dark);margin-bottom:4px; }
+.succ-meta  { font-size:13px;color:var(--ek-gray);line-height:1.7;margin-bottom:16px; }
+.succ-seat  { display:inline-block;background:var(--ek-red);color:white;font-size:18px;font-weight:700;padding:8px 20px;border-radius:8px;margin-bottom:12px; }
+.succ-miles { font-size:18px;font-weight:700;color:#16a34a; }
+.succ-boarding-pass { background:white;border:1px solid #eee;border-radius:10px;padding:20px;margin:20px 0;box-shadow:0 2px 8px rgba(0,0,0,.06);text-align:left; }
+.bp-header { display:flex;justify-content:space-between;margin-bottom:14px;padding-bottom:14px;border-bottom:2px dashed #eee; }
+.bp-airline { font-family:'Georgia',serif;font-size:16px;color:var(--ek-dark); }
+.bp-class { font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--ek-gold);font-weight:700;margin-top:2px; }
+.bp-iata { font-family:'Georgia',serif;font-size:32px;font-weight:400;color:var(--ek-dark); }
+.bp-city { font-size:10px;color:var(--ek-gray);margin-top:1px; }
+.bp-arrow { color:#ddd;font-size:16px;margin:0 8px; }
+.bp-body { display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px; }
+.bp-field-label { font-size:9px;color:#aaa;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px; }
+.bp-field-value { font-size:12px;font-weight:700;color:var(--ek-dark); }
+
+/* Login prompt */
+.login-prompt { text-align:center;padding:40px 25px; }
+.login-prompt h3 { font-family:'Georgia',serif;font-size:22px;margin-bottom:10px; }
+.login-prompt p  { font-size:13px;color:var(--ek-gray);margin-bottom:20px; }
+
+/* ── MY TRIPS / SKYWARDS ── */
+.inner-wrap { max-width:900px;margin:0 auto;padding:28px 25px; }
+.page-h1 { font-family:'Georgia',serif;font-size:26px;color:var(--ek-dark);margin-bottom:4px; }
+.page-sub { font-size:13px;color:var(--ek-gray);margin-bottom:24px; }
+.dash-grid { display:grid;grid-template-columns:330px 1fr;gap:18px; }
+.dash-right { display:flex;flex-direction:column;gap:14px; }
+
+/* Skywards card */
+.skywards-card { border-radius:10px;overflow:hidden;position:relative;padding:24px 22px;background:linear-gradient(135deg,#c0111a 0%,#8b0c13 55%,#6b0a10 100%);color:white;box-shadow:0 8px 24px rgba(215,25,33,.28);margin-bottom:14px; }
+.skywards-card::before { content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 85% 20%,rgba(198,168,124,.18) 0%,transparent 55%);pointer-events:none; }
+.sc-top { display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px; }
+.sc-brand { font-family:'Georgia',serif;font-size:18px;letter-spacing:1px;color:rgba(255,255,255,.88); }
+.sc-tier  { font-size:9px;letter-spacing:2px;text-transform:uppercase;border:1px solid rgba(198,168,124,.45);padding:3px 9px;border-radius:20px;background:rgba(198,168,124,.13);color:var(--ek-gold-light);font-weight:600; }
+.sc-miles { font-family:'Georgia',serif;font-size:42px;font-weight:400;line-height:1; }
+.sc-miles-label { font-size:9px;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.4);margin-top:1px;margin-bottom:18px; }
+.sc-name { font-size:14px;font-weight:500; }
+.sc-num  { font-size:10px;color:rgba(255,255,255,.3);margin-top:2px; }
+.sc-track { height:2px;background:rgba(255,255,255,.15);border-radius:2px;overflow:hidden;margin-top:14px; }
+.sc-fill  { height:100%;background:var(--ek-gold);border-radius:2px;transition:width 1.2s ease; }
+.sc-labels { display:flex;justify-content:space-between;font-size:9px;color:rgba(255,255,255,.3);margin-top:5px; }
+
+/* Panel card */
+.panel-card { background:white;border:1px solid #eee;border-radius:8px;overflow:hidden;box-shadow:var(--shadow); }
+.panel-header { background:linear-gradient(135deg,var(--ek-red) 0%,var(--ek-red-dark) 100%);color:white;padding:12px 15px;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase; }
+.panel-body { padding:2px 0; }
+.panel-row { display:flex;align-items:center;justify-content:space-between;padding:11px 15px;border-bottom:1px solid #f7f7f7;transition:background .15s; }
+.panel-row:last-child { border-bottom:none; }
+.panel-row:hover { background:#fffcf5; }
+.pr-route { font-size:13px;font-weight:700;color:var(--ek-dark); }
+.pr-meta  { font-size:11px;color:var(--ek-gray);margin-top:2px; }
+.pr-pnr   { font-size:10px;color:var(--ek-gold);font-weight:700;letter-spacing:1px;margin-top:2px; }
+.panel-empty { text-align:center;padding:28px;color:#ccc;font-size:12px; }
+.panel-empty i { display:block;font-size:26px;margin-bottom:7px; }
+
+.sbadge { font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:10px;font-weight:700;white-space:nowrap;flex-shrink:0; }
+.sbadge-confirmed { background:rgba(34,197,94,.1);color:#16a34a;border:1px solid rgba(34,197,94,.25); }
+.sbadge-cancelled { background:rgba(239,68,68,.1);color:#dc2626;border:1px solid rgba(239,68,68,.25); }
+.sbadge-completed { background:rgba(198,168,124,.15);color:#92622a;border:1px solid rgba(198,168,124,.35); }
+
+.tx-row { display:flex;align-items:center;gap:10px;padding:10px 15px;border-bottom:1px solid #f7f7f7; }
+.tx-row:last-child { border-bottom:none; }
+.tx-icon { width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0; }
+.tx-earned { background:rgba(34,197,94,.1);color:#16a34a; }
+.tx-redeemed { background:rgba(198,168,124,.15);color:#92622a; }
+.tx-cancelled { background:rgba(239,68,68,.1);color:#dc2626; }
+.tx-bonus { background:rgba(139,92,246,.1);color:#7c3aed; }
+.tx-mi { font-size:12px;font-weight:700;flex-shrink:0;margin-left:auto; }
+.tx-mi.pos { color:#16a34a; }
+.tx-mi.neg { color:#dc2626; }
+
+.trip-card { background:white;border:1px solid #eee;border-radius:8px;overflow:hidden;box-shadow:var(--shadow);margin-bottom:12px; }
+.trip-header { background:linear-gradient(135deg,var(--ek-red) 0%,var(--ek-red-dark) 100%);color:white;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:600; }
+.trip-body { padding:16px;display:flex;justify-content:space-between;align-items:flex-start;gap:14px; }
+.trip-route { font-family:'Georgia',serif;font-size:22px;color:var(--ek-dark);margin-bottom:4px; }
+.trip-meta  { font-size:12px;color:var(--ek-gray);margin-bottom:3px; }
+.trip-seat  { font-size:12px;color:var(--ek-dark);margin-bottom:3px; }
+.trip-pnr   { font-size:10px;color:var(--ek-gray); }
+.trip-right { text-align:right;flex-shrink:0; }
+.trip-price { font-family:'Georgia',serif;font-size:24px;color:var(--ek-dark); }
+.trip-miles { font-size:11px;color:#4CAF50;font-weight:700;margin:3px 0 10px; }
+.btn-cancel { background:none;border:1px solid #ddd;color:var(--ek-gray);padding:6px 12px;border-radius:6px;font-size:11px;cursor:pointer;transition:all .2s; }
+.btn-cancel:hover { border-color:var(--ek-red);color:var(--ek-red); }
+
+/* Buttons */
+.btn-primary { background:var(--ek-red);color:white;border:none;padding:11px 22px;border-radius:6px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:7px;transition:background .2s; }
+.btn-primary:hover { background:var(--ek-red-dark); }
+.btn-primary:disabled { background:#ccc;cursor:not-allowed; }
+.btn-secondary { background:none;border:1px solid #ddd;color:var(--ek-gray);padding:11px 18px;border-radius:6px;font-size:13px;cursor:pointer;transition:all .2s; }
+.btn-secondary:hover { border-color:var(--ek-dark);color:var(--ek-dark); }
+
+/* No results */
+.no-results { background:white;border-radius:8px;border:1px solid #eee;box-shadow:var(--shadow);text-align:center;padding:60px 20px; }
+.no-results i { font-size:40px;color:#ddd;display:block;margin-bottom:14px; }
+.no-results h3 { font-family:'Georgia',serif;font-size:22px;margin-bottom:8px; }
+.no-results p  { font-size:13px;color:var(--ek-gray); }
+
+@media (max-width:900px) {
+    .header { padding:0 16px;height:auto;min-height:60px;flex-wrap:wrap;gap:6px;padding-top:10px;padding-bottom:10px; }
+    .main-layout { flex-direction:column;height:auto;overflow:visible; }
+    .sidebar { width:100%;height:auto; }
+    .content-area { overflow-y:visible; }
+    .dash-grid { grid-template-columns:1fr; }
+    .class-grid { grid-template-columns:1fr; }
+    .pass-grid  { grid-template-columns:1fr; }
+    .fg-full    { grid-column:span 1; }
+    .stat-grid  { grid-template-columns:1fr 1fr; }
+    .bp-body    { grid-template-columns:1fr 1fr; }
+    .trip-body  { flex-direction:column; }
+    .icon-btn span { display:none; }
+    .wizard { border-radius:16px 16px 0 0;max-height:95vh; }
+}
+    </style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loader">
+    <div class="loading-spinner"></div>
+    <div class="loading-text">Loading Emirates...</div>
+</div>
+
+<!-- BOOKING WIZARD -->
+<div class="modal-overlay" id="wizard-overlay">
+    <div class="wizard" id="wizard-inner"></div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+    <div class="logo-container">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/Emirates_logo.svg" alt="Emirates" class="logo-img">
+        <div class="app-title">Book &amp; Manage</div>
+    </div>
+    <div class="header-actions">
+        <button class="icon-btn active" id="nav-home"     onclick="gotoHome()"><i class="fas fa-home"></i><span>Home</span></button>
+        <button class="icon-btn"        id="nav-trips"    onclick="requireAuth(gotoTrips)"><i class="fas fa-ticket-alt"></i><span>My Trips</span></button>
+        <button class="icon-btn"        id="nav-skywards" onclick="requireAuth(gotoSkywards)"><i class="fas fa-star"></i><span>Skywards</span></button>
+        <div style="width:1px;height:22px;background:#eee;margin:0 2px;"></div>
+        <div id="header-auth">
+            <button class="btn-discord" onclick="loginWithDiscord()"><i class="fab fa-discord"></i> Sign in with Discord</button>
+        </div>
+    </div>
+</div>
+
+<!-- HOME -->
+<div class="page active" id="page-home">
+    <div class="main-layout">
+
+        <!-- SIDEBAR -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h1 class="sidebar-title">Flight Search</h1>
+                <p class="sidebar-subtitle">Find and book your next Emirates journey.</p>
+            </div>
+
+            <div class="search-widget">
+                <div class="tab-row">
+                    <button class="tab-btn active" onclick="setTab(this)">One Way</button>
+                    <button class="tab-btn" onclick="setTab(this)">Return</button>
+                </div>
+                <div class="field-row">
+                    <div class="fg"><label>From</label>
+                        <select id="s-from">
+                            <option value="">Any Origin</option>
+                            <option value="DXB">DXB — Dubai</option>
+                            <option value="LHR">LHR — London</option>
+                            <option value="JFK">JFK — New York</option>
+                            <option value="SYD">SYD — Sydney</option>
+                            <option value="SIN">SIN — Singapore</option>
+                            <option value="CDG">CDG — Paris</option>
+                            <option value="FRA">FRA — Frankfurt</option>
+                            <option value="BOM">BOM — Mumbai</option>
+                            <option value="NRT">NRT — Tokyo</option>
+                            <option value="LAX">LAX — Los Angeles</option>
+                            <option value="MXP">MXP — Milan</option>
+                            <option value="ICN">ICN — Seoul</option>
+                            <option value="JNB">JNB — Johannesburg</option>
+                            <option value="GRU">GRU — São Paulo</option>
+                        </select>
+                    </div>
+                    <div class="fg"><label>To</label>
+                        <select id="s-to">
+                            <option value="">Any Destination</option>
+                            <option value="DXB">DXB — Dubai</option>
+                            <option value="LHR">LHR — London</option>
+                            <option value="JFK">JFK — New York</option>
+                            <option value="SYD">SYD — Sydney</option>
+                            <option value="SIN">SIN — Singapore</option>
+                            <option value="CDG">CDG — Paris</option>
+                            <option value="FRA">FRA — Frankfurt</option>
+                            <option value="BOM">BOM — Mumbai</option>
+                            <option value="NRT">NRT — Tokyo</option>
+                            <option value="LAX">LAX — Los Angeles</option>
+                            <option value="MXP">MXP — Milan</option>
+                            <option value="ICN">ICN — Seoul</option>
+                            <option value="JNB">JNB — Johannesburg</option>
+                            <option value="GRU">GRU — São Paulo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="field-row">
+                    <div class="fg"><label>Departure</label><input type="date" id="s-date"></div>
+                    <div class="fg"><label>Passengers</label>
+                        <select id="s-pax">
+                            <option value="1">1 Adult</option>
+                            <option value="2">2 Adults</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn-search" onclick="searchFlights()"><i class="fas fa-search"></i> Search Flights</button>
+            </div>
+
+            <div class="flights-section">
+                <div class="list-header">
+                    <span id="flights-list-label">UPCOMING FLIGHTS</span>
+                    <span id="flights-list-count"></span>
+                </div>
+                <div id="sidebar-flights">
+                    <div class="sb-loading"><i class="fas fa-circle-notch"></i>Loading flights…</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTENT AREA -->
+        <div class="content-area">
+            <!-- Welcome state -->
+            <div class="welcome-state" id="welcome-state">
+                <div class="ws-eyebrow">Emirates Airlines</div>
+                <h2 class="ws-title">Select a flight to get started</h2>
+                <p class="ws-sub">
+                    Choose a flight from the sidebar, or use the search to find specific routes.
+                    Sign in with Discord to earn Skywards miles on every booking.
+                </p>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                    <div style="background:white;border:1px solid #eee;border-radius:8px;padding:16px 14px;box-shadow:var(--shadow);">
+                        <div style="width:36px;height:36px;border-radius:8px;background:rgba(215,25,33,.08);display:flex;align-items:center;justify-content:center;color:var(--ek-red);font-size:15px;margin-bottom:10px;"><i class="fas fa-star"></i></div>
+                        <div style="font-size:12px;font-weight:700;color:var(--ek-dark);margin-bottom:4px;">Earn Skywards Miles</div>
+                        <div style="font-size:11px;color:var(--ek-gray);">Every booking earns miles. Sign in to track your balance.</div>
+                    </div>
+                    <div style="background:white;border:1px solid #eee;border-radius:8px;padding:16px 14px;box-shadow:var(--shadow);">
+                        <div style="width:36px;height:36px;border-radius:8px;background:rgba(215,25,33,.08);display:flex;align-items:center;justify-content:center;color:var(--ek-red);font-size:15px;margin-bottom:10px;"><i class="fas fa-couch"></i></div>
+                        <div style="font-size:12px;font-weight:700;color:var(--ek-dark);margin-bottom:4px;">Choose Your Seat</div>
+                        <div style="font-size:11px;color:var(--ek-gray);">Pick from the interactive seat map when booking.</div>
+                    </div>
+                    <div style="background:white;border:1px solid #eee;border-radius:8px;padding:16px 14px;box-shadow:var(--shadow);">
+                        <div style="width:36px;height:36px;border-radius:8px;background:rgba(215,25,33,.08);display:flex;align-items:center;justify-content:center;color:var(--ek-red);font-size:15px;margin-bottom:10px;"><i class="fas fa-shield-alt"></i></div>
+                        <div style="font-size:12px;font-weight:700;color:var(--ek-dark);margin-bottom:4px;">Tier Perks</div>
+                        <div style="font-size:11px;color:var(--ek-gray);">Silver & above unlock Business. Gold unlocks First Class.</div>
+                    </div>
+                    <div style="background:white;border:1px solid #eee;border-radius:8px;padding:16px 14px;box-shadow:var(--shadow);">
+                        <div style="width:36px;height:36px;border-radius:8px;background:rgba(215,25,33,.08);display:flex;align-items:center;justify-content:center;color:var(--ek-red);font-size:15px;margin-bottom:10px;"><i class="fas fa-plane-departure"></i></div>
+                        <div style="font-size:12px;font-weight:700;color:var(--ek-dark);margin-bottom:4px;">A380 & 777 Fleet</div>
+                        <div style="font-size:11px;color:var(--ek-gray);">Fly the world's most iconic widebody aircraft.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Flight detail panel -->
+            <div class="flight-detail" id="flight-detail" style="display:none;">
+                <button class="fd-back" onclick="clearSelected()"><i class="fas fa-arrow-left"></i> All Flights</button>
+                <div id="flight-detail-card"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MY TRIPS -->
+<div class="page" id="page-trips">
+    <div class="inner-wrap">
+        <div class="page-h1">My Trips</div>
+        <div class="page-sub">All your Emirates bookings.</div>
+        <div id="trips-list"></div>
+    </div>
+</div>
+
+<!-- SKYWARDS -->
+<div class="page" id="page-skywards">
+    <div class="inner-wrap">
+        <div class="page-h1">Skywards</div>
+        <div class="page-sub" id="dash-sub">Your miles and membership status.</div>
+        <div class="dash-grid">
+            <div>
+                <div class="skywards-card">
+                    <div class="sc-top"><div class="sc-brand">Skywards</div><div class="sc-tier" id="sc-tier">Blue</div></div>
+                    <div class="sc-miles" id="sc-miles">0</div>
+                    <div class="sc-miles-label">Available Miles</div>
+                    <div><div class="sc-name" id="sc-name">—</div><div class="sc-num" id="sc-num">—</div></div>
+                    <div class="sc-track"><div class="sc-fill" id="sc-fill" style="width:0%"></div></div>
+                    <div class="sc-labels"><span id="sc-from">Blue</span><span id="sc-to">Silver (25,000 mi)</span></div>
+                </div>
+                <div class="panel-card">
+                    <div class="panel-header">Tier Benefits</div>
+                    <div class="panel-body" id="sw-benefits"></div>
+                </div>
+            </div>
+            <div class="dash-right">
+                <div class="panel-card">
+                    <div class="panel-header">Upcoming Flights</div>
+                    <div class="panel-body" id="dp-upcoming"></div>
+                </div>
+                <div class="panel-card">
+                    <div class="panel-header">Miles Activity</div>
+                    <div class="panel-body" id="dp-tx"></div>
+                </div>
+                <div class="panel-card">
+                    <div class="panel-header">Past Bookings</div>
+                    <div class="panel-body" id="dp-past"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   CONFIG & STATE
+══════════════════════════════════════════════════════════ */
+const API = window.location.origin;
+let S = {
+    token:null, user:null, rewards:null,
+    bookings:[], flights:[], selectedFlight:null,
+    // Wizard state
+    wiz: { step:0, cls:null, seat:null, passenger:{}, takenSeats:[] }
+};
+
+/* Tier → allowed classes */
+const TIER_CLASSES = {
+    Blue:     ['economy'],
+    Silver:   ['economy','business'],
+    Gold:     ['economy','business','first'],
+    Platinum: ['economy','business','first']
+};
+const CLASS_META = {
+    economy:  { icon:'🪑', name:'Economy',      desc:'Comfortable seating with full ICE entertainment and gourmet meals.' },
+    business: { icon:'🛋️',  name:'Business',     desc:'Lie-flat seats, priority boarding, and exclusive lounge access.' },
+    first:    { icon:'🌟', name:'First Class',  desc:'Private suites, chauffeur service, and a shower spa on A380.' }
+};
+
+/* ══════════════════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════════════════ */
+window.addEventListener('DOMContentLoaded', async () => {
+    const d = new Date(); d.setDate(d.getDate()+1);
+    document.getElementById('s-date').value = d.toISOString().split('T')[0];
+
+    const p = new URLSearchParams(window.location.search);
+    const token = p.get('token');
+    if (token) { localStorage.setItem('ek_token',token); window.history.replaceState({},'',' '); showToast('Welcome to Emirates!','success'); }
+    if (p.get('error')) { showToast('Sign-in failed. Please try again.','error'); window.history.replaceState({},'',' '); }
+
+    const stored = localStorage.getItem('ek_token');
+    if (stored) { S.token = stored; await loadUser(); }
+
+    await loadSidebarFlights();
+    setTimeout(()=>document.getElementById('loader').classList.add('hidden'), 1000);
+});
+
+/* ══════════════════════════════════════════════════════════
+   AUTH
+══════════════════════════════════════════════════════════ */
+function loginWithDiscord() { window.location.href = `${API}/auth/discord`; }
+function logout() {
+    localStorage.removeItem('ek_token');
+    S = { token:null,user:null,rewards:null,bookings:[],flights:[],selectedFlight:null, wiz:{step:0,cls:null,seat:null,passenger:{},takenSeats:[]} };
+    document.getElementById('header-auth').innerHTML = `<button class="btn-discord" onclick="loginWithDiscord()"><i class="fab fa-discord"></i> Sign in with Discord</button>`;
+    gotoHome(); showToast('Signed out.','info');
+}
+function requireAuth(fn) { if (!S.token) { openLoginModal(); return; } fn(); }
+
+async function loadUser() {
+    try {
+        const res = await api('/api/me');
+        if (!res.ok) { logout(); return; }
+        const { user, rewards } = await res.json();
+        S.user = user; S.rewards = rewards;
+        await loadBookings();
+        renderHeaderUser();
+    } catch(e) { console.error(e); }
+}
+async function loadBookings() {
+    try { const r = await api('/api/bookings'); S.bookings = r.ok ? await r.json() : []; }
+    catch { S.bookings = []; }
+}
+function renderHeaderUser() {
+    const u=S.user, r=S.rewards, tier=r?.tier||'Blue';
+    const av = u?.avatar ? `https://cdn.discordapp.com/avatars/${u.discordId}/${u.avatar}.png` : `https://cdn.discordapp.com/embed/avatars/0.png`;
+    document.getElementById('header-auth').innerHTML = `
+        <div class="user-pill" onclick="requireAuth(gotoSkywards)">
+            <img src="${av}" onerror="this.src='https://cdn.discordapp.com/embed/avatars/0.png'">
+            <div><div class="up-name">${u?.username||'Traveller'}</div><div class="up-sub">${tier} · ${fmt(r?.availableMiles||0)} mi</div></div>
+        </div>
+        <button class="icon-btn" onclick="logout()" title="Sign out"><i class="fas fa-sign-out-alt"></i></button>`;
+}
+
+/* ══════════════════════════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════════════════════════ */
+function setNavActive(id) {
+    document.querySelectorAll('.icon-btn[id^="nav-"]').forEach(b=>b.classList.remove('active'));
+    document.getElementById('nav-'+id)?.classList.add('active');
+}
+function gotoHome()     { showPage('home');     setNavActive('home'); }
+function gotoTrips()    { renderTrips();    showPage('trips');    setNavActive('trips'); }
+function gotoSkywards() { renderSkywards(); showPage('skywards'); setNavActive('skywards'); }
+
+function showPage(id) {
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page-'+id).classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ══════════════════════════════════════════════════════════
+   SIDEBAR — FLIGHTS
+══════════════════════════════════════════════════════════ */
+async function loadSidebarFlights(origin='', dest='', date='') {
+    const el = document.getElementById('sidebar-flights');
+    el.innerHTML = `<div class="sb-loading"><i class="fas fa-circle-notch"></i>Loading…</div>`;
+    try {
+        const qs = new URLSearchParams();
+        if (origin) qs.set('origin',origin);
+        if (dest)   qs.set('destination',dest);
+        if (date)   qs.set('date',date);
+        const endpoint = (origin||dest||date) ? `/api/flights?${qs}` : '/api/flights/popular';
+        const res  = await fetch(endpoint);
+        const data = await res.json();
+        S.flights = data;
+        renderSidebarFlights(data, !!(origin||dest||date));
+    } catch(e) { el.innerHTML=`<div class="sb-loading" style="color:#f44336;"><i class="fas fa-exclamation-circle" style="animation:none;"></i>Could not load flights</div>`; }
+}
+
+function renderSidebarFlights(flights, isSearch=false) {
+    const label = document.getElementById('flights-list-label');
+    const count = document.getElementById('flights-list-count');
+    label.textContent = isSearch ? 'SEARCH RESULTS' : 'UPCOMING FLIGHTS';
+    count.textContent = flights.length ? `${flights.length} found` : '';
+
+    const el = document.getElementById('sidebar-flights');
+    if (!flights.length) {
+        el.innerHTML = `<div class="sb-loading" style="color:#ccc;animation:none;"><i class="fas fa-plane" style="animation:none;font-size:22px;"></i>No flights found</div>`;
+        return;
+    }
+    el.innerHTML = flights.map(f => {
+        const eco = f.classes?.economy;
+        const seats = eco?.availableSeats || 0;
+        const seatsWarn = seats < 8 && seats > 0 ? `<span class="sbf-seats"><i class="fas fa-exclamation-triangle" style="font-size:8px;"></i> ${seats} left</span>` : '';
+        return `<div class="sb-flight" id="sbf-${f._id}" onclick="selectFlight('${f._id}')">
+            <div class="sbf-top">
+                <span class="sbf-num">${f.flightNumber}</span>
+                <span class="sbf-status-dot" title="On schedule"></span>
+            </div>
+            <div class="sbf-route">
+                <div><div class="sbf-iata">${f.origin}</div><div style="font-size:10px;color:#aaa;">${fmtTime(f.departureTime)}</div></div>
+                <div class="sbf-mid">
+                    <div class="sbf-dur">${f.duration||'—'}</div>
+                    <div class="sbf-line"></div>
+                </div>
+                <div style="text-align:right;"><div class="sbf-iata">${f.destination}</div><div style="font-size:10px;color:#aaa;">${fmtTime(f.arrivalTime)}</div></div>
+            </div>
+            <div class="sbf-bottom">
+                <div><div class="sbf-from">from</div><div class="sbf-price">$${fmt(eco?.price||0)}</div></div>
+                <div style="text-align:right;">
+                    ${seatsWarn}
+                    <div style="font-size:10px;color:#aaa;margin-top:2px;">${fmtDate(f.departureTime)}</div>
+                </div>
+            </div>
+            <button class="btn-book-sm" onclick="event.stopPropagation();startBooking('${f._id}')">
+                <i class="fas fa-ticket-alt" style="margin-right:5px;"></i>Book Now
+            </button>
+        </div>`;
+    }).join('');
+}
+
+function selectFlight(id) {
+    const f = S.flights.find(x=>x._id===id); if (!f) return;
+    S.selectedFlight = f;
+    // Highlight sidebar
+    document.querySelectorAll('.sb-flight').forEach(e=>e.classList.remove('selected'));
+    document.getElementById('sbf-'+id)?.classList.add('selected');
+    // Show detail panel
+    showFlightDetail(f);
+}
+
+function clearSelected() {
+    S.selectedFlight = null;
+    document.querySelectorAll('.sb-flight').forEach(e=>e.classList.remove('selected'));
+    document.getElementById('welcome-state').style.display='';
+    document.getElementById('flight-detail').style.display='none';
+}
+
+function showFlightDetail(f) {
+    document.getElementById('welcome-state').style.display='none';
+    document.getElementById('flight-detail').style.display='';
+
+    const eco  = f.classes?.economy;
+    const biz  = f.classes?.business;
+    const frst = f.classes?.first;
+
+    document.getElementById('flight-detail-card').innerHTML = `
+        <div class="big-flight-card">
+            <div class="bfc-header">
+                <div>
+                    <div class="bfc-fn">${f.flightNumber}</div>
+                    <div class="bfc-ac">${f.aircraft||'—'}</div>
+                </div>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/d/d0/Emirates_logo.svg" style="height:30px;width:auto;filter:brightness(0) invert(1);">
+                <div class="bfc-status">On Schedule</div>
+            </div>
+            <div class="bfc-body">
+                <div class="bfc-route">
+                    <div><div class="bfc-iata">${f.origin}</div><div class="bfc-city">${f.originCity||f.origin}</div><div style="font-size:13px;font-weight:600;margin-top:6px;">${fmtTime(f.departureTime)}</div></div>
+                    <div class="bfc-mid">
+                        <div class="bfc-dur">${f.duration||'—'}</div>
+                        <div class="bfc-line"><div class="bfc-plane"><i class="fas fa-plane"></i></div></div>
+                        <div class="bfc-date">${fmtDate(f.departureTime)}</div>
+                    </div>
+                    <div style="text-align:right;"><div class="bfc-iata">${f.destination}</div><div class="bfc-city">${f.destinationCity||f.destination}</div><div style="font-size:13px;font-weight:600;margin-top:6px;">${fmtTime(f.arrivalTime)}</div></div>
+                </div>
+                <div class="stat-grid">
+                    <div class="stat-item"><div class="stat-label">Economy</div><div class="stat-value">$${fmt(eco?.price||0)}</div><div style="font-size:10px;color:#aaa;">${eco?.availableSeats||0} seats</div></div>
+                    <div class="stat-item"><div class="stat-label">Business</div><div class="stat-value">$${fmt(biz?.price||0)}</div><div style="font-size:10px;color:#aaa;">${biz?.availableSeats||0} seats</div></div>
+                    <div class="stat-item"><div class="stat-label">First Class</div><div class="stat-value">$${fmt(frst?.price||0)}</div><div style="font-size:10px;color:#aaa;">${frst?.availableSeats||0} seats</div></div>
+                    <div class="stat-item"><div class="stat-label">Aircraft</div><div class="stat-value" style="font-size:11px;">${f.aircraft||'—'}</div></div>
+                </div>
+                <div class="amenities">
+                    <span class="amenity-badge"><i class="fas fa-wifi"></i> Wi-Fi</span>
+                    <span class="amenity-badge"><i class="fas fa-utensils"></i> Meals</span>
+                    <span class="amenity-badge"><i class="fas fa-tv"></i> ICE</span>
+                    <span class="amenity-badge"><i class="fas fa-bed"></i> Blanket</span>
+                    ${(f.aircraft||'').includes('A380') ? '<span class="amenity-badge"><i class="fas fa-shower"></i> Shower Spa</span>' : ''}
+                </div>
+                <button class="bfc-book-btn" onclick="startBooking('${f._id}')">
+                    <i class="fas fa-ticket-alt"></i> Book This Flight
+                </button>
+            </div>
+        </div>`;
+}
+
+/* ══════════════════════════════════════════════════════════
+   SEARCH
+══════════════════════════════════════════════════════════ */
+function setTab(btn) { document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active')); btn.classList.add('active'); }
+async function searchFlights() {
+    const origin = document.getElementById('s-from').value;
+    const dest   = document.getElementById('s-to').value;
+    const date   = document.getElementById('s-date').value;
+    clearSelected();
+    await loadSidebarFlights(origin, dest, date);
+}
+
+/* ══════════════════════════════════════════════════════════
+   BOOKING WIZARD
+══════════════════════════════════════════════════════════ */
+function startBooking(flightId) {
+    if (!S.token) { openLoginModal(); return; }
+    const f = S.flights.find(x=>x._id===flightId); if (!f) return;
+    S.selectedFlight = f;
+    S.wiz = { step:1, cls:null, seat:null, passenger:{}, takenSeats: genTakenSeats(flightId) };
+    renderWizard();
+    document.getElementById('wizard-overlay').classList.add('active');
+}
+
+function closeWizard() { document.getElementById('wizard-overlay').classList.remove('active'); }
+document.getElementById('wizard-overlay').addEventListener('click', e=>{ if(e.target===e.currentTarget) closeWizard(); });
+
+function renderWizard() {
+    const w = S.wiz;
+    const steps = ['Class','Seat','Passenger','Review'];
+    const stepBar = steps.map((s,i)=>{
+        const n = i+1;
+        const state = n < w.step ? 'done' : n === w.step ? 'active' : '';
+        const icon  = n < w.step ? '<i class="fas fa-check"></i>' : n;
+        return `<div class="step-item ${state}">
+            <div class="step-dot">${icon}</div>
+            <div class="step-label">${s}</div>
+        </div>${i<steps.length-1?'<div class="step-line"></div>':''}`;
+    }).join('');
+
+    const f = S.selectedFlight;
+    const cd = w.cls ? (f.classes?.[w.cls]||{}) : {};
+    const priceStr = w.cls ? `$${fmt(cd.price||0)}` : '—';
+    const milesStr = w.cls ? `+${fmt(f.milesEarned?.[w.cls]||0)} mi` : '';
+
+    const strip = `<div class="flight-strip">
+        <div>
+            <div class="fs-route">${f.origin} <span class="fs-arrow"><i class="fas fa-long-arrow-alt-right"></i></span> ${f.destination}</div>
+            <div class="fs-meta">${f.flightNumber} · ${fmtDate(f.departureTime)} · ${fmtTime(f.departureTime)}</div>
+        </div>
+        <div class="fs-right">
+            <div class="fs-price">${priceStr}</div>
+            ${milesStr?`<div class="fs-miles">${milesStr}</div>`:''}
+        </div>
+    </div>`;
+
+    let body = '', footer = '';
+
+    if (w.step === 1) { body = renderStepClass(); footer = renderFooter(false, 'Select a class to continue', true); }
+    if (w.step === 2) { body = renderStepSeat();  footer = renderFooter(true,  w.seat ? 'Continue to Passenger Details' : 'Select a seat to continue', !w.seat); }
+    if (w.step === 3) { body = renderStepPass();  footer = renderFooter(true,  'Review Booking', false); }
+    if (w.step === 4) { body = renderStepReview();footer = renderFooter(true,  'Confirm & Pay', false, 'confirmBooking()'); }
+
+    document.getElementById('wizard-inner').innerHTML = `
+        <div class="wiz-header">
+            <div class="wiz-top">
+                <div class="wiz-title">Book Your Flight</div>
+                <button class="wiz-close" onclick="closeWizard()">×</button>
+            </div>
+            <div class="step-bar">${stepBar}</div>
+        </div>
+        <div class="wiz-body">
+            ${strip}
+            ${body}
+        </div>
+        <div class="wiz-footer" id="wiz-footer">${footer}</div>`;
+}
+
+function renderFooter(showBack, nextLabel, nextDisabled, nextFn='wizNext()') {
+    return `<div>${showBack?`<button class="btn-secondary" onclick="wizBack()"><i class="fas fa-arrow-left" style="margin-right:5px;font-size:11px;"></i>Back</button>`:''}</div>
+    <div class="wiz-footer-right">
+        <button class="btn-primary" ${nextDisabled?'disabled':''} onclick="${nextFn}" id="wiz-next-btn">
+            ${nextLabel} <i class="fas fa-arrow-right" style="font-size:11px;"></i>
+        </button>
+    </div>`;
+}
+
+/* ── STEP 1: CLASS ── */
+function renderStepClass() {
+    const f = S.selectedFlight;
+    const tier = S.rewards?.tier || 'Blue';
+    const allowed = TIER_CLASSES[tier] || ['economy'];
+    const tierColors = { Blue:'#6b7280', Silver:'#9ca3af', Gold:'#b45309', Platinum:'#7c3aed' };
+
+    return `<div class="tier-badge"><i class="fas fa-shield-alt"></i> ${tier} Member — ${allowed.map(c=>CLASS_META[c].name).join(', ')} access</div>
+    <div class="class-grid">
+        ${['economy','business','first'].map(cls => {
+            const cd = f.classes?.[cls]||{};
+            const locked = !allowed.includes(cls);
+            const meta = CLASS_META[cls];
+            const tierReq = cls==='business'?'Silver required':cls==='first'?'Gold required':'';
+            return `<div class="class-card ${S.wiz.cls===cls?'selected':''} ${locked?'locked':''}"
+                ${!locked?`onclick="selectClass('${cls}')"`:''}>
+                <div class="cc-check"><i class="fas fa-check"></i></div>
+                <div class="cc-icon">${meta.icon}</div>
+                <div class="cc-name">${meta.name}</div>
+                <div class="cc-desc">${meta.desc}</div>
+                <div class="cc-price">$${fmt(cd.price||0)}</div>
+                <div class="cc-miles">+${fmt(f.milesEarned?.[cls]||0)} Skywards Miles</div>
+                <div class="cc-seats ${cd.availableSeats<8?'cc-seats-warn':''}">${cd.availableSeats||0} seats available${locked?`<br>${tierReq}`:''}</div>
+            </div>`;
+        }).join('')}
+    </div>`;
+}
+
+function selectClass(cls) {
+    S.wiz.cls = cls;
+    S.wiz.seat = null; // reset seat when class changes
+    renderWizard();
+}
+
+/* ── STEP 2: SEAT MAP ── */
+function renderStepSeat() {
+    const cls = S.wiz.cls;
+    const taken = new Set(S.wiz.takenSeats[cls]||[]);
+
+    // Configs per class
+    const configs = {
+        economy:  { rows:20, startRow:21, colGroups:[['A','B','C'],['D','E','F']], label:'ECONOMY CABIN', exitRows:[30,40] },
+        business: { rows:10, startRow:8,  colGroups:[['A','B'],['C','D']],         label:'BUSINESS CLASS', exitRows:[] },
+        first:    { rows:6,  startRow:1,  colGroups:[['A'],['B','C'],['D']],       label:'FIRST CLASS SUITES', exitRows:[] }
+    };
+    const cfg = configs[cls] || configs.economy;
+    const allCols = cfg.colGroups.flat();
+
+    // Column headers
+    const headerCols = cfg.colGroups.map((g,gi)=>
+        g.map(c=>`<div class="sch-lbl">${c}</div>`).join('')+
+        (gi<cfg.colGroups.length-1?`<div class="sch-aisle"></div>`:'')
+    ).join('');
+
+    // Rows
+    const rows = [];
+    for (let r=0; r<cfg.rows; r++) {
+        const rowNum = cfg.startRow + r;
+        const isExit = cfg.exitRows.includes(rowNum);
+        const cols = cfg.colGroups.map((g,gi)=>{
+            const seats = g.map((c,ci)=>{
+                const seatId = `${rowNum}${c}`;
+                const isTaken = taken.has(seatId);
+                const isSelected = S.wiz.seat === seatId;
+                const isWindow = (gi===0&&ci===0) || (ji===cfg.colGroups.length-1&&ci===g.length-1);
+                // Simplified window detection
+                const isWin = (gi===0&&ci===0) || (gi===cfg.colGroups.length-1&&ci===g.length-1);
+                let cls2 = '';
+                if (isWin) cls2 += ' window';
+                if (isExit) cls2 += ' exit-row';
+                if (isTaken) cls2 += ' taken';
+                if (isSelected) cls2 += ' selected';
+                return `<div class="seat${cls2}" ${!isTaken?`onclick="selectSeat('${seatId}')"`:''} title="${seatId}">${isSelected?'<i class="fas fa-check" style="font-size:8px;"></i>':c}</div>`;
+            }).join('');
+            return seats + (gi<cfg.colGroups.length-1?`<div class="aisle"></div>`:'');
+        }).join('');
+        rows.push(`<div class="seat-row"><div class="seat-row-num">${rowNum}</div>${cols}</div>`);
+    }
+
+    const seatInfo = S.wiz.seat ? `
+        <div class="selected-seat-info">
+            <div class="ssi-seat">${S.wiz.seat}</div>
+            <div>
+                <div class="ssi-label">Selected Seat</div>
+                <div class="ssi-detail">${getSeatLabel(S.wiz.seat, cls)}</div>
+            </div>
+        </div>` : `<div style="background:#f9f9f9;border:1px dashed #ddd;border-radius:8px;padding:12px 16px;text-align:center;margin-top:14px;font-size:13px;color:#bbb;"><i class="fas fa-mouse-pointer" style="margin-right:5px;"></i>Tap a seat to select it</div>`;
+
+    return `<div class="seat-map-wrap">
+        <div class="seat-map">
+            <div class="plane-nose"></div>
+            <div class="cabin-label">${cfg.label}</div>
+            <div class="seat-col-headers">
+                <div class="sch-num"></div>
+                ${headerCols}
+            </div>
+            ${rows.join('')}
+        </div>
+        <div class="seat-legend">
+            <div class="sl-item"><div class="sl-dot avail"></div> Available</div>
+            <div class="sl-item"><div class="sl-dot taken-d"></div> Occupied</div>
+            <div class="sl-item"><div class="sl-dot sel-d"></div> Selected</div>
+            <div class="sl-item"><div class="sl-dot exit-d"></div> Exit row</div>
+        </div>
+        ${seatInfo}
+    </div>`;
+}
+
+function getSeatLabel(seatId, cls) {
+    const col = seatId.slice(-1);
+    const cfg = { economy:{A:'Window',B:'Middle',C:'Aisle',D:'Aisle',E:'Middle',F:'Window'}, business:{A:'Window',B:'Aisle',C:'Aisle',D:'Window'}, first:{A:'Window Suite',B:'Centre',C:'Centre',D:'Window Suite'} };
+    const map = cfg[cls] || cfg.economy;
+    return map[col] || col;
+}
+
+function selectSeat(seatId) {
+    S.wiz.seat = seatId;
+    renderWizard();
+}
+
+/* ── STEP 3: PASSENGER ── */
+function renderStepPass() {
+    const p = S.wiz.passenger;
+    return `<div class="pass-grid">
+        <div class="fg"><label>First Name</label><input type="text" id="p-first" value="${p.firstName||''}" placeholder="John" oninput="savePax()"></div>
+        <div class="fg"><label>Last Name</label><input type="text" id="p-last" value="${p.lastName||''}" placeholder="Smith" oninput="savePax()"></div>
+        <div class="fg"><label>Date of Birth</label><input type="date" id="p-dob" value="${p.dob||''}" oninput="savePax()"></div>
+        <div class="fg"><label>Nationality</label>
+            <select id="p-nat" onchange="savePax()">
+                ${['British','American','Australian','Canadian','German','French','Italian','Spanish','Indian','Chinese','Japanese','Emirati','Saudi','Other'].map(n=>`<option ${p.nationality===n?'selected':''}>${n}</option>`).join('')}
+            </select>
+        </div>
+        <div class="fg fg-full"><label>Passport / ID Number</label><input type="text" id="p-pass" value="${p.passportNumber||''}" placeholder="e.g. 123456789" oninput="savePax()"></div>
+        <div class="fg fg-full"><label>Email (optional)</label><input type="email" id="p-email" value="${p.email||''}" placeholder="john@example.com" oninput="savePax()"></div>
+    </div>
+    <div class="pass-notice"><i class="fas fa-info-circle"></i><span>Your details are used for boarding purposes only and are not stored beyond your booking.</span></div>`;
+}
+
+function savePax() {
+    S.wiz.passenger = {
+        firstName:     document.getElementById('p-first')?.value?.trim()||'',
+        lastName:      document.getElementById('p-last')?.value?.trim()||'',
+        dob:           document.getElementById('p-dob')?.value||'',
+        nationality:   document.getElementById('p-nat')?.value||'British',
+        passportNumber:document.getElementById('p-pass')?.value?.trim()||'',
+        email:         document.getElementById('p-email')?.value?.trim()||''
+    };
+}
+
+/* ── STEP 4: REVIEW ── */
+function renderStepReview() {
+    const f = S.selectedFlight;
+    const w = S.wiz;
+    const cd = f.classes?.[w.cls]||{};
+    const meta = CLASS_META[w.cls]||{};
+    const p = w.passenger;
+    const badgeCls = `rcb-${w.cls}`;
+    return `
+    <div class="review-section">
+        <div class="review-section-title">Flight Details</div>
+        <div class="review-card">
+            <div class="review-row"><span class="rl">Flight</span><span class="rv">${f.flightNumber}</span></div>
+            <div class="review-row"><span class="rl">Route</span><span class="rv">${f.origin} → ${f.destination}</span></div>
+            <div class="review-row"><span class="rl">Departure</span><span class="rv">${fmtDate(f.departureTime)} at ${fmtTime(f.departureTime)}</span></div>
+            <div class="review-row"><span class="rl">Aircraft</span><span class="rv">${f.aircraft||'—'}</span></div>
+            <div class="review-row"><span class="rl">Duration</span><span class="rv">${f.duration||'—'}</span></div>
+        </div>
+    </div>
+    <div class="review-section">
+        <div class="review-section-title">Your Selection</div>
+        <div class="review-card">
+            <div class="review-row"><span class="rl">Cabin Class</span><span class="rv"><span class="review-class-badge ${badgeCls}">${meta.name}</span></span></div>
+            <div class="review-row"><span class="rl">Seat</span><span class="rv">${w.seat} — ${getSeatLabel(w.seat||'21A',w.cls)}</span></div>
+            <div class="review-row"><span class="rl">Meals</span><span class="rv">Included</span></div>
+            <div class="review-row"><span class="rl">Baggage</span><span class="rv">${w.cls==='economy'?'30kg':w.cls==='business'?'40kg':'50kg'}</span></div>
+        </div>
+    </div>
+    <div class="review-section">
+        <div class="review-section-title">Passenger</div>
+        <div class="review-card">
+            <div class="review-row"><span class="rl">Full Name</span><span class="rv">${p.firstName} ${p.lastName}</span></div>
+            <div class="review-row"><span class="rl">Date of Birth</span><span class="rv">${p.dob||'—'}</span></div>
+            <div class="review-row"><span class="rl">Nationality</span><span class="rv">${p.nationality}</span></div>
+            <div class="review-row"><span class="rl">Passport</span><span class="rv">${p.passportNumber||'—'}</span></div>
+        </div>
+    </div>
+    <div class="review-section">
+        <div class="review-section-title">Price Breakdown</div>
+        <div class="review-card">
+            <div class="review-row"><span class="rl">Base Fare (${meta.name})</span><span class="rv">$${fmt(cd.price||0)}</span></div>
+            <div class="review-row"><span class="rl">Taxes & Fees</span><span class="rv">Included</span></div>
+            <div class="review-row"><span class="rl">Skywards Miles Earned</span><span class="rv green">+${fmt(f.milesEarned?.[w.cls]||0)} mi</span></div>
+            <div class="review-row"><span class="rl" style="font-weight:700;">Total</span><span class="rv big">$${fmt(cd.price||0)}</span></div>
+        </div>
+    </div>`;
+}
+
+/* ── WIZARD NAVIGATION ── */
+function wizNext() {
+    const w = S.wiz;
+    if (w.step === 1) {
+        if (!w.cls) { showToast('Please select a cabin class.','error'); return; }
+        w.step = 2;
+    } else if (w.step === 2) {
+        if (!w.seat) { showToast('Please select a seat.','error'); return; }
+        w.step = 3;
+    } else if (w.step === 3) {
+        savePax();
+        const p = w.passenger;
+        if (!p.firstName||!p.lastName||!p.dob||!p.passportNumber) { showToast('Please fill in all required fields.','error'); return; }
+        w.step = 4;
+    }
+    renderWizard();
+    document.getElementById('wizard-inner').scrollTop=0;
+}
+
+function wizBack() {
+    S.wiz.step = Math.max(1, S.wiz.step - 1);
+    renderWizard();
+    document.getElementById('wizard-inner').scrollTop=0;
+}
+
+async function confirmBooking() {
+    const btn = document.getElementById('wiz-next-btn');
+    btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Processing…';
+
+    const w = S.wiz, f = S.selectedFlight, p = w.passenger;
+    try {
+        const res  = await api('/api/bookings', { method:'POST', body: JSON.stringify({
+            flightId: f._id, class: w.cls,
+            seatNumbers: [w.seat],
+            passengers: [{
+                firstName: p.firstName, lastName: p.lastName,
+                dateOfBirth: p.dob, passportNumber: p.passportNumber,
+                nationality: p.nationality
+            }]
+        })});
+        const data = await res.json();
+        if (!res.ok) { showToast(data.error||'Booking failed.','error'); btn.disabled=false; btn.innerHTML='Try Again'; return; }
+
+        renderSuccess(data, f, w);
+        await loadUser();
+    } catch(e) {
+        showToast('Network error. Please try again.','error');
+        btn.disabled=false; btn.innerHTML='Confirm & Pay';
+    }
+}
+
+function renderSuccess(data, f, w) {
+    const meta = CLASS_META[w.cls]||{};
+    const p = w.passenger;
+    document.getElementById('wizard-inner').innerHTML = `
+        <div style="padding:20px 24px 0;border-bottom:1px solid #eee;display:flex;justify-content:flex-end;">
+            <button class="wiz-close" onclick="closeWizard()"  style="font-size:24px;background:none;border:none;color:#aaa;cursor:pointer;">×</button>
+        </div>
+        <div class="success-screen">
+            <div class="success-icon"><i class="fas fa-check"></i></div>
+            <div class="succ-label">Booking Confirmed</div>
+            <div class="succ-pnr">${data.pnr}</div>
+
+            <div class="succ-boarding-pass">
+                <div class="bp-header">
+                    <div>
+                        <div class="bp-airline">Emirates</div>
+                        <div class="bp-class">${meta.name}</div>
+                    </div>
+                    <div style="display:flex;align-items:center;">
+                        <div style="text-align:right;"><div class="bp-iata">${f.origin}</div><div class="bp-city">${f.originCity||f.origin}</div></div>
+                        <div class="bp-arrow"><i class="fas fa-long-arrow-alt-right"></i></div>
+                        <div><div class="bp-iata">${f.destination}</div><div class="bp-city">${f.destinationCity||f.destination}</div></div>
+                    </div>
+                </div>
+                <div class="bp-body">
+                    <div><div class="bp-field-label">Passenger</div><div class="bp-field-value">${p.firstName} ${p.lastName}</div></div>
+                    <div><div class="bp-field-label">Flight</div><div class="bp-field-value">${f.flightNumber}</div></div>
+                    <div><div class="bp-field-label">Date</div><div class="bp-field-value">${fmtDate(f.departureTime)}</div></div>
+                    <div><div class="bp-field-label">Departs</div><div class="bp-field-value">${fmtTime(f.departureTime)}</div></div>
+                    <div><div class="bp-field-label">Seat</div><div class="bp-field-value" style="color:var(--ek-red);font-size:16px;">${w.seat||data.seatNumbers?.[0]||'—'}</div></div>
+                    <div><div class="bp-field-label">PNR</div><div class="bp-field-value" style="letter-spacing:2px;">${data.pnr}</div></div>
+                    <div><div class="bp-field-label">Class</div><div class="bp-field-value">${meta.name}</div></div>
+                    <div><div class="bp-field-label">Baggage</div><div class="bp-field-value">${w.cls==='economy'?'30kg':w.cls==='business'?'40kg':'50kg'}</div></div>
+                </div>
+            </div>
+
+            <div class="succ-miles"><i class="fas fa-star" style="margin-right:6px;color:var(--ek-gold);"></i>+${fmt(data.milesEarned)} Skywards Miles earned</div>
+            <button class="btn-primary" style="margin:20px auto 0;" onclick="closeWizard();requireAuth(gotoTrips);">
+                <i class="fas fa-ticket-alt"></i> View My Trips
+            </button>
+        </div>`;
+}
+
+/* ── SEAT GENERATION ── */
+function genTakenSeats(flightId) {
+    // Deterministic random based on flight ID
+    let seed = flightId.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+    const rng = () => { seed=(seed*9301+49297)%233280; return seed/233280; };
+
+    const eco  = ['A','B','C','D','E','F'];
+    const biz  = ['A','B','C','D'];
+    const frst = ['A','B','C','D'];
+
+    const ecoPicked=[], bizPicked=[], frsPicked=[];
+    for (let r=21;r<=40;r++) eco.forEach(c=>{ if(rng()<0.6) ecoPicked.push(`${r}${c}`); });
+    for (let r=8; r<=17;r++) biz.forEach(c=>{ if(rng()<0.4) bizPicked.push(`${r}${c}`); });
+    for (let r=1; r<=6; r++) frst.forEach(c=>{ if(rng()<0.25) frsPicked.push(`${r}${c}`); });
+
+    return { economy:ecoPicked, business:bizPicked, first:frsPicked };
+}
+
+/* ── LOGIN MODAL ── */
+function openLoginModal() {
+    document.getElementById('wizard-inner').innerHTML = `
+        <div style="padding:22px 24px 16px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;">
+            <div style="font-family:'Georgia',serif;font-size:20px;">Sign In Required</div>
+            <button class="wiz-close" onclick="closeWizard()">×</button>
+        </div>
+        <div class="login-prompt">
+            <h3>Join Emirates Skywards</h3>
+            <p>Sign in with Discord to book flights, earn miles, and manage your Skywards account.</p>
+            <button class="btn-discord" onclick="loginWithDiscord()" style="margin:0 auto;">
+                <i class="fab fa-discord"></i> Sign in with Discord
+            </button>
+        </div>`;
+    document.getElementById('wizard-overlay').classList.add('active');
+}
+
+/* ══════════════════════════════════════════════════════════
+   MY TRIPS
+══════════════════════════════════════════════════════════ */
+function renderTrips() {
+    const list = document.getElementById('trips-list');
+    if (!S.bookings.length) {
+        list.innerHTML=`<div class="no-results"><i class="fas fa-suitcase-rolling"></i><h3>No bookings yet</h3><p>Search for flights and book your next adventure.</p></div>`; return;
+    }
+    const sorted = [...S.bookings].sort((a,b)=>new Date(b.bookedAt)-new Date(a.bookedAt));
+    list.innerHTML = sorted.map(bk=>{
+        const isPast = new Date(bk.departureTime)<new Date();
+        const scls   = bk.status==='cancelled'?'sbadge-cancelled':isPast?'sbadge-completed':'sbadge-confirmed';
+        const slbl   = bk.status==='cancelled'?'Cancelled':isPast?'Completed':'Confirmed';
+        const canCancel = bk.status==='confirmed'&&!isPast;
+        const clsLabel = bk.class==='first'?'First Class':bk.class?bk.class.charAt(0).toUpperCase()+bk.class.slice(1)+' Class':'—';
+        return `<div class="trip-card">
+            <div class="trip-header"><span>${bk.flightNumber} · ${clsLabel}</span><span class="sbadge ${scls}">${slbl}</span></div>
+            <div class="trip-body">
+                <div>
+                    <div class="trip-route">${bk.originCity||bk.origin} → ${bk.destinationCity||bk.destination}</div>
+                    <div class="trip-meta">${fmtDate(bk.departureTime)} · ${fmtTime(bk.departureTime)} · ${bk.aircraft||'—'}</div>
+                    <div class="trip-seat">Seat: <strong>${(bk.seatNumbers||[]).join(', ')||'—'}</strong> · ${(bk.passengers||[]).map(p=>`${p.firstName} ${p.lastName}`).join(', ')||'—'}</div>
+                    <div class="trip-pnr">PNR: <strong>${bk.pnr}</strong></div>
+                </div>
+                <div class="trip-right">
+                    <div class="trip-price">$${fmt(bk.price)}</div>
+                    <div class="trip-miles">+${fmt(bk.milesEarned||0)} miles</div>
+                    ${canCancel?`<button class="btn-cancel" onclick="cancelBooking('${bk._id}')"><i class="fas fa-times" style="margin-right:3px;"></i>Cancel</button>`:''}
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+async function cancelBooking(id) {
+    if (!confirm('Cancel this booking? Earned miles will be deducted.')) return;
+    const res  = await api(`/api/bookings/${id}/cancel`,{method:'PATCH'});
+    const data = await res.json();
+    if (!res.ok) { showToast(data.error||'Failed to cancel.','error'); return; }
+    showToast('Booking cancelled.','success');
+    await loadUser(); renderTrips();
+}
+
+/* ══════════════════════════════════════════════════════════
+   SKYWARDS
+══════════════════════════════════════════════════════════ */
+function renderSkywards() {
+    const r=S.rewards, tier=r?.tier||'Blue', u=S.user;
+    const total=r?.totalMilesEarned||0;
+    let from=0,to=25000,next='Silver';
+    if(tier==='Silver'){from=25000;to=50000;next='Gold';}
+    if(tier==='Gold'){from=50000;to=150000;next='Platinum';}
+    if(tier==='Platinum'){from=150000;to=150000;next='Platinum';}
+    const pct=tier==='Platinum'?100:Math.min(100,((total-from)/(to-from))*100);
+
+    document.getElementById('sc-tier').textContent=tier;
+    document.getElementById('sc-miles').textContent=fmt(r?.availableMiles||0);
+    document.getElementById('sc-name').textContent=u?.username||'—';
+    document.getElementById('sc-num').textContent=u?.skywardsNumber||'—';
+    document.getElementById('sc-from').textContent=tier;
+    document.getElementById('sc-to').textContent=tier==='Platinum'?'Max Tier':`${next} (${fmt(to)} mi)`;
+    document.getElementById('dash-sub').textContent=`Welcome back, ${u?.username||'Traveller'}.`;
+    setTimeout(()=>{document.getElementById('sc-fill').style.width=pct+'%';},100);
+
+    const benefits={Blue:['Earn miles on every flight','Online check-in','200+ global destinations'],Silver:['20% miles bonus','Priority check-in','Lounge access','Extra baggage 5kg','Business class access'],Gold:['50% miles bonus','Priority boarding','Business lounge','Extra baggage 10kg','Complimentary upgrades','First Class access'],Platinum:['100% miles bonus','Chauffeur service','First class lounge','Extra baggage 20kg','Guaranteed upgrades','Dedicated concierge']};
+    document.getElementById('sw-benefits').innerHTML=(benefits[tier]||benefits.Blue).map(b=>`<div class="panel-row"><div style="display:flex;align-items:center;gap:9px;"><i class="fas fa-check-circle" style="color:var(--ek-gold);font-size:13px;"></i><span style="font-size:12px;">${b}</span></div></div>`).join('');
+
+    const now=new Date();
+    const up=S.bookings.filter(b=>b.status==='confirmed'&&new Date(b.departureTime)>now).sort((a,b)=>new Date(a.departureTime)-new Date(b.departureTime)).slice(0,3);
+    document.getElementById('dp-upcoming').innerHTML=up.length?up.map(panelRow).join(''):`<div class="panel-empty"><i class="fas fa-suitcase"></i>No upcoming flights</div>`;
+
+    const txs=(r?.transactions||[]).slice(-10).reverse();
+    document.getElementById('dp-tx').innerHTML=txs.length?txs.map(txRow).join(''):`<div class="panel-empty"><i class="fas fa-receipt"></i>No activity yet</div>`;
+
+    const past=S.bookings.filter(b=>b.status==='cancelled'||new Date(b.departureTime)<=now).sort((a,b)=>new Date(b.departureTime)-new Date(a.departureTime)).slice(0,4);
+    document.getElementById('dp-past').innerHTML=past.length?past.map(b=>panelRow(b,true)).join(''):`<div class="panel-empty"><i class="fas fa-history"></i>No past bookings</div>`;
+}
+
+function panelRow(bk,past=false) {
+    const isPast=new Date(bk.departureTime)<new Date();
+    const cls=bk.status==='cancelled'?'sbadge-cancelled':isPast?'sbadge-completed':'sbadge-confirmed';
+    const lbl=bk.status==='cancelled'?'Cancelled':isPast?'Completed':'Confirmed';
+    return `<div class="panel-row"><div>
+        <div class="pr-route">${bk.origin} → ${bk.destination}</div>
+        <div class="pr-meta">${fmtDate(bk.departureTime)} · ${fmtTime(bk.departureTime)} · ${bk.class?bk.class.charAt(0).toUpperCase()+bk.class.slice(1):'—'}</div>
+        <div class="pr-pnr">PNR: ${bk.pnr}</div>
+    </div><span class="sbadge ${cls}">${lbl}</span></div>`;
+}
+
+function txRow(tx) {
+    const cls={earned:'tx-earned',redeemed:'tx-redeemed',cancelled:'tx-cancelled',bonus:'tx-bonus'}[tx.type]||'tx-earned';
+    const icon={earned:'fa-plus',redeemed:'fa-minus',cancelled:'fa-times',bonus:'fa-gift'}[tx.type]||'fa-plus';
+    const pos=(tx.miles||0)>0;
+    return `<div class="tx-row"><div class="tx-icon ${cls}"><i class="fas ${icon}"></i></div>
+        <div style="flex:1;"><div style="font-size:12px;">${tx.description||'—'}</div><div style="font-size:10px;color:var(--ek-gray);">${fmtDate(tx.date)}</div></div>
+        <div class="tx-mi ${pos?'pos':'neg'}">${pos?'+':''}${fmt(Math.abs(tx.miles||0))}</div>
+    </div>`;
+}
+
+/* ══════════════════════════════════════════════════════════
+   UTILS
+══════════════════════════════════════════════════════════ */
+async function api(path, opts={}) {
+    return fetch(`${API}${path}`, { ...opts, headers:{ 'Content-Type':'application/json', ...(S.token?{Authorization:`Bearer ${S.token}`}:{}), ...(opts.headers||{}) } });
+}
+function showToast(msg, type='info') {
+    const icons={success:'fa-check-circle',error:'fa-exclamation-circle',info:'fa-info-circle'};
+    const el=document.createElement('div'); el.className=`toast ${type}`;
+    el.innerHTML=`<i class="fas ${icons[type]}"></i><span>${msg}</span>`;
+    document.body.appendChild(el);
+    setTimeout(()=>{el.style.opacity='0';el.style.transform='translateY(20px)';el.style.transition='all .3s';setTimeout(()=>el.remove(),300);},3500);
+}
+function fmt(n)     { return Number(n||0).toLocaleString('en-US'); }
+function fmtDate(d) { if(!d)return'—'; return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }
+function fmtTime(d) { if(!d)return'—'; return new Date(d).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}); }
+</script>
+</body>
+</html>
