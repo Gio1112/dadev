@@ -734,9 +734,9 @@ function renderSidebarFlights(flights, isSearch = false) {
   el.innerHTML = flights.map(f => {
     const eco   = f.classes?.economy;
     const seats = eco?.availableSeats ?? 0;
-    const seatsLow = seats > 0 && seats <= 30;
+    const seatsLow = seats > 0 && seats <= 5;
     const seatsClass = seats === 0 ? 'low' : seatsLow ? 'low' : 'ok';
-    const seatsText  = seats === 0 ? '<i class="fas fa-ban"></i> Sold out' : seatsLow ? `<i class="fas fa-fire"></i> ${seats} left` : `<i class="fas fa-check-circle"></i> ${seats} seats`;
+    const seatsText  = seats === 0 ? '<i class="fas fa-ban"></i> Sold out' : seatsLow ? `<i class="fas fa-fire"></i> ${seats}/15 left` : `<i class="fas fa-check-circle"></i> ${seats}/15`;
     const codeshare  = f.codeshare ? `<span class="sbc-codeshare"><i class="fas fa-handshake"></i> ${f.codeshare}</span>` : '';
     return `<div class="sb-card" id="sbc-${f._id}" onclick="selectFlight('${f._id}')">
       <div class="sbc-top">
@@ -813,22 +813,22 @@ function showFlightDetail(f) {
           <div class="cabin-cell">
             <div class="cabin-cell-name"><i class="fas fa-chair" style="margin-right:3px;"></i>Economy</div>
             <div class="cabin-cell-price">$${fmt(eco?.price || 0)}</div>
-            <div class="cabin-cell-seats" style="color:${(eco?.availableSeats||0)<30?'var(--ek-red)':'#aaa'};">
-              <i class="fas fa-users" style="font-size:9px;"></i> ${eco?.availableSeats ?? '—'} seats
+            <div class="cabin-cell-seats" style="color:${(eco?.availableSeats||0)<5?'var(--ek-red)':'#aaa'};">
+              <i class="fas fa-users" style="font-size:9px;"></i> ${eco?.availableSeats ?? '—'}/15 seats
             </div>
           </div>
           <div class="cabin-cell">
             <div class="cabin-cell-name"><i class="fas fa-couch" style="margin-right:3px;"></i>Business</div>
             <div class="cabin-cell-price">$${fmt(biz?.price || 0)}</div>
-            <div class="cabin-cell-seats" style="color:${(biz?.availableSeats||0)<10?'var(--ek-red)':'#aaa'};">
-              <i class="fas fa-users" style="font-size:9px;"></i> ${biz?.availableSeats ?? '—'} seats
+            <div class="cabin-cell-seats" style="color:${(biz?.availableSeats||0)<4?'var(--ek-red)':'#aaa'};">
+              <i class="fas fa-users" style="font-size:9px;"></i> ${biz?.availableSeats ?? '—'}/15 seats
             </div>
           </div>
           <div class="cabin-cell">
             <div class="cabin-cell-name"><i class="fas fa-crown" style="margin-right:3px;"></i>First Class</div>
             <div class="cabin-cell-price">$${fmt(frst?.price || 0)}</div>
-            <div class="cabin-cell-seats" style="color:${(frst?.availableSeats||0)<5?'var(--ek-red)':'#aaa'};">
-              <i class="fas fa-users" style="font-size:9px;"></i> ${frst?.availableSeats ?? '—'} seats
+            <div class="cabin-cell-seats" style="color:${(frst?.availableSeats||0)<3?'var(--ek-red)':'#aaa'};">
+              <i class="fas fa-users" style="font-size:9px;"></i> ${frst?.availableSeats ?? '—'}/15 seats
             </div>
           </div>
         </div>
@@ -864,13 +864,21 @@ async function searchFlights() {
 /* ═══════════════════════════════════════════
    BOOKING WIZARD
 ═══════════════════════════════════════════ */
-function startBooking(flightId) {
+async function startBooking(flightId) {
   if (!S.token) { openLoginModal(); return; }
   const f = S.flights.find(x => x._id == flightId || x._id?.toString() == flightId); if (!f) return;
   S.selectedFlight = f;
-  S.wiz = { step: 1, cls: null, seat: null, passenger: {}, takenSeats: genTakenSeats(flightId) };
-  renderWizard();
+  S.wiz = { step: 1, cls: null, seat: null, passenger: {}, takenSeats: {} };
+  renderWizard(); // show immediately
   document.getElementById('wizard-bg').classList.add('active');
+  // Fetch real taken seats from MongoDB in the background
+  try {
+    const res = await fetch(`${API}/api/flights/${flightId}/seats`);
+    if (res.ok) {
+      S.wiz.takenSeats = await res.json();
+      if (S.wiz.step === 2) renderWizard(); // re-render seat map if already there
+    }
+  } catch(e) { /* fallback to empty — all seats appear available */ }
 }
 
 function closeWizard() { document.getElementById('wizard-bg').classList.remove('active'); }
@@ -957,7 +965,7 @@ function renderStepClass() {
       const meta = CLASS_META[cls];
       const locked = !allowed.includes(cls);
       const selected = S.wiz.cls === cls;
-      const seatsLow = (cd.availableSeats || 0) < (cls === 'first' ? 3 : cls === 'business' ? 5 : 30);
+      const seatsLow = (cd.availableSeats || 0) < 5 && (cd.availableSeats || 0) > 0;
       const soldOut  = (cd.availableSeats || 0) === 0;
       const lockLbl  = cls === 'business' ? 'Business role required' : 'First Class role required';
       return `<div class="class-card ${meta.iconCls} ${selected ? 'selected' : ''} ${locked || soldOut ? 'locked' : ''}"
@@ -969,7 +977,7 @@ function renderStepClass() {
         <div class="cc-price">$${fmt(cd.price || 0)}</div>
         <div class="cc-miles"><i class="fas fa-star" style="font-size:9px;color:var(--ek-gold);margin-right:2px;"></i>+${fmt(f.milesEarned?.[cls] || 0)} mi</div>
         <div class="cc-seats ${seatsLow && !soldOut ? 'low' : ''}">
-          ${soldOut ? '<i class="fas fa-ban"></i> Sold out' : locked ? `<i class="fas fa-lock"></i> ${lockLbl}` : `<i class="fas fa-users"></i> ${cd.availableSeats ?? 0} seats left`}
+          ${soldOut ? '<i class="fas fa-ban"></i> Sold out' : locked ? `<i class="fas fa-lock"></i> ${lockLbl}` : `<i class="fas fa-users"></i> ${cd.availableSeats ?? 0}/15 seats`}
         </div>
       </div>`;
     }).join('')}
@@ -983,9 +991,9 @@ function renderStepSeat() {
   const cls = S.wiz.cls;
   const taken = new Set((S.wiz.takenSeats[cls] || []));
   const cfgs = {
-    economy:  { rows: 20, start: 21, groups: [['A','B','C'],['D','E','F']], lbl: 'ECONOMY CABIN',       exitRows: [30,40] },
-    business: { rows: 10, start: 8,  groups: [['A','B'],['C','D']],         lbl: 'BUSINESS CLASS',       exitRows: [] },
-    first:    { rows: 6,  start: 1,  groups: [['A'],['B','C'],['D']],       lbl: 'FIRST CLASS SUITES',   exitRows: [] }
+    economy:  { rows: 3, start: 1, groups: [['A','B','C'],['D','E','F']], lbl: 'ECONOMY CABIN',     exitRows: [] },
+    business: { rows: 4, start: 1, groups: [['A','B'],['C','D']],         lbl: 'BUSINESS CLASS',     exitRows: [] },
+    first:    { rows: 5, start: 1, groups: [['A'],['B'],['C']],           lbl: 'FIRST CLASS SUITES', exitRows: [] }
   };
   const cfg = cfgs[cls] || cfgs.economy;
 
@@ -1045,7 +1053,11 @@ function renderStepSeat() {
 
 function getSeatType(sid, cls) {
   const col = sid.slice(-1);
-  const m = { economy:{A:'Window',B:'Middle',C:'Aisle',D:'Aisle',E:'Middle',F:'Window'}, business:{A:'Window',B:'Aisle',C:'Aisle',D:'Window'}, first:{A:'Suite A',B:'Centre Suite',C:'Centre Suite',D:'Suite D'} };
+  const m = {
+    economy:  { A:'Window',B:'Middle',C:'Aisle',D:'Aisle',E:'Middle',F:'Window' },
+    business: { A:'Window',B:'Aisle',C:'Aisle',D:'Window' },
+    first:    { A:'Suite',B:'Suite',C:'Suite' }
+  };
   return (m[cls] || m.economy)[col] || col;
 }
 function selectSeat(sid) { S.wiz.seat = sid; renderWizard(); }
@@ -1053,39 +1065,16 @@ function selectSeat(sid) { S.wiz.seat = sid; renderWizard(); }
 /* ── STEP 3: PASSENGER ── */
 function renderStepPass() {
   const p = S.wiz.passenger;
-  return `<div class="pass-grid">
-    <div class="sfg"><label><i class="fas fa-user"></i> First Name</label>
-      <input type="text" id="p-first" value="${p.firstName||''}" placeholder="John" oninput="savePax()">
-    </div>
-    <div class="sfg"><label><i class="fas fa-user"></i> Last Name</label>
-      <input type="text" id="p-last" value="${p.lastName||''}" placeholder="Smith" oninput="savePax()">
-    </div>
-    <div class="sfg"><label><i class="fas fa-calendar-alt"></i> Date of Birth</label>
-      <input type="date" id="p-dob" value="${p.dob||''}" oninput="savePax()">
-    </div>
-    <div class="sfg"><label><i class="fas fa-flag"></i> Nationality</label>
-      <select id="p-nat" onchange="savePax()">
-        ${['British','American','Australian','Canadian','German','French','Italian','Spanish','Indian','Chinese','Japanese','Emirati','Saudi','Pakistani','Other'].map(n=>`<option ${p.nationality===n?'selected':''}>${n}</option>`).join('')}
-      </select>
-    </div>
-    <div class="sfg pg-full"><label><i class="fas fa-passport"></i> Passport / ID Number</label>
-      <input type="text" id="p-pass" value="${p.passportNumber||''}" placeholder="e.g. 123456789" oninput="savePax()">
-    </div>
-    <div class="sfg pg-full"><label><i class="fas fa-envelope"></i> Email (optional)</label>
-      <input type="email" id="p-email" value="${p.email||''}" placeholder="john@example.com" oninput="savePax()">
+  return `<div style="max-width:400px;">
+    <div class="sfg" style="margin-bottom:16px;">
+      <label><i class="fab fa-roblox" style="color:#e60000;"></i> Roblox Username</label>
+      <input type="text" id="p-roblox" value="${p.robloxUser||''}" placeholder="e.g. platekey123" oninput="savePax()" autocomplete="off" style="font-size:16px;padding:12px 14px;">
     </div>
   </div>
-  <div class="pass-note"><i class="fas fa-info-circle"></i><span>Passenger details are used for boarding purposes only and kept securely.</span></div>`;
+  <div class="pass-note"><i class="fas fa-info-circle"></i><span>Your Roblox username will be shown on your boarding pass and used for check-in.</span></div>`;
 }
 function savePax() {
-  S.wiz.passenger = {
-    firstName:     document.getElementById('p-first')?.value?.trim() || '',
-    lastName:      document.getElementById('p-last')?.value?.trim()  || '',
-    dob:           document.getElementById('p-dob')?.value  || '',
-    nationality:   document.getElementById('p-nat')?.value  || 'British',
-    passportNumber:document.getElementById('p-pass')?.value?.trim() || '',
-    email:         document.getElementById('p-email')?.value?.trim() || ''
-  };
+  S.wiz.passenger = { robloxUser: document.getElementById('p-roblox')?.value?.trim() || '' };
 }
 
 /* ── STEP 4: REVIEW ── */
@@ -1116,10 +1105,7 @@ function renderStepReview() {
   <div class="rv-section">
     <div class="rv-sec-title"><i class="fas fa-user"></i> Passenger</div>
     <div class="rv-card">
-      <div class="rv-row"><span class="rl"><i class="fas fa-id-card"></i>Name</span><span class="rv">${p.firstName} ${p.lastName}</span></div>
-      <div class="rv-row"><span class="rl"><i class="fas fa-calendar"></i>DOB</span><span class="rv">${p.dob || '—'}</span></div>
-      <div class="rv-row"><span class="rl"><i class="fas fa-flag"></i>Nationality</span><span class="rv">${p.nationality}</span></div>
-      <div class="rv-row"><span class="rl"><i class="fas fa-passport"></i>Passport</span><span class="rv">${p.passportNumber || '—'}</span></div>
+      <div class="rv-row"><span class="rl"><i class="fab fa-roblox"></i>Roblox Username</span><span class="rv">${p.robloxUser || '—'}</span></div>
     </div>
   </div>
   <div class="rv-section">
@@ -1144,8 +1130,7 @@ function wizNext() {
     w.step = 3;
   } else if (w.step === 3) {
     savePax();
-    const p = w.passenger;
-    if (!p.firstName || !p.lastName || !p.dob || !p.passportNumber) { showToast('Please fill all required fields.', 'error'); return; }
+    if (!w.passenger.robloxUser) { showToast('Please enter your Roblox username.', 'error'); return; }
     w.step = 4;
   }
   renderWizard();
@@ -1160,7 +1145,7 @@ async function confirmBooking() {
   try {
     const res = await api('/api/bookings', { method:'POST', body: JSON.stringify({
       flightId: f._id?.toString() || f._id, class: w.cls, seatNumbers: [w.seat],
-      passengers: [{ firstName: p.firstName, lastName: p.lastName, dateOfBirth: p.dob, passportNumber: p.passportNumber, nationality: p.nationality }]
+      robloxUser: w.passenger.robloxUser
     })});
     const data = await res.json();
     if (!res.ok) { showToast(data.error || 'Booking failed.', 'error'); btn.disabled = false; btn.innerHTML = 'Try Again'; return; }
@@ -1198,7 +1183,7 @@ function renderSuccess(data, f, w) {
           </div>
         </div>
         <div class="bp-body">
-          <div><div class="bp-fl">Passenger</div><div class="bp-fv">${p.firstName} ${p.lastName}</div></div>
+          <div><div class="bp-fl">Roblox User</div><div class="bp-fv">${p.robloxUser || '—'}</div></div>
           <div><div class="bp-fl">Flight</div><div class="bp-fv">${f.flightNumber}</div></div>
           <div><div class="bp-fl">Date</div><div class="bp-fv">${fmtDate(f.departureTime)}</div></div>
           <div><div class="bp-fl">Departs</div><div class="bp-fv">${fmtTime(f.departureTime)}</div></div>
@@ -1213,17 +1198,6 @@ function renderSuccess(data, f, w) {
         <i class="fas fa-list-alt"></i> View My Trips
       </button>
     </div>`;
-}
-
-/* ── TAKEN SEAT GENERATION (deterministic, visual only) ── */
-function genTakenSeats(flightId) {
-  let seed = String(flightId).split('').reduce((a,c) => a + c.charCodeAt(0), 0);
-  const rng = () => { seed = (seed*9301+49297)%233280; return seed/233280; };
-  const eco=[], biz=[], frst=[];
-  for(let r=21;r<=40;r++) ['A','B','C','D','E','F'].forEach(c=>{ if(rng()<0.55) eco.push(`${r}${c}`); });
-  for(let r=8; r<=17;r++) ['A','B','C','D'].forEach(c=>{ if(rng()<0.35) biz.push(`${r}${c}`); });
-  for(let r=1; r<=6; r++) ['A','B','C','D'].forEach(c=>{ if(rng()<0.2) frst.push(`${r}${c}`); });
-  return { economy:eco, business:biz, first:frst };
 }
 
 /* ── LOGIN MODAL ── */
@@ -1269,7 +1243,7 @@ function renderTrips() {
           <div class="trip-route">${bk.origin} → ${bk.destination}</div>
           <div class="trip-meta"><i class="fas fa-calendar-alt"></i>${fmtDate(bk.departureTime)} · ${fmtTime(bk.departureTime)}</div>
           <div class="trip-meta"><i class="fas fa-plane-departure"></i>${bk.aircraft || '—'}</div>
-          <div class="trip-meta"><i class="fas fa-map-marker-alt"></i>Seat ${(bk.seatNumbers||[]).join(', ')||'—'} · ${(bk.passengers||[]).map(p=>`${p.firstName} ${p.lastName}`).join(', ')||'—'}</div>
+          <div class="trip-meta"><i class="fas fa-map-marker-alt"></i>Seat ${(bk.seatNumbers||[]).join(', ')||'—'} · ${(bk.passengers||[]).map(p=>p.firstName||'').join(', ') || bk.robloxUser || '—'}</div>
           <div class="trip-pnr"><i class="fas fa-barcode"></i> ${bk.pnr}</div>
         </div>
         <div class="trip-right">
