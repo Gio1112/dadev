@@ -3,9 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Emirates PDF Viewer</title>
-    <meta name="description" content="A easy way to view pdf files for Emirates PTFS. This will be a predecessor of google docs.">
+    <title>Emirates Document Center</title>
+    <meta name="description" content="Emirates PTFS Document Center — access crew manuals, briefings, and official documents in one place.">
+
+    <!-- Social / Discord embed -->
+    <meta property="og:title" content="Emirates Document Center">
+    <meta property="og:description" content="Emirates PTFS Document Center — access crew manuals, briefings, and official documents in one place.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Emirates PTFS">
+    <meta property="og:image" content="https://cdn.discordapp.com/attachments/1480638674030039040/1480638679528640694/RobloxScreenShot20260309_191023032.png?ex=69b6ff3a&is=69b5adba&hm=dc638040cebcf7e53af1db5c5a9dc5d2d7f9fa8b26857e2ce7164fe562962ebb&">
+
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Emirates Document Center">
+    <meta name="twitter:description" content="Emirates PTFS Document Center — access crew manuals, briefings, and official documents in one place.">
+    <meta name="twitter:image" content="https://cdn.discordapp.com/attachments/1480638674030039040/1480638679528640694/RobloxScreenShot20260309_191023032.png?ex=69b6ff3a&is=69b5adba&hm=dc638040cebcf7e53af1db5c5a9dc5d2d7f9fa8b26857e2ce7164fe562962ebb&">
+
     <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         :root {
             --ek-red: #D71921;
@@ -36,14 +50,14 @@
         }
 
         .header {
-            height: 74px;
+            height: 64px;
             background: #fff;
             border-bottom: 3px solid var(--ek-red);
             box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0 22px;
+            padding: 0 24px;
             position: relative;
             z-index: 5;
         }
@@ -60,41 +74,59 @@
         }
 
         .brand h1 {
-            font-size: 16px;
-            letter-spacing: 1.2px;
+            font-size: 13px;
+            letter-spacing: 1.4px;
             text-transform: uppercase;
             color: var(--ek-gray);
-            border-left: 1px solid #ddd;
-            padding-left: 12px;
-            margin-left: 6px;
+            border-left: 1px solid #e0e0e0;
+            padding-left: 14px;
+            margin-left: 8px;
             font-weight: 700;
         }
 
-        .status {
+        .status-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 2px;
+        }
+
+        .status-doc {
             font-size: 13px;
+            font-weight: 600;
+            color: var(--ek-dark);
+            max-width: 320px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .status {
+            font-size: 11px;
             color: var(--ek-gray);
+            letter-spacing: 0.3px;
         }
 
         .layout {
             display: grid;
-            grid-template-columns: 330px minmax(0, 1fr);
-            height: calc(100vh - 74px);
+            grid-template-columns: 300px minmax(0, 1fr);
+            height: calc(100vh - 64px);
         }
 
         .sidebar {
-            background: var(--panel);
-            border-right: 1px solid #eee;
-            padding: 18px;
+            background: #fafafa;
+            border-right: 1px solid #e8e8e8;
+            padding: 16px;
             overflow-y: auto;
         }
 
         .panel-card {
             background: #fff;
-            border: 1px solid #eee;
+            border: 1px solid #e8e8e8;
             border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
             padding: 14px;
-            margin-bottom: 14px;
+            margin-bottom: 12px;
         }
 
         .panel-title {
@@ -142,9 +174,15 @@
             border-color: var(--ek-red-dark);
         }
 
+        .button-subtle {
+            background: #fff;
+            color: var(--ek-dark);
+        }
+
         .button-subtle:hover {
             border-color: var(--ek-gold);
             color: var(--ek-red);
+            background: #fffbf5;
         }
 
         .stack {
@@ -179,14 +217,31 @@
             text-align: left;
             border: none;
             background: #fff;
-            padding: 9px 10px;
+            padding: 10px 12px;
             cursor: pointer;
             font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--ek-dark);
+            transition: background 0.15s, color 0.15s;
+        }
+
+        .doc-btn i {
+            color: #bbb;
+            font-size: 11px;
+            flex-shrink: 0;
+            transition: color 0.15s;
         }
 
         .doc-btn:hover,
         .doc-btn.active {
-            background: #fffbf5;
+            background: #fff5f5;
+            color: var(--ek-red);
+        }
+
+        .doc-btn:hover i,
+        .doc-btn.active i {
             color: var(--ek-red);
         }
 
@@ -200,32 +255,50 @@
 
         .toolbar {
             background: #fff;
-            border: 1px solid #eee;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
-            padding: 10px;
+            border: 1px solid #e8e8e8;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            padding: 8px 12px;
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 6px;
             align-items: center;
         }
 
         .toolbar .button {
             width: auto;
-            padding: 8px 10px;
-            min-width: 42px;
+            padding: 7px 11px;
+            min-width: 36px;
+            font-size: 13px;
+            border-radius: 7px;
         }
 
         .toolbar .input {
-            width: 64px;
+            width: 56px;
             text-align: center;
-            padding: 8px;
+            padding: 7px;
         }
 
         .toolbar .page-text {
             font-size: 13px;
             color: var(--ek-gray);
-            margin-right: 6px;
+        }
+
+        .toolbar-sep {
+            width: 1px;
+            height: 24px;
+            background: #e5e5e5;
+            margin: 0 2px;
+            flex-shrink: 0;
+        }
+
+        .zoom-label {
+            font-size: 12px;
+            color: var(--ek-gray);
+            min-width: 42px;
+            text-align: center;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
         }
 
         .canvas-host {
@@ -242,11 +315,41 @@
             position: relative;
         }
 
-        #pdfCanvas {
+        #pageContainer {
             display: none;
-            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.18);
+            position: relative;
+            line-height: 1;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.16);
+            border-radius: 2px;
+        }
+
+        #pdfCanvas {
+            display: block;
             border-radius: 2px;
             background: #fff;
+        }
+
+        /* Text selection layer — rendered on top of canvas, spans are transparent */
+        .textLayer {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            z-index: 2;
+            line-height: 1;
+            -webkit-text-size-adjust: none;
+            text-size-adjust: none;
+        }
+
+        .textLayer :is(span, br) {
+            color: transparent;
+            position: absolute;
+            white-space: pre;
+            cursor: text;
+            transform-origin: 0% 0%;
+        }
+
+        .textLayer ::selection {
+            background: rgba(215, 25, 33, 0.2);
         }
 
         .empty-state {
@@ -255,32 +358,56 @@
             max-width: 460px;
         }
 
+        .empty-state i {
+            font-size: 40px;
+            color: #ddd;
+            margin-bottom: 14px;
+            display: block;
+        }
+
         .empty-state h2 {
-            color: var(--ek-red);
+            color: var(--ek-dark);
             margin-bottom: 6px;
-            font-size: 20px;
+            font-size: 17px;
+            font-weight: 700;
         }
 
         .empty-state p {
             color: var(--ek-gray);
-            font-size: 14px;
-            line-height: 1.5;
+            font-size: 13px;
+            line-height: 1.6;
         }
 
         .loader {
             position: absolute;
             inset: 0;
-            background: rgba(255, 255, 255, 0.72);
+            background: rgba(255, 255, 255, 0.8);
             display: none;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            gap: 12px;
+            font-size: 13px;
             color: var(--ek-gray);
+            z-index: 10;
+            border-radius: 12px;
+            backdrop-filter: blur(2px);
         }
 
         .loader.active {
             display: flex;
         }
+
+        .loader-spinner {
+            width: 30px;
+            height: 30px;
+            border: 3px solid #eee;
+            border-top-color: var(--ek-red);
+            border-radius: 50%;
+            animation: spin 0.75s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         @media (max-width: 980px) {
             body {
@@ -298,7 +425,7 @@
             }
 
             .viewer-wrap {
-                min-height: 72vh;
+                min-height: 75vh;
             }
         }
     </style>
@@ -309,51 +436,59 @@
             <img src="favicon.png" alt="Emirates">
             <h1>Document Center</h1>
         </div>
-        <div id="status" class="status">No PDF loaded</div>
+        <div class="status-wrap">
+            <span id="statusDoc" class="status-doc"></span>
+            <span id="status" class="status">No document loaded</span>
+        </div>
     </header>
 
     <main class="layout">
         <aside class="sidebar">
             <section class="panel-card">
-                <div class="panel-title">PDF Selector</div>
+                <div class="panel-title">Select Document</div>
                 <div class="stack">
                     <select id="pdfSelect" class="select"></select>
-                    <button id="openBtn" class="button button-primary">Open Selected PDF</button>
-                    <button id="scanBtn" class="button button-subtle">Scan /docs Folder</button>
+                    <button id="openBtn" class="button button-primary"><i class="fa fa-folder-open" style="margin-right:7px;"></i>Open</button>
+                    <button id="scanBtn" class="button button-subtle"><i class="fa fa-rotate" style="margin-right:7px;"></i>Refresh Documents</button>
                 </div>
-                <p class="hint" style="margin-top: 8px;">
-                    PDFs are auto-detected from the /docs folder next to this HTML file.
-                </p>
             </section>
 
             <section class="panel-card">
-                <div class="panel-title">Available PDFs</div>
+                <div class="panel-title">All Documents</div>
                 <ul id="docsList" class="docs-list"></ul>
             </section>
         </aside>
 
         <section class="viewer-wrap">
             <div class="toolbar">
-                <button id="prevPage" class="button button-subtle" title="Previous Page">&#9664;</button>
-                <button id="nextPage" class="button button-subtle" title="Next Page">&#9654;</button>
-                <span class="page-text">Page</span>
+                <button id="prevPage" class="button button-subtle" title="Previous Page"><i class="fa fa-chevron-left"></i></button>
                 <input id="pageNumber" class="input" type="number" min="1" value="1">
                 <span id="pageTotal" class="page-text">/ 0</span>
+                <button id="nextPage" class="button button-subtle" title="Next Page"><i class="fa fa-chevron-right"></i></button>
 
-                <button id="zoomOut" class="button button-subtle" title="Zoom Out">-</button>
-                <button id="zoomIn" class="button button-subtle" title="Zoom In">+</button>
-                <button id="fitWidth" class="button button-subtle" title="Fit Width">Fit Width</button>
+                <div class="toolbar-sep"></div>
 
-                <button id="downloadPdf" class="button button-subtle" title="Download PDF">Download</button>
-                <button id="openNewTab" class="button button-subtle" title="Open In New Tab">Open Tab</button>
+                <button id="zoomOut" class="button button-subtle" title="Zoom Out"><i class="fa fa-minus"></i></button>
+                <span id="zoomDisplay" class="zoom-label">180%</span>
+                <button id="zoomIn" class="button button-subtle" title="Zoom In"><i class="fa fa-plus"></i></button>
+                <button id="fitWidth" class="button button-subtle" title="Fit to Width"><i class="fa fa-arrows-left-right" style="margin-right:5px;"></i>Fit</button>
+
+                <div class="toolbar-sep"></div>
+
+                <button id="downloadPdf" class="button button-subtle" title="Download PDF"><i class="fa fa-download" style="margin-right:5px;"></i>Download</button>
+                <button id="openNewTab" class="button button-subtle" title="Open in New Tab"><i class="fa fa-arrow-up-right-from-square" style="margin-right:5px;"></i>New Tab</button>
             </div>
 
             <div class="canvas-host" id="canvasHost">
-                <div id="loader" class="loader">Loading PDF...</div>
-                <canvas id="pdfCanvas"></canvas>
+                <div id="loader" class="loader"><div class="loader-spinner"></div>Loading document…</div>
+                <div id="pageContainer">
+                    <canvas id="pdfCanvas"></canvas>
+                    <div id="textLayer" class="textLayer"></div>
+                </div>
                 <div id="emptyState" class="empty-state">
-                    <h2>Custom PDF Viewer</h2>
-                    <p>Put PDF files inside the /docs folder next to this page, then select one and open it.</p>
+                    <i class="fa fa-file-pdf"></i>
+                    <h2>No Document Open</h2>
+                    <p>Select a document from the panel on the left and click <strong>Open</strong>.</p>
                 </div>
             </div>
         </section>
@@ -370,7 +505,7 @@
 
         let pdfDoc = null;
         let pageNum = 1;
-        let scale = 1.2;
+        let scale = 1.8;
         let currentPdfPath = "";
         let isRendering = false;
         let pendingPage = null;
@@ -379,19 +514,26 @@
         const pdfSelect = document.getElementById("pdfSelect");
         const docsList = document.getElementById("docsList");
         const canvas = document.getElementById("pdfCanvas");
-        const ctx = canvas.getContext("2d", { alpha: false });
+        const ctx = canvas.getContext("2d", { alpha: false, desynchronized: false });
         const pageNumberInput = document.getElementById("pageNumber");
         const pageTotal = document.getElementById("pageTotal");
         const loader = document.getElementById("loader");
         const emptyState = document.getElementById("emptyState");
         const canvasHost = document.getElementById("canvasHost");
+        const pageContainer = document.getElementById("pageContainer");
+        const textLayerDiv = document.getElementById("textLayer");
+        const zoomDisplayEl = document.getElementById("zoomDisplay");
+        const statusDocEl = document.getElementById("statusDoc");
+
+        let currentTextLayer = null;
 
         function normalizePath(path) {
             return path.trim();
         }
 
-        function updateStatus(message) {
+        function updateStatus(message, docName = "") {
             statusEl.textContent = message;
+            if (statusDocEl) statusDocEl.textContent = docName;
         }
 
         function setLoading(isLoading) {
@@ -409,16 +551,49 @@
             isRendering = true;
             const page = await pdfDoc.getPage(num);
 
+            const dpr = window.devicePixelRatio || 1;
             const viewport = page.getViewport({ scale });
             const maxWidth = canvasHost.clientWidth - 42;
             const fitScale = Math.min(scale, maxWidth / viewport.width);
             const adjustedViewport = page.getViewport({ scale: fitScale });
 
-            canvas.width = Math.floor(adjustedViewport.width);
-            canvas.height = Math.floor(adjustedViewport.height);
-            canvas.style.display = "block";
+            const cssW = Math.floor(adjustedViewport.width);
+            const cssH = Math.floor(adjustedViewport.height);
 
-            await page.render({ canvasContext: ctx, viewport: adjustedViewport }).promise;
+            // Render at physical pixel resolution for crisp HiDPI output.
+            canvas.width = cssW * dpr;
+            canvas.height = cssH * dpr;
+            canvas.style.width = cssW + "px";
+            canvas.style.height = cssH + "px";
+
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = "high";
+
+            const renderTask = page.render({ canvasContext: ctx, viewport: adjustedViewport });
+
+            // Text layer for copy/paste — rendered in parallel with canvas.
+            textLayerDiv.innerHTML = "";
+            textLayerDiv.style.width = cssW + "px";
+            textLayerDiv.style.height = cssH + "px";
+            textLayerDiv.style.setProperty("--scale-factor", adjustedViewport.scale);
+
+            let textLayerPromise = Promise.resolve();
+            if (pdfjsLib.TextLayer) {
+                try {
+                    const textContent = await page.getTextContent();
+                    currentTextLayer = new pdfjsLib.TextLayer({
+                        textContentSource: textContent,
+                        container: textLayerDiv,
+                        viewport: adjustedViewport,
+                    });
+                    textLayerPromise = currentTextLayer.render();
+                } catch (_) { /* text layer optional */ }
+            }
+
+            await Promise.all([renderTask.promise, textLayerPromise]);
+
+            pageContainer.style.display = "block";
 
             isRendering = false;
             if (pendingPage !== null) {
@@ -445,12 +620,12 @@
 
             if (!pdfLibrary.length) {
                 const option = document.createElement("option");
-                option.textContent = "No PDFs found in /docs";
+                option.textContent = "No documents found in /docs";
                 option.value = "";
                 pdfSelect.appendChild(option);
 
                 const empty = document.createElement("li");
-                empty.innerHTML = '<button class="doc-btn" disabled>No PDFs found in /docs</button>';
+                empty.innerHTML = '<button class="doc-btn" disabled><i class="fa fa-circle-exclamation"></i>No documents found</button>';
                 docsList.appendChild(empty);
                 return;
             }
@@ -464,7 +639,7 @@
                 const li = document.createElement("li");
                 const btn = document.createElement("button");
                 btn.className = "doc-btn";
-                btn.textContent = doc.label;
+                btn.innerHTML = `<i class="fa fa-file-pdf"></i>${doc.label}`;
                 btn.dataset.path = doc.path;
                 btn.addEventListener("click", () => {
                     pdfSelect.value = doc.path;
@@ -624,7 +799,7 @@
                 pageNum = 1;
                 emptyState.style.display = "none";
                 await renderPage(pageNum);
-                updateStatus(`${displayLabel} • ${pdfDoc.numPages} pages`);
+                updateStatus(`${pdfDoc.numPages} pages`, displayLabel);
                 syncActiveDocButton(normalized);
             } catch (error) {
                 updateStatus("Unable to open PDF");
@@ -648,15 +823,21 @@
             queueRenderPage(pageNum);
         }
 
+        function updateZoomDisplay() {
+            if (zoomDisplayEl) zoomDisplayEl.textContent = Math.round(scale * 100) + "%";
+        }
+
         function adjustZoom(delta) {
             if (!pdfDoc) return;
             scale = Math.max(0.4, Math.min(3.2, +(scale + delta).toFixed(2)));
+            updateZoomDisplay();
             queueRenderPage(pageNum);
         }
 
         function fitToWidth() {
             if (!pdfDoc) return;
             scale = 10;
+            updateZoomDisplay();
             queueRenderPage(pageNum);
         }
 
@@ -695,6 +876,7 @@
 
         (function init() {
             renderPdfList();
+            updateZoomDisplay();
 
             const url = new URL(window.location.href);
             const urlPdf = url.searchParams.get("pdf");
