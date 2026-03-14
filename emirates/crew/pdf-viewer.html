@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Emirates PDF Viewer</title>
     <meta name="description" content="Custom Emirates-styled PDF viewer with selectable documents.">
-    <link rel="icon" type="image/png" href="./favicon.png">
+    <link rel="icon" type="image/png" href="favicon.png">
     <style>
         :root {
             --ek-red: #D71921;
@@ -364,9 +364,9 @@
 
         pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs";
 
-        const DOCS_DIR = "./docs/";
-        const DOCS_INDEX = "./docs/index.json";
+        const DOCS_DIR_CANDIDATES = ["./docs/", "../crew/docs/"];
         const pdfLibrary = [];
+        let activeDocsDir = DOCS_DIR_CANDIDATES[0];
 
         let pdfDoc = null;
         let pageNum = 1;
@@ -496,7 +496,7 @@
             pdfLibrary.push({ label, path: normalized });
         }
 
-        async function scanDocsViaGithubPagesApi() {
+        async function scanDocsViaGithubPagesApi(docsDir) {
             const host = window.location.hostname.toLowerCase();
             if (!host.endsWith(".github.io")) return;
 
@@ -512,7 +512,8 @@
             const repoInfo = await repoResponse.json();
             const branch = repoInfo.default_branch || "main";
 
-            const contentsUrl = `https://api.github.com/repos/${owner}/${repo}/contents/docs?ref=${branch}`;
+            const cleanDocsDir = docsDir.replace(/^\.\//, "").replace(/\/+$/, "");
+            const contentsUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${cleanDocsDir}?ref=${branch}`;
             const response = await fetch(contentsUrl);
             if (!response.ok) return;
 
@@ -524,81 +525,88 @@
                 if (!String(item.name || "").toLowerCase().endsWith(".pdf")) return;
 
                 // Use same-origin path so it also works with private path rules/CDN caches.
-                addPdfToLibrary(`./docs/${item.name}`);
+                addPdfToLibrary(`${docsDir}${item.name}`);
             });
         }
 
         async function scanDocsFolder() {
             setLoading(true);
-            updateStatus("Scanning /docs for PDFs...");
+            updateStatus("Scanning docs folders for PDFs...");
 
             pdfLibrary.length = 0;
 
-            try {
-                // Preferred mode: parse directory listing if host exposes links.
-                const listingResponse = await fetch(DOCS_DIR, { cache: "no-store" });
-                if (listingResponse.ok) {
-                    const html = await listingResponse.text();
-                    const parser = new DOMParser();
-                    const doc = parser.parseFromString(html, "text/html");
-                    const links = Array.from(doc.querySelectorAll("a[href]"));
-
-                    links.forEach((linkEl) => {
-                        const href = linkEl.getAttribute("href") || "";
-                        if (!href || href.startsWith("#") || href.startsWith("?")) return;
-
-                        const cleanHref = href.split("#")[0].split("?")[0];
-                        if (!cleanHref.toLowerCase().endsWith(".pdf")) return;
-
-                        const absolute = new URL(cleanHref, DOCS_DIR);
-                        const fileName = decodeURIComponent(absolute.pathname.split("/").pop() || "");
-                        if (fileName.toLowerCase().endsWith(".pdf")) {
-                            addPdfToLibrary(`${DOCS_DIR}${fileName}`);
-                        }
-                    });
-                }
-            } catch (error) {
-                // Fall through to JSON index fallback.
-            }
-
-            if (!pdfLibrary.length) {
+            for (const docsDir of DOCS_DIR_CANDIDATES) {
                 try {
-                    // Fallback mode for hosts without directory listing.
-                    const indexResponse = await fetch(DOCS_INDEX, { cache: "no-store" });
-                    if (indexResponse.ok) {
-                        const entries = await indexResponse.json();
-                        if (Array.isArray(entries)) {
-                            entries.forEach((entry) => {
-                                if (typeof entry === "string") {
-                                    addPdfToLibrary(`${DOCS_DIR}${entry.replace(/^\/+/, "")}`);
-                                }
-                            });
-                        }
+                    // Preferred mode: parse directory listing if host exposes links.
+                    const listingResponse = await fetch(docsDir, { cache: "no-store" });
+                    if (listingResponse.ok) {
+                        const html = await listingResponse.text();
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, "text/html");
+                        const links = Array.from(doc.querySelectorAll("a[href]"));
+
+                        links.forEach((linkEl) => {
+                            const href = linkEl.getAttribute("href") || "";
+                            if (!href || href.startsWith("#") || href.startsWith("?")) return;
+
+                            const cleanHref = href.split("#")[0].split("?")[0];
+                            if (!cleanHref.toLowerCase().endsWith(".pdf")) return;
+
+                            const absolute = new URL(cleanHref, docsDir);
+                            const fileName = decodeURIComponent(absolute.pathname.split("/").pop() || "");
+                            if (fileName.toLowerCase().endsWith(".pdf")) {
+                                addPdfToLibrary(`${docsDir}${fileName}`);
+                            }
+                        });
                     }
                 } catch (error) {
-                    // No fallback available.
+                    // Fall through to JSON index and API fallback.
                 }
-            }
 
-            if (!pdfLibrary.length) {
-                try {
-                    // GitHub Pages usually blocks folder listing; API fallback keeps UI simple.
-                    await scanDocsViaGithubPagesApi();
-                } catch (error) {
-                    // API fallback unavailable.
+                if (!pdfLibrary.length) {
+                    try {
+                        // Fallback mode for hosts without directory listing.
+                        const indexResponse = await fetch(`${docsDir}index.json`, { cache: "no-store" });
+                        if (indexResponse.ok) {
+                            const entries = await indexResponse.json();
+                            if (Array.isArray(entries)) {
+                                entries.forEach((entry) => {
+                                    if (typeof entry === "string") {
+                                        addPdfToLibrary(`${docsDir}${entry.replace(/^\/+/, "")}`);
+                                    }
+                                });
+                            }
+                        }
+                    } catch (error) {
+                        // No index fallback in this folder.
+                    }
+                }
+
+                if (!pdfLibrary.length) {
+                    try {
+                        // GitHub Pages usually blocks folder listing; API fallback keeps UI simple.
+                        await scanDocsViaGithubPagesApi(docsDir);
+                    } catch (error) {
+                        // API fallback unavailable for this folder.
+                    }
+                }
+
+                if (pdfLibrary.length) {
+                    activeDocsDir = docsDir;
+                    break;
                 }
             }
 
             renderPdfList();
 
             if (!pdfLibrary.length) {
-                updateStatus("No PDFs detected in /docs");
+                updateStatus("No PDFs detected in docs folders");
                 setLoading(false);
                 return;
             }
 
             pdfSelect.value = pdfLibrary[0].path;
-            updateStatus(`Detected ${pdfLibrary.length} PDF(s)`);
+            updateStatus(`Detected ${pdfLibrary.length} PDF(s) in ${activeDocsDir}`);
             setLoading(false);
         }
 
