@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Emirates PDF Viewer</title>
     <meta name="description" content="Custom Emirates-styled PDF viewer with selectable documents.">
-    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="icon" type="image/png" href="./favicon.png">
     <style>
         :root {
             --ek-red: #D71921;
@@ -496,6 +496,38 @@
             pdfLibrary.push({ label, path: normalized });
         }
 
+        async function scanDocsViaGithubPagesApi() {
+            const host = window.location.hostname.toLowerCase();
+            if (!host.endsWith(".github.io")) return;
+
+            const owner = host.replace(".github.io", "");
+            const pathParts = window.location.pathname.split("/").filter(Boolean);
+            if (!pathParts.length) return;
+
+            const repo = pathParts[0];
+
+            const repoResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}`);
+            if (!repoResponse.ok) return;
+
+            const repoInfo = await repoResponse.json();
+            const branch = repoInfo.default_branch || "main";
+
+            const contentsUrl = `https://api.github.com/repos/${owner}/${repo}/contents/docs?ref=${branch}`;
+            const response = await fetch(contentsUrl);
+            if (!response.ok) return;
+
+            const items = await response.json();
+            if (!Array.isArray(items)) return;
+
+            items.forEach((item) => {
+                if (item.type !== "file") return;
+                if (!String(item.name || "").toLowerCase().endsWith(".pdf")) return;
+
+                // Use same-origin path so it also works with private path rules/CDN caches.
+                addPdfToLibrary(`./docs/${item.name}`);
+            });
+        }
+
         async function scanDocsFolder() {
             setLoading(true);
             updateStatus("Scanning /docs for PDFs...");
@@ -545,6 +577,15 @@
                     }
                 } catch (error) {
                     // No fallback available.
+                }
+            }
+
+            if (!pdfLibrary.length) {
+                try {
+                    // GitHub Pages usually blocks folder listing; API fallback keeps UI simple.
+                    await scanDocsViaGithubPagesApi();
+                } catch (error) {
+                    // API fallback unavailable.
                 }
             }
 
