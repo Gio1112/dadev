@@ -332,26 +332,25 @@
         /* PDF.js text selection layer — overlays canvas with invisible, selectable text */
         .textLayer {
             position: absolute;
-            text-align: initial;
             inset: 0;
-            overflow: clip;
-            line-height: 1;
-            -webkit-text-size-adjust: none;
-            text-size-adjust: none;
-            forced-color-adjust: none;
-            transform-origin: 0 0;
+            overflow: visible;
             z-index: 2;
+            line-height: 1;
+            pointer-events: auto;
+            user-select: text;
+            -webkit-user-select: text;
         }
 
-        .textLayer :is(span, br) {
+        .textLayer span {
             color: transparent;
             position: absolute;
             white-space: pre;
             cursor: text;
             transform-origin: 0% 0%;
+            user-select: text;
+            -webkit-user-select: text;
         }
 
-        /* Keep text transparent on selection; only the background shows */
         .textLayer ::selection {
             background: rgba(215, 25, 33, 0.25);
             color: transparent;
@@ -535,8 +534,6 @@
         const zoomDisplayEl = document.getElementById("zoomDisplay");
         const statusDocEl = document.getElementById("statusDoc");
 
-        let currentTextLayer = null;
-
         function normalizePath(path) {
             return path.trim();
         }
@@ -581,35 +578,55 @@
             ctx.imageSmoothingQuality = "high";
 
             const renderTask = page.render({ canvasContext: ctx, viewport: adjustedViewport });
+            await renderTask.promise;
 
-            // Text layer for copy/paste — rendered in parallel with canvas.
-            textLayerDiv.innerHTML = "";
-            textLayerDiv.style.width = cssW + "px";
-            textLayerDiv.style.height = cssH + "px";
-            textLayerDiv.style.setProperty("--scale-factor", adjustedViewport.scale);
-
-            let textLayerPromise = Promise.resolve();
+            // Build text selection layer using stable low-level API.
+            // renderTextLayer is not exported from the CDN pdf.min.mjs build;
+            // we position spans manually via Util.transform instead.
+            textLayerDiv.innerHTML = '';
             try {
-                const textContent = await page.getTextContent();
-                // renderTextLayer is exported from pdf.min.mjs in all v3/v4 builds.
-                if (typeof pdfjsLib.renderTextLayer === "function") {
-                    const task = pdfjsLib.renderTextLayer({
-                        textContentSource: textContent,
-                        container: textLayerDiv,
-                        viewport: adjustedViewport,
-                    });
-                    textLayerPromise = task.promise ?? Promise.resolve();
-                } else if (typeof pdfjsLib.TextLayer === "function") {
-                    const tl = new pdfjsLib.TextLayer({
-                        textContentSource: textContent,
-                        container: textLayerDiv,
-                        viewport: adjustedViewport,
-                    });
-                    textLayerPromise = tl.render();
-                }
-            } catch (_) { /* text layer is optional */ }
+                const { items } = await page.getTextContent();
+                const frag = document.createDocumentFragment();
 
-            await Promise.all([renderTask.promise, textLayerPromise]);
+                for (const item of items) {
+                    if (!('str' in item) || !item.str) continue;
+
+                    // Compose text-item transform with viewport transform to get screen coords.
+                    const tx = pdfjsLib.Util.transform(adjustedViewport.transform, item.transform);
+                    // For upright text: tx[0]=scale*fs, tx[1]=0, tx[2]=0, tx[3]=-(scale*fs)
+                    const fontH = Math.hypot(tx[0], tx[1]);
+                    if (fontH < 1) continue;
+
+                    const span = document.createElement('span');
+                    span.textContent = item.str + (item.hasEOL ? ' ' : '');
+                    // tx[4]/tx[5] = screen x/y of text baseline after Y-flip.
+                    // Offset top by -fontH so the span covers from above baseline downward.
+                    span.style.cssText = `left:${tx[4]}px;top:${tx[5] - fontH}px;font-size:${fontH}px;font-family:sans-serif;`;
+
+                    const angle = Math.atan2(tx[1], tx[0]);
+                    if (Math.abs(angle) > 0.005) {
+                        span.style.transform = `rotate(${angle}rad)`;
+                    }
+
+                    frag.appendChild(span);
+                }
+
+                textLayerDiv.appendChild(frag);
+
+                // Second pass: scaleX each span to match PDF's reported text width,
+                // so selection boundaries align with individual characters.
+                const validItems = items.filter(i => 'str' in i && i.str);
+                Array.from(textLayerDiv.children).forEach((span, idx) => {
+                    const item = validItems[idx];
+                    if (!item || !item.width) return;
+                    const naturalW = span.getBoundingClientRect().width;
+                    if (naturalW < 1) return;
+                    const targetW = item.width * adjustedViewport.scale;
+                    const sx = targetW / naturalW;
+                    const existing = span.style.transform;
+                    span.style.transform = existing ? `${existing} scaleX(${sx})` : `scaleX(${sx})`;
+                });
+            } catch (_) { /* text layer is optional */ }
 
             pageContainer.style.display = "block";
 
