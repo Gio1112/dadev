@@ -329,15 +329,18 @@
             background: #fff;
         }
 
-        /* Text selection layer — rendered on top of canvas, spans are transparent */
+        /* PDF.js text selection layer — overlays canvas with invisible, selectable text */
         .textLayer {
             position: absolute;
+            text-align: initial;
             inset: 0;
-            overflow: hidden;
-            z-index: 2;
+            overflow: clip;
             line-height: 1;
             -webkit-text-size-adjust: none;
             text-size-adjust: none;
+            forced-color-adjust: none;
+            transform-origin: 0 0;
+            z-index: 2;
         }
 
         .textLayer :is(span, br) {
@@ -348,8 +351,15 @@
             transform-origin: 0% 0%;
         }
 
+        /* Keep text transparent on selection; only the background shows */
         .textLayer ::selection {
-            background: rgba(215, 25, 33, 0.2);
+            background: rgba(215, 25, 33, 0.25);
+            color: transparent;
+        }
+
+        .textLayer ::-moz-selection {
+            background: rgba(215, 25, 33, 0.25);
+            color: transparent;
         }
 
         .empty-state {
@@ -579,17 +589,25 @@
             textLayerDiv.style.setProperty("--scale-factor", adjustedViewport.scale);
 
             let textLayerPromise = Promise.resolve();
-            if (pdfjsLib.TextLayer) {
-                try {
-                    const textContent = await page.getTextContent();
-                    currentTextLayer = new pdfjsLib.TextLayer({
+            try {
+                const textContent = await page.getTextContent();
+                // renderTextLayer is exported from pdf.min.mjs in all v3/v4 builds.
+                if (typeof pdfjsLib.renderTextLayer === "function") {
+                    const task = pdfjsLib.renderTextLayer({
                         textContentSource: textContent,
                         container: textLayerDiv,
                         viewport: adjustedViewport,
                     });
-                    textLayerPromise = currentTextLayer.render();
-                } catch (_) { /* text layer optional */ }
-            }
+                    textLayerPromise = task.promise ?? Promise.resolve();
+                } else if (typeof pdfjsLib.TextLayer === "function") {
+                    const tl = new pdfjsLib.TextLayer({
+                        textContentSource: textContent,
+                        container: textLayerDiv,
+                        viewport: adjustedViewport,
+                    });
+                    textLayerPromise = tl.render();
+                }
+            } catch (_) { /* text layer is optional */ }
 
             await Promise.all([renderTask.promise, textLayerPromise]);
 
