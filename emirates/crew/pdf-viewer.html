@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emirates PDF Viewer</title>
+    <meta name="description" content="Custom Emirates-styled PDF viewer with selectable documents.">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <style>
+        :root {
+            --ek-red: #D71921;
+            --ek-red-dark: #b01419;
+            --ek-gold: #C6A87C;
+            --ek-gold-light: #e0c8a0;
+            --ek-dark: #333333;
+            --ek-light: #f9f9f9;
+            --ek-gray: #666666;
+            --panel: #ffffff;
+            --shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            color: var(--ek-dark);
+            background:
+                radial-gradient(circle at top right, rgba(198, 168, 124, 0.2), transparent 36%),
+                linear-gradient(180deg, #fff 0%, #f6f7f8 100%);
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .header {
+            height: 74px;
+            background: #fff;
+            border-bottom: 3px solid var(--ek-red);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 22px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand img {
+            height: 36px;
+            width: auto;
+        }
+
+        .brand h1 {
+            font-size: 16px;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--ek-gray);
+            border-left: 1px solid #ddd;
+            padding-left: 12px;
+            margin-left: 6px;
+            font-weight: 700;
+        }
+
+        .status {
+            font-size: 13px;
+            color: var(--ek-gray);
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 330px minmax(0, 1fr);
+            height: calc(100vh - 74px);
+        }
+
+        .sidebar {
+            background: var(--panel);
+            border-right: 1px solid #eee;
+            padding: 18px;
+            overflow-y: auto;
+        }
+
+        .panel-card {
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+            padding: 14px;
+            margin-bottom: 14px;
+        }
+
+        .panel-title {
+            color: var(--ek-red);
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .input,
+        .select,
+        .button {
+            width: 100%;
+            border-radius: 8px;
+            border: 1px solid #d9d9d9;
+            background: #fff;
+            color: var(--ek-dark);
+            padding: 10px 12px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .input:focus,
+        .select:focus {
+            border-color: var(--ek-gold);
+            box-shadow: 0 0 0 3px rgba(198, 168, 124, 0.18);
+        }
+
+        .button {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 600;
+        }
+
+        .button-primary {
+            background: var(--ek-red);
+            border-color: var(--ek-red);
+            color: #fff;
+        }
+
+        .button-primary:hover {
+            background: var(--ek-red-dark);
+            border-color: var(--ek-red-dark);
+        }
+
+        .button-subtle:hover {
+            border-color: var(--ek-gold);
+            color: var(--ek-red);
+        }
+
+        .stack {
+            display: grid;
+            gap: 8px;
+        }
+
+        .hint {
+            color: #8a8a8a;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+
+        .docs-list {
+            list-style: none;
+            max-height: 220px;
+            overflow-y: auto;
+            border: 1px solid #eee;
+            border-radius: 8px;
+        }
+
+        .docs-list li {
+            border-bottom: 1px solid #f2f2f2;
+        }
+
+        .docs-list li:last-child {
+            border-bottom: none;
+        }
+
+        .doc-btn {
+            width: 100%;
+            text-align: left;
+            border: none;
+            background: #fff;
+            padding: 9px 10px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .doc-btn:hover,
+        .doc-btn.active {
+            background: #fffbf5;
+            color: var(--ek-red);
+        }
+
+        .viewer-wrap {
+            padding: 16px;
+            display: grid;
+            grid-template-rows: auto minmax(0, 1fr);
+            gap: 12px;
+            min-height: 0;
+        }
+
+        .toolbar {
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .toolbar .button {
+            width: auto;
+            padding: 8px 10px;
+            min-width: 42px;
+        }
+
+        .toolbar .input {
+            width: 64px;
+            text-align: center;
+            padding: 8px;
+        }
+
+        .toolbar .page-text {
+            font-size: 13px;
+            color: var(--ek-gray);
+            margin-right: 6px;
+        }
+
+        .canvas-host {
+            border: 1px solid #e9e9e9;
+            border-radius: 12px;
+            background:
+                linear-gradient(135deg, rgba(215, 25, 33, 0.04), rgba(198, 168, 124, 0.08)),
+                #f4f5f6;
+            overflow: auto;
+            display: grid;
+            place-items: center;
+            min-height: 0;
+            padding: 18px;
+            position: relative;
+        }
+
+        #pdfCanvas {
+            display: none;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.18);
+            border-radius: 2px;
+            background: #fff;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 24px;
+            max-width: 460px;
+        }
+
+        .empty-state h2 {
+            color: var(--ek-red);
+            margin-bottom: 6px;
+            font-size: 20px;
+        }
+
+        .empty-state p {
+            color: var(--ek-gray);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .loader {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.72);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: var(--ek-gray);
+        }
+
+        .loader.active {
+            display: flex;
+        }
+
+        @media (max-width: 980px) {
+            body {
+                overflow: auto;
+            }
+
+            .layout {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            .sidebar {
+                border-right: none;
+                border-bottom: 1px solid #eee;
+            }
+
+            .viewer-wrap {
+                min-height: 72vh;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="brand">
+            <img src="favicon.png" alt="Emirates">
+            <h1>Document Center</h1>
+        </div>
+        <div id="status" class="status">No PDF loaded</div>
+    </header>
+
+    <main class="layout">
+        <aside class="sidebar">
+            <section class="panel-card">
+                <div class="panel-title">PDF Selector</div>
+                <div class="stack">
+                    <select id="pdfSelect" class="select"></select>
+                    <button id="openBtn" class="button button-primary">Open Selected PDF</button>
+                    <button id="scanBtn" class="button button-subtle">Scan /docs Folder</button>
+                </div>
+                <p class="hint" style="margin-top: 8px;">
+                    PDFs are auto-detected from the /docs folder next to this HTML file.
+                </p>
+            </section>
+
+            <section class="panel-card">
+                <div class="panel-title">Available PDFs</div>
+                <ul id="docsList" class="docs-list"></ul>
+            </section>
+        </aside>
+
+        <section class="viewer-wrap">
+            <div class="toolbar">
+                <button id="prevPage" class="button button-subtle" title="Previous Page">&#9664;</button>
+                <button id="nextPage" class="button button-subtle" title="Next Page">&#9654;</button>
+                <span class="page-text">Page</span>
+                <input id="pageNumber" class="input" type="number" min="1" value="1">
+                <span id="pageTotal" class="page-text">/ 0</span>
+
+                <button id="zoomOut" class="button button-subtle" title="Zoom Out">-</button>
+                <button id="zoomIn" class="button button-subtle" title="Zoom In">+</button>
+                <button id="fitWidth" class="button button-subtle" title="Fit Width">Fit Width</button>
+
+                <button id="downloadPdf" class="button button-subtle" title="Download PDF">Download</button>
+                <button id="openNewTab" class="button button-subtle" title="Open In New Tab">Open Tab</button>
+            </div>
+
+            <div class="canvas-host" id="canvasHost">
+                <div id="loader" class="loader">Loading PDF...</div>
+                <canvas id="pdfCanvas"></canvas>
+                <div id="emptyState" class="empty-state">
+                    <h2>Custom PDF Viewer</h2>
+                    <p>Put PDF files inside the /docs folder next to this page, then select one and open it.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script type="module">
+        import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
+
+        pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs";
+
+        const DOCS_DIR = "./docs/";
+        const DOCS_INDEX = "./docs/index.json";
+        const pdfLibrary = [];
+
+        let pdfDoc = null;
+        let pageNum = 1;
+        let scale = 1.2;
+        let currentPdfPath = "";
+        let isRendering = false;
+        let pendingPage = null;
+
+        const statusEl = document.getElementById("status");
+        const pdfSelect = document.getElementById("pdfSelect");
+        const docsList = document.getElementById("docsList");
+        const canvas = document.getElementById("pdfCanvas");
+        const ctx = canvas.getContext("2d", { alpha: false });
+        const pageNumberInput = document.getElementById("pageNumber");
+        const pageTotal = document.getElementById("pageTotal");
+        const loader = document.getElementById("loader");
+        const emptyState = document.getElementById("emptyState");
+        const canvasHost = document.getElementById("canvasHost");
+
+        function normalizePath(path) {
+            return path.trim();
+        }
+
+        function updateStatus(message) {
+            statusEl.textContent = message;
+        }
+
+        function setLoading(isLoading) {
+            loader.classList.toggle("active", isLoading);
+        }
+
+        function updateControls() {
+            pageNumberInput.value = pageNum;
+            pageTotal.textContent = `/ ${pdfDoc ? pdfDoc.numPages : 0}`;
+        }
+
+        async function renderPage(num) {
+            if (!pdfDoc) return;
+
+            isRendering = true;
+            const page = await pdfDoc.getPage(num);
+
+            const viewport = page.getViewport({ scale });
+            const maxWidth = canvasHost.clientWidth - 42;
+            const fitScale = Math.min(scale, maxWidth / viewport.width);
+            const adjustedViewport = page.getViewport({ scale: fitScale });
+
+            canvas.width = Math.floor(adjustedViewport.width);
+            canvas.height = Math.floor(adjustedViewport.height);
+            canvas.style.display = "block";
+
+            await page.render({ canvasContext: ctx, viewport: adjustedViewport }).promise;
+
+            isRendering = false;
+            if (pendingPage !== null) {
+                const next = pendingPage;
+                pendingPage = null;
+                await renderPage(next);
+                return;
+            }
+
+            updateControls();
+        }
+
+        function queueRenderPage(num) {
+            if (isRendering) {
+                pendingPage = num;
+            } else {
+                renderPage(num);
+            }
+        }
+
+        function renderPdfList() {
+            pdfSelect.innerHTML = "";
+            docsList.innerHTML = "";
+
+            if (!pdfLibrary.length) {
+                const option = document.createElement("option");
+                option.textContent = "No PDFs found in /docs";
+                option.value = "";
+                pdfSelect.appendChild(option);
+
+                const empty = document.createElement("li");
+                empty.innerHTML = '<button class="doc-btn" disabled>No PDFs found in /docs</button>';
+                docsList.appendChild(empty);
+                return;
+            }
+
+            pdfLibrary.forEach((doc, index) => {
+                const option = document.createElement("option");
+                option.value = doc.path;
+                option.textContent = doc.label;
+                pdfSelect.appendChild(option);
+
+                const li = document.createElement("li");
+                const btn = document.createElement("button");
+                btn.className = "doc-btn";
+                btn.textContent = doc.label;
+                btn.dataset.path = doc.path;
+                btn.addEventListener("click", () => {
+                    pdfSelect.value = doc.path;
+                    openPdf(doc.path, doc.label);
+                    syncActiveDocButton(doc.path);
+                });
+
+                if (index === 0) {
+                    btn.classList.add("active");
+                }
+
+                li.appendChild(btn);
+                docsList.appendChild(li);
+            });
+        }
+
+        function syncActiveDocButton(path) {
+            const buttons = docsList.querySelectorAll(".doc-btn");
+            buttons.forEach((btn) => btn.classList.toggle("active", btn.dataset.path === path));
+        }
+
+        function addPdfToLibrary(path) {
+            const normalized = normalizePath(path);
+            if (!normalized || !normalized.toLowerCase().endsWith(".pdf")) return;
+            if (pdfLibrary.some((doc) => doc.path === normalized)) return;
+
+            const fileName = normalized.split("/").pop() || normalized;
+            const label = fileName.replace(/\.pdf$/i, "");
+            pdfLibrary.push({ label, path: normalized });
+        }
+
+        async function scanDocsFolder() {
+            setLoading(true);
+            updateStatus("Scanning /docs for PDFs...");
+
+            pdfLibrary.length = 0;
+
+            try {
+                // Preferred mode: parse directory listing if host exposes links.
+                const listingResponse = await fetch(DOCS_DIR, { cache: "no-store" });
+                if (listingResponse.ok) {
+                    const html = await listingResponse.text();
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, "text/html");
+                    const links = Array.from(doc.querySelectorAll("a[href]"));
+
+                    links.forEach((linkEl) => {
+                        const href = linkEl.getAttribute("href") || "";
+                        if (!href || href.startsWith("#") || href.startsWith("?")) return;
+
+                        const cleanHref = href.split("#")[0].split("?")[0];
+                        if (!cleanHref.toLowerCase().endsWith(".pdf")) return;
+
+                        const absolute = new URL(cleanHref, DOCS_DIR);
+                        const fileName = decodeURIComponent(absolute.pathname.split("/").pop() || "");
+                        if (fileName.toLowerCase().endsWith(".pdf")) {
+                            addPdfToLibrary(`${DOCS_DIR}${fileName}`);
+                        }
+                    });
+                }
+            } catch (error) {
+                // Fall through to JSON index fallback.
+            }
+
+            if (!pdfLibrary.length) {
+                try {
+                    // Fallback mode for hosts without directory listing.
+                    const indexResponse = await fetch(DOCS_INDEX, { cache: "no-store" });
+                    if (indexResponse.ok) {
+                        const entries = await indexResponse.json();
+                        if (Array.isArray(entries)) {
+                            entries.forEach((entry) => {
+                                if (typeof entry === "string") {
+                                    addPdfToLibrary(`${DOCS_DIR}${entry.replace(/^\/+/, "")}`);
+                                }
+                            });
+                        }
+                    }
+                } catch (error) {
+                    // No fallback available.
+                }
+            }
+
+            renderPdfList();
+
+            if (!pdfLibrary.length) {
+                updateStatus("No PDFs detected in /docs");
+                setLoading(false);
+                return;
+            }
+
+            pdfSelect.value = pdfLibrary[0].path;
+            updateStatus(`Detected ${pdfLibrary.length} PDF(s)`);
+            setLoading(false);
+        }
+
+        async function openPdf(path, displayLabel = "Custom PDF") {
+            const normalized = normalizePath(path);
+            if (!normalized) return;
+
+            setLoading(true);
+            updateStatus("Loading document...");
+
+            try {
+                const loadingTask = pdfjsLib.getDocument({ url: normalized, withCredentials: false });
+                pdfDoc = await loadingTask.promise;
+                currentPdfPath = normalized;
+                pageNum = 1;
+                emptyState.style.display = "none";
+                await renderPage(pageNum);
+                updateStatus(`${displayLabel} • ${pdfDoc.numPages} pages`);
+                syncActiveDocButton(normalized);
+            } catch (error) {
+                updateStatus("Unable to open PDF");
+                alert(`Failed to load PDF: ${error.message}`);
+            } finally {
+                setLoading(false);
+                updateControls();
+            }
+        }
+
+        function openSelectedPdf() {
+            const path = pdfSelect.value;
+            const label = pdfSelect.options[pdfSelect.selectedIndex]?.textContent || "Selected PDF";
+            openPdf(path, label);
+        }
+
+        function changePage(nextPage) {
+            if (!pdfDoc) return;
+            if (nextPage < 1 || nextPage > pdfDoc.numPages) return;
+            pageNum = nextPage;
+            queueRenderPage(pageNum);
+        }
+
+        function adjustZoom(delta) {
+            if (!pdfDoc) return;
+            scale = Math.max(0.4, Math.min(3.2, +(scale + delta).toFixed(2)));
+            queueRenderPage(pageNum);
+        }
+
+        function fitToWidth() {
+            if (!pdfDoc) return;
+            scale = 10;
+            queueRenderPage(pageNum);
+        }
+
+        document.getElementById("openBtn").addEventListener("click", openSelectedPdf);
+        document.getElementById("scanBtn").addEventListener("click", scanDocsFolder);
+
+        document.getElementById("prevPage").addEventListener("click", () => changePage(pageNum - 1));
+        document.getElementById("nextPage").addEventListener("click", () => changePage(pageNum + 1));
+        document.getElementById("zoomIn").addEventListener("click", () => adjustZoom(0.15));
+        document.getElementById("zoomOut").addEventListener("click", () => adjustZoom(-0.15));
+        document.getElementById("fitWidth").addEventListener("click", fitToWidth);
+
+        pageNumberInput.addEventListener("change", (event) => {
+            const val = Number(event.target.value);
+            if (Number.isInteger(val)) {
+                changePage(val);
+            } else {
+                updateControls();
+            }
+        });
+
+        document.getElementById("downloadPdf").addEventListener("click", () => {
+            if (!currentPdfPath) return;
+            window.open(currentPdfPath, "_blank", "noopener,noreferrer");
+        });
+
+        document.getElementById("openNewTab").addEventListener("click", () => {
+            if (!currentPdfPath) return;
+            const viewerUrl = `${window.location.pathname}?pdf=${encodeURIComponent(currentPdfPath)}`;
+            window.open(viewerUrl, "_blank", "noopener,noreferrer");
+        });
+
+        window.addEventListener("resize", () => {
+            if (pdfDoc) queueRenderPage(pageNum);
+        });
+
+        (function init() {
+            renderPdfList();
+
+            const url = new URL(window.location.href);
+            const urlPdf = url.searchParams.get("pdf");
+
+            if (urlPdf) {
+                openPdf(urlPdf, "Shared PDF");
+                return;
+            }
+
+            scanDocsFolder();
+        })();
+    </script>
+</body>
+</html>
