@@ -6,9 +6,18 @@
   <title>giorgio@terminal:~$</title>
   <link rel="icon" href="https://win98icons.alexmeub.com/icons/png/computer_explorer-4.png" />
   <link href="https://fonts.googleapis.com/css2?family=VT323&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet" />
+
   <style>
-    
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── reset ──────────────────────────────────────────────── */
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* ── design tokens ──────────────────────────────────────── */
 
     :root {
       --green:   #39ff8a;
@@ -24,8 +33,8 @@
       --text:    #d4fde4;
       --muted:   #4d7a5e;
       --border:  #1c3a28;
-      --scan:    rgba(0,0,0,0.18);
-      --glow:    0 0 12px rgba(57,255,138,0.25);
+      --scan:    rgba(0, 0, 0, 0.18);
+      --glow:    0 0 12px rgba(57, 255, 138, 0.25);
     }
 
     html, body {
@@ -36,39 +45,246 @@
       overflow: hidden;
     }
 
- 
+    /* ── CRT overlay: scanlines + vignette ─────────────────── */
+
     body::before {
       content: '';
       pointer-events: none;
-      position: fixed; inset: 0; z-index: 9998;
-      background:
-        repeating-linear-gradient(
-          0deg,
-          transparent,
-          transparent 2px,
-          var(--scan) 2px,
-          var(--scan) 4px
-        );
+      position: fixed;
+      inset: 0;
+      z-index: 9998;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        var(--scan) 2px,
+        var(--scan) 4px
+      );
       animation: flicker 8s infinite;
     }
 
     body::after {
       content: '';
       pointer-events: none;
-      position: fixed; inset: 0; z-index: 9999;
-      background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.75) 100%);
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: radial-gradient(ellipse at center, transparent 60%, rgba(0, 0, 0, 0.75) 100%);
     }
 
     @keyframes flicker {
-      0%,100% { opacity: 1; }
-      92%      { opacity: 1; }
-      93%      { opacity: 0.95; }
-      94%      { opacity: 1; }
-      96%      { opacity: 0.97; }
-      97%      { opacity: 1; }
+      0%, 94%, 100% { opacity: 1; }
+      92%  { opacity: 1; }
+      93%  { opacity: 0.95; }
+      96%  { opacity: 0.97; }
     }
 
-    
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes grow {
+      from { width: 0; }
+    }
+
+
+    /* ── login screen ───────────────────────────────────────── */
+
+    #login-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 5000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    #login-screen.fade-out {
+      opacity: 0;
+      transform: scale(0.98);
+      pointer-events: none;
+    }
+
+    /* ascii banner above the login box */
+    .login-logo {
+      font-family: 'VT323', monospace;
+      font-size: 1.05rem;
+      color: var(--green);
+      line-height: 1.2;
+      text-shadow: var(--glow);
+      white-space: pre;
+      margin-bottom: 32px;
+      padding: 0;
+      background: none;
+      border: none;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0.2s forwards;
+    }
+
+    .login-box {
+      width: 480px;
+      max-width: 90vw;
+      padding: 28px 32px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      opacity: 0;
+      animation: fadeUp 0.6s ease 0.5s forwards;
+    }
+
+    .login-host {
+      font-family: 'VT323', monospace;
+      font-size: 1.3rem;
+      letter-spacing: 3px;
+      color: var(--green);
+      text-shadow: var(--glow);
+      margin-bottom: 20px;
+    }
+
+    .login-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      margin-bottom: 10px;
+    }
+
+    .login-row .lbl {
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .login-row .val {
+      color: var(--green);
+    }
+
+    /* blinking block cursor on the username line */
+    .login-cursor {
+      display: inline-block;
+      width: 7px;
+      height: 13px;
+      background: var(--green);
+      vertical-align: middle;
+      animation: blink 0.9s step-end infinite;
+    }
+
+    /* hide login cursor once the password field is focused */
+    #login-screen:has(#login-password:focus) .login-cursor {
+      display: none;
+    }
+
+    /* password field — the real input is invisible, dots + caret are drawn manually */
+    .pw-field {
+      display: inline-flex;
+      align-items: center;
+      position: relative;
+    }
+
+    #login-password {
+      position: absolute;
+      inset: 0;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: transparent;
+      caret-color: transparent;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+    }
+
+    #pw-dots {
+      color: var(--green);
+      letter-spacing: 3px;
+      font-size: 0.78rem;
+      min-width: 1ch;
+    }
+
+    /* solid block cursor — only visible when password input is focused */
+    #pw-caret {
+      display: none;
+      width: 9px;
+      height: 1.1em;
+      background: var(--green);
+      vertical-align: text-bottom;
+      margin-left: 2px;
+      box-shadow: 0 0 6px var(--green2);
+      animation: blink 0.9s step-end infinite;
+    }
+
+    .pw-field:focus-within #pw-caret {
+      display: inline-block;
+    }
+
+    .login-status {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 18px;
+      min-height: 1.2em;
+    }
+
+    .login-status.ok  { color: var(--green2); }
+    .login-status.err { color: var(--red); }
+
+    .login-hint {
+      margin-top: 14px;
+      font-size: 0.65rem;
+      color: var(--border);
+      text-align: center;
+      letter-spacing: 1px;
+    }
+
+    /* glitch layers — two coloured ghost overlays that clip across the screen */
+    .glitch-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0;
+    }
+
+    .glitch-layer.r { background: rgba(248, 113, 113, 0.06); }
+    .glitch-layer.b { background: rgba(96,  165, 250, 0.06); }
+
+    @keyframes glitch-skew {
+      0%   { transform: skew(0deg); }
+      10%  { transform: skew(-1.5deg); }
+      15%  { transform: skew(0deg); }
+      80%  { transform: skew(0deg); }
+      85%  { transform: skew(0.8deg); }
+      90%  { transform: skew(0deg); }
+    }
+
+    @keyframes glitch-clip-1 {
+      0%   { clip-path: inset(40% 0 50% 0); transform: translate(-4px, 0); opacity: 0; }
+      5%   { clip-path: inset(40% 0 50% 0); transform: translate(-4px, 0); opacity: 1; }
+      10%  { clip-path: inset(80% 0 5%  0); transform: translate( 4px, 0); }
+      15%  { clip-path: inset(20% 0 70% 0); transform: translate( 0,   0); opacity: 0; }
+      100% { opacity: 0; }
+    }
+
+    @keyframes glitch-clip-2 {
+      0%   { clip-path: inset(60% 0 20% 0); transform: translate( 4px, 0); opacity: 0; }
+      8%   { clip-path: inset(60% 0 20% 0); transform: translate( 4px, 0); opacity: 1; }
+      13%  { clip-path: inset(10% 0 75% 0); transform: translate(-4px, 0); }
+      18%  { clip-path: inset(30% 0 55% 0); transform: translate( 0,   0); opacity: 0; }
+      100% { opacity: 0; }
+    }
+
+    #login-screen.glitching {
+      animation: glitch-skew 0.3s linear;
+    }
+
+
+    /* ── terminal shell ─────────────────────────────────────── */
+
     #terminal {
       display: flex;
       flex-direction: column;
@@ -76,8 +292,15 @@
       max-width: 980px;
       margin: 0 auto;
       padding: 0 1.5rem;
+      opacity: 0;
+      transition: opacity 0.6s ease 0.3s;
     }
 
+    #terminal.visible {
+      opacity: 1;
+    }
+
+    /* title bar */
     #topbar {
       display: flex;
       align-items: center;
@@ -87,7 +310,12 @@
       flex-shrink: 0;
     }
 
-    .dot { width: 11px; height: 11px; border-radius: 50%; }
+    .dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+    }
+
     .dot.r { background: #ff5f56; box-shadow: 0 0 6px #ff5f5680; }
     .dot.y { background: #ffbd2e; box-shadow: 0 0 6px #ffbd2e80; }
     .dot.g { background: #27c93f; box-shadow: 0 0 6px #27c93f80; }
@@ -109,19 +337,21 @@
       border-radius: 3px;
     }
 
-   
+    /* scrollable output area */
     #output {
       flex: 1;
       overflow-y: auto;
       padding: 1.2rem 0 0.5rem;
       scroll-behavior: smooth;
+      scrollbar-width: thin;
+      scrollbar-color: var(--dim) transparent;
     }
 
-    #output::-webkit-scrollbar { width: 4px; }
+    #output::-webkit-scrollbar       { width: 4px; }
     #output::-webkit-scrollbar-track { background: transparent; }
     #output::-webkit-scrollbar-thumb { background: var(--dim); border-radius: 2px; }
 
-    
+    /* command input row */
     #input-row {
       display: flex;
       align-items: center;
@@ -137,22 +367,24 @@
       flex-shrink: 0;
     }
 
-    #prompt-label .u { color: var(--green); font-weight: 700; }
+    #prompt-label .u   { color: var(--green); font-weight: 700; }
     #prompt-label .sep { color: var(--muted); }
     #prompt-label .dir { color: var(--blue); }
 
     #cmd-input {
+      flex: 1;
       background: transparent;
       border: none;
       outline: none;
       color: var(--green);
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.85rem;
-      flex: 1;
       caret-color: var(--green);
     }
 
-    
+
+    /* ── output line types ──────────────────────────────────── */
+
     .line {
       font-size: 0.82rem;
       line-height: 1.65;
@@ -166,13 +398,24 @@
       color: var(--green);
       font-weight: 500;
     }
+
     .line.cmd .ps1 { color: var(--muted); flex-shrink: 0; }
+    .line.out      { color: var(--text); padding-left: 4px; }
+    .line.err      { color: var(--red); }
+    .line.info     { color: var(--muted); }
+    .line.blank    { height: 0.5rem; }
 
-    .line.out  { color: var(--text); padding-left: 4px; }
-    .line.err  { color: var(--red); }
-    .line.info { color: var(--muted); }
-    .line.blank { height: 0.5rem; }
+    /* typing animation cursor */
+    .tcursor {
+      display: inline-block;
+      width: 8px;
+      height: 14px;
+      background: var(--green);
+      vertical-align: middle;
+      animation: blink 0.9s step-end infinite;
+    }
 
+    /* section headings like // WHOAMI */
     .section-head {
       font-family: 'VT323', monospace;
       font-size: 1.35rem;
@@ -184,99 +427,7 @@
       margin-bottom: 6px;
     }
 
-    
-    .about-block { padding: 4px 0 4px 12px; border-left: 2px solid var(--green3); }
-    .about-block p { color: var(--text); font-size: 0.8rem; line-height: 1.8; }
-    .about-block .label { color: var(--amber); }
-
-     
-    .skills-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-      gap: 4px 16px;
-      padding-left: 4px;
-    }
-
-    .skill-item {
-      font-size: 0.78rem;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      color: var(--text);
-    }
-    .skill-item .check { color: var(--green); }
-    .skill-item .bar {
-      flex: 1;
-      height: 2px;
-      background: var(--border);
-      border-radius: 1px;
-      overflow: hidden;
-    }
-    .skill-item .bar-fill {
-      height: 100%;
-      background: var(--green2);
-      box-shadow: 0 0 4px var(--green2);
-      animation: grow 1.2s ease forwards;
-    }
-    @keyframes grow { from { width: 0; } }
-
-
-    .project-card {
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 8px 12px;
-      margin-bottom: 6px;
-      background: var(--bg2);
-      cursor: pointer;
-      transition: border-color 0.15s, box-shadow 0.15s;
-    }
-    .project-card:hover {
-      border-color: var(--green3);
-      box-shadow: var(--glow);
-    }
-    .project-card .proj-name {
-      color: var(--purple);
-      font-weight: 700;
-      font-size: 0.82rem;
-    }
-    .project-card .proj-lang {
-      font-size: 0.7rem;
-      color: var(--muted);
-      margin-left: 8px;
-    }
-    .project-card .proj-desc {
-      color: var(--text);
-      font-size: 0.78rem;
-      margin-top: 2px;
-    }
-    .project-card .proj-link {
-      color: var(--blue);
-      font-size: 0.7rem;
-      text-decoration: none;
-      margin-top: 3px;
-      display: inline-block;
-    }
-    .project-card .proj-link:hover { text-decoration: underline; }
-
-    
-    .contact-row {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      font-size: 0.8rem;
-      padding: 2px 0;
-    }
-    .contact-row .key { color: var(--amber); min-width: 70px; }
-    .contact-row a { color: var(--blue); text-decoration: none; }
-    .contact-row a:hover { text-decoration: underline; }
-
-    
-    .help-table { border-collapse: collapse; font-size: 0.78rem; }
-    .help-table td { padding: 2px 16px 2px 4px; }
-    .help-table td:first-child { color: var(--green); font-weight: 600; min-width: 110px; }
-    .help-table td:last-child { color: var(--muted); }
-
-    
+    /* ascii art pre blocks */
     .ascii {
       font-family: 'VT323', monospace;
       font-size: 1.05rem;
@@ -286,352 +437,1166 @@
       white-space: pre;
     }
 
-    
-    .tcursor {
-      display: inline-block;
-      width: 8px;
-      height: 14px;
-      background: var(--green);
-      vertical-align: middle;
-      animation: blink 0.9s step-end infinite;
-    }
-    @keyframes blink { 50% { opacity: 0; } }
 
-    
-    .prog-wrap { display: flex; align-items: center; gap: 8px; font-size: 0.78rem; }
-    .prog-bar {
+    /* ── whoami ─────────────────────────────────────────────── */
+
+    .about-block {
+      padding: 4px 0 4px 12px;
+      border-left: 2px solid var(--green3);
+    }
+
+    .about-block p {
+      color: var(--text);
+      font-size: 0.8rem;
+      line-height: 1.8;
+    }
+
+    .about-block .label {
+      color: var(--amber);
+    }
+
+
+    /* ── skills ─────────────────────────────────────────────── */
+
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+      gap: 4px 16px;
+      padding-left: 4px;
+    }
+
+    .skill-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      color: var(--text);
+    }
+
+    .skill-item .check { color: var(--green); }
+
+    .skill-item .bar {
       flex: 1;
-      max-width: 200px;
-      height: 6px;
-      background: var(--dim);
-      border-radius: 2px;
+      height: 2px;
+      background: var(--border);
+      border-radius: 1px;
       overflow: hidden;
     }
-    .prog-fill {
+
+    .skill-item .bar-fill {
       height: 100%;
-      background: linear-gradient(90deg, var(--green3), var(--green));
-      box-shadow: 0 0 6px var(--green2);
+      background: var(--green2);
+      box-shadow: 0 0 4px var(--green2);
+      animation: grow 1.2s ease forwards;
     }
 
-    
-    #output { scrollbar-width: thin; scrollbar-color: var(--dim) transparent; }
+
+    /* ── projects ───────────────────────────────────────────── */
+
+    .project-card {
+      padding: 8px 12px;
+      margin-bottom: 6px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .project-card:hover {
+      border-color: var(--green3);
+      box-shadow: var(--glow);
+    }
+
+    .project-card .proj-name {
+      color: var(--purple);
+      font-weight: 700;
+      font-size: 0.82rem;
+    }
+
+    .project-card .proj-lang {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-left: 8px;
+    }
+
+    .project-card .proj-desc {
+      color: var(--text);
+      font-size: 0.78rem;
+      margin-top: 2px;
+    }
+
+    .project-card .proj-link {
+      display: inline-block;
+      color: var(--blue);
+      font-size: 0.7rem;
+      text-decoration: none;
+      margin-top: 3px;
+    }
+
+    .project-card .proj-link:hover {
+      text-decoration: underline;
+    }
+
+
+    /* ── contact ────────────────────────────────────────────── */
+
+    .contact-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      font-size: 0.8rem;
+      padding: 2px 0;
+    }
+
+    .contact-row .key    { color: var(--amber); min-width: 70px; }
+    .contact-row a       { color: var(--blue); text-decoration: none; }
+    .contact-row a:hover { text-decoration: underline; }
+
+
+    /* ── help table ─────────────────────────────────────────── */
+
+    .help-table {
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+
+    .help-table td {
+      padding: 2px 16px 2px 4px;
+    }
+
+    .help-table td:first-child {
+      color: var(--green);
+      font-weight: 600;
+      min-width: 110px;
+    }
+
+    .help-table td:last-child {
+      color: var(--muted);
+    }
+
+
+    /* ── fastfetch ──────────────────────────────────────────── */
+
+    .fastfetch-wrap {
+      display: flex;
+      gap: 28px;
+      align-items: flex-start;
+      padding: 4px 0;
+    }
+
+    .ff-art {
+      font-family: 'VT323', monospace;
+      font-size: 1.1rem;
+      line-height: 1.28;
+      letter-spacing: 0.5px;
+      white-space: pre;
+      flex-shrink: 0;
+    }
+
+    .ff-info {
+      font-size: 0.78rem;
+      line-height: 1.95;
+    }
+
+    .ff-row { display: flex; }
+
+    .ff-key {
+      color: var(--green);
+      font-weight: 600;
+      min-width: 100px;
+    }
+
+    .ff-val {
+      color: var(--text);
+    }
+
+    .ff-colors {
+      display: flex;
+      gap: 3px;
+      margin-top: 6px;
+    }
+
+    .ff-swatch {
+      width: 16px;
+      height: 16px;
+      border-radius: 2px;
+    }
+
+
+    /* ── cava visualizer ────────────────────────────────────── */
+
+    .cava-wrap {
+      padding: 8px 10px 6px;
+      margin: 4px 0;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+    }
+
+    .cava-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .cava-title {
+      font-family: 'VT323', monospace;
+      font-size: 1.1rem;
+      letter-spacing: 2px;
+      color: var(--green);
+    }
+
+    .cava-hint {
+      font-size: 0.65rem;
+      color: var(--muted);
+    }
+
+    .cava-canvas {
+      display: block;
+      width: 100%;
+    }
+
+    .cava-freq-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.58rem;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
   </style>
 </head>
 <body>
-<div id="terminal">
-  
-  <div id="topbar">
-    <div class="dot r"></div>
-    <div class="dot y"></div>
-    <div class="dot g"></div>
-    <div id="topbar-title">giorgio@terminal: ~/portfolio</div>
-    <div id="visitor-badge">⬤ online</div>
-  </div>
 
-  
-  <div id="output"></div>
+  <!-- login screen — gates everything until the user presses enter -->
+  <div id="login-screen">
 
-  
-  <div id="input-row">
-    <div id="prompt-label">
-      <span class="u">giorgio</span><span class="sep">@</span><span class="u">terminal</span><span class="sep">:</span><span class="dir">~</span><span class="sep">$</span>
+    <div class="glitch-layer r" id="glitch-r"></div>
+    <div class="glitch-layer b" id="glitch-b"></div>
+
+    <pre id="login-logo" class="login-logo"></pre>
+
+    <div class="login-box">
+      <div class="login-host">EndeavourOS 6.8.12 — tty1</div>
+
+      <div class="login-row">
+        <span class="lbl">login:</span>
+        <span class="val">giorgio<span class="login-cursor"></span></span>
+      </div>
+
+      <div class="login-row">
+        <span class="lbl">password:</span>
+        <span class="pw-field">
+          <span id="pw-dots"></span>
+          <span id="pw-caret"></span>
+          <input id="login-password" type="password" autocomplete="off" spellcheck="false" autofocus />
+        </span>
+      </div>
+
+      <div class="login-status" id="login-status">— type anything and press enter —</div>
+
+      <div class="login-hint">
+        portfolio terminal v1.0.0 &nbsp;·&nbsp; [UK] &nbsp;·&nbsp;
+        <span id="login-visitor-count">...</span> visitors
+      </div>
     </div>
-    <input id="cmd-input" type="text" autocomplete="off" spellcheck="false" autocorrect="off" />
+
   </div>
-</div>
 
-<script>
-(() => {
-  const out    = document.getElementById('output');
-  const input  = document.getElementById('cmd-input');
-  const badge  = document.getElementById('visitor-badge');
+  <!-- audio — src is set by JS after fetching the /audio folder -->
+  <audio id="bg-audio" crossorigin="anonymous"></audio>
 
-  
-  const delay = ms => new Promise(r => setTimeout(r, ms));
+  <!-- terminal — starts hidden, fades in after login -->
+  <div id="terminal">
 
-  function appendRaw(html) {
-    const d = document.createElement('div');
-    d.innerHTML = html;
-    out.appendChild(d);
-    out.scrollTop = out.scrollHeight;
-  }
+    <div id="topbar">
+      <div class="dot r"></div>
+      <div class="dot y"></div>
+      <div class="dot g"></div>
+      <div id="topbar-title">giorgio@terminal: ~/portfolio</div>
+      <div id="visitor-badge">⬤ online</div>
+    </div>
 
-  function line(cls, html) {
-    appendRaw(`<div class="line ${cls}">${html}</div>`);
-  }
+    <div id="output"></div>
 
-  function cmdLine(cmd) {
-    line('cmd', `<span class="ps1">giorgio@terminal:~$</span> <span>${cmd}</span>`);
-  }
-
-  function blank() { line('blank', ''); }
-
-  
-  (async () => {
-    try {
-      const r = await fetch('https://api.counterapi.dev/v1/giorgio-is-a-dev/visits/up');
-      const d = await r.json();
-      badge.textContent = `⬤ ${d.count} visitors`;
-    } catch { badge.textContent = '⬤ online'; }
-  })();
-
-  
-  async function typeCmd(cmd, ms = 45) {
-    // Show fake prompt with typing
-    const row = document.createElement('div');
-    row.className = 'line cmd';
-    row.innerHTML = `<span class="ps1">giorgio@terminal:~$</span> <span id="_typing"></span><span class="tcursor"></span>`;
-    out.appendChild(row);
-    out.scrollTop = out.scrollHeight;
-
-    const span = document.getElementById('_typing');
-    for (const ch of cmd) {
-      span.textContent += ch;
-      await delay(ms + Math.random() * 20);
-    }
-    // Remove cursor, freeze
-    row.querySelector('.tcursor').remove();
-    await delay(180);
-  }
-
-  
-  function showBanner() {
-    appendRaw(`<div class="line out" style="margin-bottom:4px;">
-<pre class="ascii">
-  ██████╗ ██╗ ██████╗ ██████╗  ██████╗ ██╗ ██████╗ 
- ██╔════╝ ██║██╔═══██╗██╔══██╗██╔════╝ ██║██╔═══██╗
- ██║  ███╗██║██║   ██║██████╔╝██║  ███╗██║██║   ██║
- ██║   ██║██║██║   ██║██╔══██╗██║   ██║██║██║   ██║
- ╚██████╔╝██║╚██████╔╝██║  ██║╚██████╔╝██║╚██████╔╝
-  ╚═════╝ ╚═╝ ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚═╝ ╚═════╝
-</pre></div>`);
-
-    line('info', '  v1.0.0  &nbsp;·&nbsp;  portfolio terminal  &nbsp;·&nbsp;  type <span style="color:var(--green)">help</span> for commands');
-    blank();
-  }
-
-  function showAbout() {
-    blank();
-    appendRaw(`<div class="line out"><div class="section-head">// WHOAMI</div></div>`);
-    appendRaw(`<div class="line out">
-      <div class="about-block">
-        <p><span class="label">name     </span>  Giorgio</p>
-        <p><span class="label">age      </span>  15 &nbsp;<span style="color:var(--muted)">// born in Italy</span></p>
-        <p><span class="label">location </span>  Italy &nbsp;<span style="color:var(--muted)">🇮🇹</span></p>
-        <p><span class="label">passion  </span>  planes, code, side-projects</p>
-        <p><span class="label">origin   </span>  started on Scratch at 8, then Python, never stopped</p>
-        <p><span class="label">now      </span>  full-stack JS/TS, Discord bots, Roblox airline systems</p>
+    <div id="input-row">
+      <div id="prompt-label">
+        <span class="u">giorgio</span><span class="sep">@</span><span class="u">terminal</span><span class="sep">:</span><span class="dir">~</span><span class="sep">$</span>
       </div>
-    </div>`);
-    blank();
-  }
+      <input id="cmd-input" type="text" autocomplete="off" spellcheck="false" autocorrect="off" />
+    </div>
 
-  function showSkills() {
-    blank();
-    appendRaw(`<div class="line out"><div class="section-head">// SKILLS</div></div>`);
-    const skills = [
-      { name: 'JavaScript (ES6+)', pct: 90 },
-      { name: 'TypeScript',        pct: 78 },
-      { name: 'Python 3',          pct: 72 },
-      { name: 'React / Next.js',   pct: 68 },
-      { name: 'Node.js / Express', pct: 85 },
-      { name: 'Discord.js',        pct: 92 },
-      { name: 'MongoDB / Atlas',   pct: 75 },
-      { name: 'Tailwind CSS',      pct: 80 },
-      { name: 'Rust (learning)',   pct: 25 },
-      { name: 'C++ (learning)',    pct: 20 },
-    ];
-    const grid = document.createElement('div');
-    grid.className = 'line out skills-grid';
-    skills.forEach(s => {
-      const el = document.createElement('div');
-      el.className = 'skill-item';
-      el.innerHTML = `<span class="check">✓</span><span style="min-width:155px">${s.name}</span><div class="bar"><div class="bar-fill" style="width:${s.pct}%"></div></div>`;
-      grid.appendChild(el);
+  </div>
+
+  <script>
+  (() => {
+
+    const delay = ms => new Promise(r => setTimeout(r, ms));
+
+
+    // ── login screen ─────────────────────────────────────────
+
+    const loginScreen = document.getElementById('login-screen');
+    const loginPw     = document.getElementById('login-password');
+    const pwDots      = document.getElementById('pw-dots');
+    const loginStatus = document.getElementById('login-status');
+
+    let loginDone = false;
+
+    // set banner text via JS — the only safe way to avoid HTML
+    // indentation breaking the ASCII art alignment
+    document.getElementById('login-logo').textContent = [
+      '  ██████╗ ██╗ ██████╗ ██████╗  ██████╗ ██╗ ██████╗ ',
+      ' ██╔════╝ ██║██╔═══██╗██╔══██╗██╔════╝ ██║██╔═══██╗',
+      ' ██║  ███╗██║██║   ██║██████╔╝██║  ███╗██║██║   ██║',
+      ' ██║   ██║██║██║   ██║██╔══██╗██║   ██║██║██║   ██║',
+      ' ╚██████╔╝██║╚██████╔╝██║  ██║╚██████╔╝██║╚██████╔╝',
+      '  ╚═════╝ ╚═╝ ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚═╝ ╚═════╝',
+    ].join('\n');
+
+    // mirror typed chars as bullet dots
+    loginPw.addEventListener('input', () => {
+      pwDots.textContent = '●'.repeat(loginPw.value.length);
     });
-    out.appendChild(grid);
-    out.scrollTop = out.scrollHeight;
-    blank();
-  }
 
-  function showProjects() {
-    blank();
-    appendRaw(`<div class="line out"><div class="section-head">// PROJECTS</div></div>`);
-    const projects = [
-      {
-        name: 'atmos_rewards/',
-        lang: '[Node.js · MongoDB · Discord.js]',
-        desc: 'Full loyalty program system for PTFS virtual airline — tier progression, rewards shop, Discord OAuth2 dashboard.',
-        link: 'https://github.com/Gio1112',
-        href: 'https://github.com/Gio1112',
-      },
-      {
-        name: 'korean_air_web.js',
-        lang: '[Node.js · Express · HTML/CSS]',
-        desc: 'Full-stack mock booking portal for Korean Air virtual airline with seat maps and admin panel.',
-        link: 'github.com/Gio1112/korean-air',
-        href: 'https://github.com/Gio1112/korean-air',
-      },
-      {
-        name: 'swiss_air_web.ts',
-        lang: '[Next.js · TypeScript · Tailwind]',
-        desc: 'Next.js frontend rebuild of Swiss Airlines virtual portal with modern stack.',
-        link: 'giorgio.is-a.dev/swiss',
-        href: 'https://giorgio.is-a.dev/swiss',
-      },
-      {
-        name: 'TrackLab/',
-        lang: '[Electron · JS · Scratch-DSL]',
-        desc: 'Visual block-coding IDE for Subway Builder game mods — drag-drop, undo/redo, ZIP export.',
-        link: 'github.com/Gio1112',
-        href: 'https://github.com/Gio1112',
-      },
-      {
-        name: 'cord.dsl',
-        lang: '[Custom Language · Node.js]',
-        desc: 'Custom DSL that transpiles to Discord bot JavaScript. Features user-defined functions, --watch mode, Ollama AI integration.',
-        link: 'github.com/Gio1112',
-        href: 'https://github.com/Gio1112',
-      },
-    ];
-    projects.forEach(p => {
-      const card = document.createElement('div');
-      card.className = 'project-card';
-      card.innerHTML = `
-        <div><span class="proj-name">${p.name}</span><span class="proj-lang">${p.lang}</span></div>
-        <div class="proj-desc">${p.desc}</div>
-        <a class="proj-link" href="${p.href}" target="_blank">↗ ${p.link}</a>
-      `;
-      card.addEventListener('click', () => window.open(p.href, '_blank'));
-      out.appendChild(card);
+    loginPw.addEventListener('keydown', async e => {
+      if (e.key !== 'Enter' || loginDone) return;
+      loginDone = true;
+
+      loginStatus.textContent = 'Authenticating...';
+      loginStatus.className   = 'login-status';
+
+      await delay(600);
+
+      loginStatus.textContent = '[ OK ] Login successful — loading session';
+      loginStatus.className   = 'login-status ok';
+
+      // this keypress is our user gesture — unlock audio now
+      await startAudio();
+
+      await delay(900);
+
+      loginScreen.classList.add('fade-out');
+      document.getElementById('terminal').classList.add('visible');
+
+      // boot the terminal while the login fades out
+      boot();
+      unmuffleAudio(4000);
+
+      setTimeout(() => loginScreen.remove(), 900);
+    });
+
+    // keep the input focused whenever the user clicks the login screen
+    loginScreen.addEventListener('click', () => loginPw.focus());
+    loginPw.focus();
+
+
+    // ── glitch effect ────────────────────────────────────────
+    //
+    // fires randomly every 3–7 seconds while the login is on screen
+
+    function triggerGlitch() {
+      const screen = document.getElementById('login-screen');
+      if (!screen) return;
+
+      screen.classList.add('glitching');
+
+      // reset and replay each layer's animation
+      const r = document.getElementById('glitch-r');
+      const b = document.getElementById('glitch-b');
+
+      if (r) {
+        r.style.animation = 'none';
+        r.offsetHeight; // force reflow
+        r.style.animation = 'glitch-clip-1 0.3s steps(1) forwards';
+      }
+
+      if (b) {
+        b.style.animation = 'none';
+        b.offsetHeight;
+        b.style.animation = 'glitch-clip-2 0.3s steps(1) forwards';
+      }
+
+      setTimeout(() => screen.classList.remove('glitching'), 300);
+      setTimeout(triggerGlitch, 3000 + Math.random() * 4000);
+    }
+
+    setTimeout(triggerGlitch, 1500 + Math.random() * 2000);
+
+
+    // ── playlist ─────────────────────────────────────────────
+    //
+    // fetches the /audio folder from GitHub, shuffles it,
+    // then plays through the tracks one by one
+
+    const GITHUB_API = 'https://api.github.com/repos/Gio1112/dadev/contents/audio';
+    const RAW_BASE   = 'https://raw.githubusercontent.com/Gio1112/dadev/main/audio/';
+
+    const audioEl = document.getElementById('bg-audio');
+
+    let playlist   = [];
+    let trackIndex = 0;
+
+    function shuffle(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    async function loadPlaylist() {
+      try {
+        const res   = await fetch(GITHUB_API);
+        const files = await res.json();
+        const audio = files.filter(f => /\.(mp3|ogg|wav|flac|m4a)$/i.test(f.name));
+        playlist    = shuffle(audio.map(f => RAW_BASE + encodeURIComponent(f.name)));
+      } catch {
+        // fallback if the API call fails
+        playlist = [RAW_BASE + encodeURIComponent('soundcloudaud.com_glm 2.mp3')];
+      }
+    }
+
+    function playTrack(index) {
+      if (!playlist.length) return;
+      trackIndex  = ((index % playlist.length) + playlist.length) % playlist.length;
+      audioEl.src = playlist[trackIndex];
+      audioEl.load();
+      audioEl.play().catch(() => {});
+    }
+
+    audioEl.addEventListener('ended', () => playTrack(trackIndex + 1));
+
+    // fetch the playlist now — will be ready long before anyone logs in
+    loadPlaylist();
+
+
+    // ── web audio ────────────────────────────────────────────
+    //
+    // chain: audio element → low-pass filter → gain → analyser → speakers
+    //
+    // the filter starts at 180hz (muffled) and slowly opens to 20khz
+    // after login — like moving from the hallway into the room
+
+    let audioCtx  = null;
+    let analyser  = null;
+    let muffle    = null;
+    let audioGain = null;
+
+    function initAudioCtx() {
+      if (audioCtx) return;
+
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+      muffle = audioCtx.createBiquadFilter();
+      muffle.type            = 'lowpass';
+      muffle.frequency.value = 180;
+      muffle.Q.value         = 1.2;
+
+      audioGain = audioCtx.createGain();
+      audioGain.gain.value = 0.12;
+
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 512;
+      analyser.smoothingTimeConstant = 0.8;
+
+      const src = audioCtx.createMediaElementSource(audioEl);
+      src.connect(muffle);
+      muffle.connect(audioGain);
+      audioGain.connect(analyser);
+      analyser.connect(audioCtx.destination);
+    }
+
+    async function startAudio() {
+      try {
+        initAudioCtx();
+        if (audioCtx.state === 'suspended') await audioCtx.resume();
+        playTrack(0);
+      } catch (err) {
+        console.warn('Audio start failed:', err);
+      }
+    }
+
+    function unmuffleAudio(durationMs) {
+      if (!muffle || !audioGain) return;
+
+      const now = audioCtx.currentTime;
+      const dur = durationMs / 1000;
+
+      muffle.frequency.setValueAtTime(180, now);
+      muffle.frequency.exponentialRampToValueAtTime(20000, now + dur);
+
+      audioGain.gain.setValueAtTime(0.12, now);
+      audioGain.gain.linearRampToValueAtTime(0.35, now + dur * 0.7);
+    }
+
+
+    // ── terminal refs ────────────────────────────────────────
+
+    const out   = document.getElementById('output');
+    const input = document.getElementById('cmd-input');
+    const badge = document.getElementById('visitor-badge');
+
+    // safe to fetch now — badge is in scope
+    fetchVisitorCount();
+
+
+    // ── visitor counter ──────────────────────────────────────
+
+    async function fetchVisitorCount() {
+      try {
+        const res  = await fetch('https://api.counterapi.dev/v1/giorgio-is-a-dev/visits/up');
+        const data = await res.json();
+
+        badge.textContent = `⬤ ${data.count} visitors`;
+
+        const loginCount = document.getElementById('login-visitor-count');
+        if (loginCount) loginCount.textContent = data.count;
+      } catch {
+        badge.textContent = '⬤ online';
+
+        const loginCount = document.getElementById('login-visitor-count');
+        if (loginCount) loginCount.textContent = '?';
+      }
+    }
+
+
+    // ── output helpers ───────────────────────────────────────
+
+    function appendRaw(html) {
+      const div = document.createElement('div');
+      div.innerHTML = html;
+      out.appendChild(div);
       out.scrollTop = out.scrollHeight;
-    });
-    blank();
-  }
-
-  function showContact() {
-    blank();
-    appendRaw(`<div class="line out"><div class="section-head">// CONTACT</div></div>`);
-    appendRaw(`
-      <div class="line out">
-        <div class="contact-row"><span class="key">email</span><a href="mailto:giorgiodabest1@gmail.com">giorgiodabest1@gmail.com</a></div>
-        <div class="contact-row"><span class="key">discord</span><span style="color:var(--text)">giorgiodabest</span></div>
-        <div class="contact-row"><span class="key">github</span><a href="https://github.com/Gio1112" target="_blank">github.com/Gio1112</a></div>
-        <div class="contact-row"><span class="key">website</span><a href="https://giorgio.is-a.dev" target="_blank">giorgio.is-a.dev</a></div>
-      </div>
-    `);
-    blank();
-  }
-
-  function showHelp() {
-    blank();
-    appendRaw(`<div class="line out"><div class="section-head">// HELP</div></div>`);
-    appendRaw(`<div class="line out">
-      <table class="help-table">
-        <tr><td>whoami</td><td>about me</td></tr>
-        <tr><td>skills</td><td>tech stack & proficiency</td></tr>
-        <tr><td>projects</td><td>stuff I've built</td></tr>
-        <tr><td>contact</td><td>how to reach me</td></tr>
-        <tr><td>clear</td><td>wipe the terminal</td></tr>
-        <tr><td>banner</td><td>redisplay ascii header</td></tr>
-        <tr><td>help</td><td>this menu</td></tr>
-      </table>
-    </div>`);
-    blank();
-  }
-
-  const history = [];
-  let histIdx = -1;
-
-  function runCmd(raw) {
-    const cmd = raw.trim().toLowerCase();
-    if (!cmd) return;
-    history.unshift(raw);
-    histIdx = -1;
-
-    cmdLine(raw);
-
-    switch (cmd) {
-      case 'whoami':
-      case 'about':   showAbout();    break;
-      case 'skills':  showSkills();   break;
-      case 'projects':showProjects(); break;
-      case 'contact': showContact();  break;
-      case 'help':    showHelp();     break;
-      case 'banner':  showBanner();   break;
-      case 'clear':
-        out.innerHTML = '';
-        showBanner();
-        break;
-      default:
-        blank();
-        line('err', `bash: ${raw}: command not found`);
-        line('info', `type <span style="color:var(--green)">help</span> to see available commands`);
-        blank();
     }
-  }
 
-  input.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      const val = input.value;
-      input.value = '';
-      runCmd(val);
-    } else if (e.key === 'ArrowUp') {
-      e.preventDefault();
-      if (histIdx < history.length - 1) { histIdx++; input.value = history[histIdx]; }
-    } else if (e.key === 'ArrowDown') {
-      e.preventDefault();
-      if (histIdx > 0) { histIdx--; input.value = history[histIdx]; }
-      else { histIdx = -1; input.value = ''; }
+    function line(cls, html) {
+      appendRaw(`<div class="line ${cls}">${html}</div>`);
     }
-  });
 
-  // Keep focus
-  document.addEventListener('click', () => {
-    if (!window.getSelection().toString()) input.focus();
-  });
-  input.focus();
+    function cmdLine(cmd) {
+      line('cmd', `<span class="ps1">giorgio@terminal:~$</span> <span>${cmd}</span>`);
+    }
 
-  
-  async function boot() {
-    // Progress lines
-    const steps = [
-      '[  0.001] Kernel 6.8.0-generic loaded',
-      '[  0.042] ACPI: IRQ0 configuration ...',
-      '[  0.108] PCI: MSI quirk detected',
-      '[  0.220] net: registered protocol family 2',
-      '[  0.580] systemd[1]: Starting portfolio.service',
-      '[  1.002] portfolio.service started OK',
+    function blank() {
+      line('blank', '');
+    }
+
+    async function typeCmd(cmd, ms = 45) {
+      const row = document.createElement('div');
+      row.className = 'line cmd';
+      row.innerHTML = `<span class="ps1">giorgio@terminal:~$</span> <span id="_typing"></span><span class="tcursor"></span>`;
+      out.appendChild(row);
+      out.scrollTop = out.scrollHeight;
+
+      const span = document.getElementById('_typing');
+      for (const ch of cmd) {
+        span.textContent += ch;
+        await delay(ms + Math.random() * 18);
+      }
+
+      row.querySelector('.tcursor').remove();
+      await delay(160);
+    }
+
+
+    // ── banner ───────────────────────────────────────────────
+
+    const BANNER_LINES = [
+      '  ██████╗ ██╗ ██████╗ ██████╗  ██████╗ ██╗ ██████╗ ',
+      ' ██╔════╝ ██║██╔═══██╗██╔══██╗██╔════╝ ██║██╔═══██╗',
+      ' ██║  ███╗██║██║   ██║██████╔╝██║  ███╗██║██║   ██║',
+      ' ██║   ██║██║██║   ██║██╔══██╗██║   ██║██║██║   ██║',
+      ' ╚██████╔╝██║╚██████╔╝██║  ██║╚██████╔╝██║╚██████╔╝',
+      '  ╚═════╝ ╚═╝ ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚═╝ ╚═════╝',
     ];
-    for (const s of steps) {
-      line('info', s);
-      await delay(90);
+
+    function showBanner() {
+      const pre = document.createElement('pre');
+      pre.className   = 'ascii';
+      pre.textContent = BANNER_LINES.join('\n');
+
+      const wrap = document.createElement('div');
+      wrap.className       = 'line out';
+      wrap.style.marginBottom = '4px';
+      wrap.appendChild(pre);
+
+      out.appendChild(wrap);
+      out.scrollTop = out.scrollHeight;
+
+      line('info', '  v1.0.0  &nbsp;·&nbsp;  portfolio terminal  &nbsp;·&nbsp;  type <span style="color:var(--green)">help</span> for commands');
+      blank();
     }
-    blank();
 
-    await typeCmd('cat /etc/motd', 38);
-    showBanner();
-    await delay(200);
 
-    await typeCmd('whoami', 55);
-    showAbout();
-    await delay(150);
+    // ── whoami ───────────────────────────────────────────────
 
-    await typeCmd('ls --projects', 50);
-    showProjects();
-    await delay(150);
+    function showAbout() {
+      blank();
+      appendRaw(`<div class="line out"><div class="section-head">// WHOAMI</div></div>`);
+      appendRaw(`
+        <div class="line out">
+          <div class="about-block">
+            <p><span class="label">name     </span>  Giorgio</p>
+            <p><span class="label">age      </span>  15 &nbsp;<span style="color:var(--muted)">// born in the UK</span></p>
+            <p><span class="label">location </span>  United Kingdom [UK]</p>
+            <p><span class="label">passion  </span>  planes, code, side-projects</p>
+            <p><span class="label">origin   </span>  started on Scratch at 8, then Python, never stopped</p>
+            <p><span class="label">now      </span>  full-stack JS/TS, Discord bots, Roblox airline systems</p>
+          </div>
+        </div>
+      `);
+      blank();
+    }
 
-    await typeCmd('help', 60);
-    showHelp();
 
-    // Ready indicator
-    line('info', '<span style="color:var(--green)">■</span> Terminal ready. Type a command below.');
-    blank();
-    input.focus();
-  }
+    // ── skills ───────────────────────────────────────────────
 
-  boot();
-})();
-</script>
+    function showSkills() {
+      blank();
+      appendRaw(`<div class="line out"><div class="section-head">// SKILLS</div></div>`);
+
+      const skills = [
+        { name: 'JavaScript (ES6+)', pct: 90 },
+        { name: 'TypeScript',        pct: 78 },
+        { name: 'Python 3',          pct: 72 },
+        { name: 'React / Next.js',   pct: 68 },
+        { name: 'Node.js / Express', pct: 85 },
+        { name: 'Discord.js',        pct: 92 },
+        { name: 'MongoDB / Atlas',   pct: 75 },
+        { name: 'Tailwind CSS',      pct: 80 },
+        { name: 'Rust (learning)',   pct: 25 },
+        { name: 'C++ (learning)',    pct: 20 },
+      ];
+
+      const grid = document.createElement('div');
+      grid.className = 'line out skills-grid';
+
+      for (const s of skills) {
+        const el = document.createElement('div');
+        el.className = 'skill-item';
+        el.innerHTML = `
+          <span class="check">✓</span>
+          <span style="min-width:155px">${s.name}</span>
+          <div class="bar">
+            <div class="bar-fill" style="width:${s.pct}%"></div>
+          </div>
+        `;
+        grid.appendChild(el);
+      }
+
+      out.appendChild(grid);
+      out.scrollTop = out.scrollHeight;
+      blank();
+    }
+
+
+    // ── projects ─────────────────────────────────────────────
+
+    function showProjects() {
+      blank();
+      appendRaw(`<div class="line out"><div class="section-head">// PROJECTS</div></div>`);
+
+      const projects = [
+        {
+          name: 'atmos_rewards/',
+          lang: '[Node.js · MongoDB · Discord.js]',
+          desc: 'Full loyalty program system for PTFS virtual airline — tier progression, rewards shop, Discord OAuth2 dashboard.',
+          link: 'github.com/Gio1112',
+          href: 'https://github.com/Gio1112',
+        },
+        {
+          name: 'korean_air_web.js',
+          lang: '[Node.js · Express · HTML/CSS]',
+          desc: 'Full-stack mock booking portal for Korean Air virtual airline with seat maps and admin panel.',
+          link: 'github.com/Gio1112',
+          href: 'https://github.com/Gio1112',
+        },
+        {
+          name: 'swiss_air_web.ts',
+          lang: '[Next.js · TypeScript · Tailwind]',
+          desc: 'Next.js frontend rebuild of Swiss Airlines virtual portal with modern stack.',
+          link: 'giorgio.is-a.dev/swiss',
+          href: 'https://giorgio.is-a.dev/swiss',
+        },
+      ];
+
+      for (const p of projects) {
+        const card = document.createElement('div');
+        card.className = 'project-card';
+        card.innerHTML = `
+          <div>
+            <span class="proj-name">${p.name}</span>
+            <span class="proj-lang">${p.lang}</span>
+          </div>
+          <div class="proj-desc">${p.desc}</div>
+          <a class="proj-link" href="${p.href}" target="_blank">↗ ${p.link}</a>
+        `;
+        card.addEventListener('click', () => window.open(p.href, '_blank'));
+        out.appendChild(card);
+        out.scrollTop = out.scrollHeight;
+      }
+
+      blank();
+    }
+
+
+    // ── contact ──────────────────────────────────────────────
+
+    function showContact() {
+      blank();
+      appendRaw(`<div class="line out"><div class="section-head">// CONTACT</div></div>`);
+      appendRaw(`
+        <div class="line out">
+          <div class="contact-row">
+            <span class="key">email</span>
+            <a href="mailto:giorgiodabest1@gmail.com">giorgiodabest1@gmail.com</a>
+          </div>
+          <div class="contact-row">
+            <span class="key">discord</span>
+            <span style="color:var(--text)">giorgiodabest</span>
+          </div>
+          <div class="contact-row">
+            <span class="key">github</span>
+            <a href="https://github.com/Gio1112" target="_blank">github.com/Gio1112</a>
+          </div>
+          <div class="contact-row">
+            <span class="key">website</span>
+            <a href="https://giorgio.is-a.dev" target="_blank">giorgio.is-a.dev</a>
+          </div>
+        </div>
+      `);
+      blank();
+    }
+
+
+    // ── help ─────────────────────────────────────────────────
+
+    function showHelp() {
+      blank();
+      appendRaw(`<div class="line out"><div class="section-head">// HELP</div></div>`);
+      appendRaw(`
+        <div class="line out">
+          <table class="help-table">
+            <tr><td>whoami</td>    <td>about me</td></tr>
+            <tr><td>skills</td>    <td>tech stack &amp; proficiency</td></tr>
+            <tr><td>projects</td>  <td>stuff I've built</td></tr>
+            <tr><td>contact</td>   <td>how to reach me</td></tr>
+            <tr><td>fastfetch</td> <td>system info (neofetch-style)</td></tr>
+            <tr><td>cava</td>      <td>real-time audio visualizer</td></tr>
+            <tr><td>clear</td>     <td>wipe the terminal</td></tr>
+            <tr><td>banner</td>    <td>redisplay ascii header</td></tr>
+            <tr><td>help</td>      <td>this menu</td></tr>
+          </table>
+        </div>
+      `);
+      blank();
+    }
+
+
+    // ── fastfetch ────────────────────────────────────────────
+
+    function showFastfetch() {
+      blank();
+
+      const artLines = [
+        '        _nnnn_        ',
+        '        dGGGGMMb      ',
+        '       @p~qp~~qMb     ',
+        '       M|@||@) M|     ',
+        '       @,----.JM|     ',
+        '      JS^\\__/  qKL   ',
+        '     dZP        qKRb  ',
+        '    dZP          qKKb ',
+        '   fZP            SMMb',
+        '   HZM            MMMM',
+        '   FqM            MMMM',
+        ' __| ".        |\\dS"qML',
+        " |    `.       | `' \\Zq",
+        '_)      \\.___.| |     .',
+        "\\____   )MMMMP|   .'  ",
+        "     `-'       `--' hjm",
+      ];
+
+      const swatches = ['#050a07', '#39ff8a', '#22c55e', '#16a34a', '#fbbf24', '#60a5fa', '#a78bfa', '#f87171'];
+
+      const infoRows = [
+        ['',         `<span style="color:var(--green);font-weight:700">giorgio</span><span style="color:var(--muted)">@</span><span style="color:var(--green);font-weight:700">terminal</span>`],
+        ['',         `<span style="color:var(--border)">${'─'.repeat(28)}</span>`],
+        ['OS',       'EndeavourOS Linux x86_64'],
+        ['Host',     'giorgio-pc'],
+        ['Kernel',   '6.8.12-arch1-1'],
+        ['Shell',    'zsh 5.9'],
+        ['Terminal', 'Alacritty'],
+        ['Font',     'JetBrains Mono'],
+        ['WM',       'KDE Plasma 6 (Wayland)'],
+        ['CPU',      'Intel Core i5 @ 3.40GHz'],
+        ['Memory',   '8.2 GiB / 16.0 GiB'],
+        ['Disk',     '128 GiB / 512 GiB SSD'],
+        [`<span style="color:var(--amber)">Music</span>`, `<span style="color:var(--green2)">♪</span> playlist — looping`],
+        ['Uptime',   '15 yrs — no signs of stopping'],
+        ['',         ''],
+      ];
+
+      const wrap = document.createElement('div');
+      wrap.className = 'line out fastfetch-wrap';
+
+      // build the art column line by line using textContent
+      // so special characters never get HTML-escaped
+      const artEl = document.createElement('div');
+      artEl.className = 'ff-art';
+
+      for (const l of artLines) {
+        const span = document.createElement('span');
+        span.style.color = 'var(--green)';
+        span.textContent = l;
+        artEl.appendChild(span);
+        artEl.appendChild(document.createElement('br'));
+      }
+
+      // build the info column
+      const infoEl = document.createElement('div');
+      infoEl.className = 'ff-info';
+
+      for (const [key, val] of infoRows) {
+        const row = document.createElement('div');
+
+        if (!key && val === '') {
+          // colour swatches at the bottom
+          row.innerHTML = `
+            <div class="ff-colors">
+              ${swatches.map(c => `<div class="ff-swatch" style="background:${c}"></div>`).join('')}
+            </div>
+          `;
+        } else if (!key) {
+          // header / separator line (no key prefix)
+          row.className = 'ff-row';
+          row.innerHTML = val;
+        } else {
+          row.className = 'ff-row';
+          row.innerHTML = `<span class="ff-key">${key}</span><span class="ff-val">${val}</span>`;
+        }
+
+        infoEl.appendChild(row);
+      }
+
+      wrap.appendChild(artEl);
+      wrap.appendChild(infoEl);
+      out.appendChild(wrap);
+      out.scrollTop = out.scrollHeight;
+      blank();
+    }
+
+
+    // ── cava ─────────────────────────────────────────────────
+    //
+    // real-time frequency spectrum using the Web Audio analyser node
+    // press q or esc to stop
+
+    let cavaActive = false;
+    let cavaRaf    = null;
+
+    function showCava() {
+      blank();
+
+      if (cavaActive) {
+        line('err', 'cava is already running — press [ q ] or [ esc ] to stop it first.');
+        blank();
+        return;
+      }
+
+      cavaActive = true;
+
+      const wrap = document.createElement('div');
+      wrap.className = 'cava-wrap';
+      wrap.innerHTML = `
+        <div class="cava-header">
+          <span class="cava-title">◈ CAVA — audio spectrum</span>
+          <span class="cava-hint">[ q ] or [ esc ] to exit</span>
+        </div>
+        <canvas class="cava-canvas" id="cava-canvas" height="130"></canvas>
+        <div class="cava-freq-labels">
+          <span>sub</span>
+          <span>bass</span>
+          <span>mid</span>
+          <span>upper</span>
+          <span>presence</span>
+          <span>air</span>
+        </div>
+      `;
+      out.appendChild(wrap);
+      out.scrollTop = out.scrollHeight;
+
+      const canvas = document.getElementById('cava-canvas');
+      const ctx    = canvas.getContext('2d');
+      const BAR_N  = 72;
+
+      const smooth    = new Float32Array(BAR_N).fill(0);
+      const peaks     = new Float32Array(BAR_N).fill(0);
+      const peakTimer = new Float32Array(BAR_N).fill(0);
+
+      function resize() {
+        const dpr    = window.devicePixelRatio || 1;
+        canvas.width  = canvas.offsetWidth * dpr;
+        canvas.height = 130 * dpr;
+        ctx.scale(dpr, dpr);
+      }
+
+      resize();
+      new ResizeObserver(resize).observe(canvas);
+
+      function drawFrame() {
+        if (!cavaActive) return;
+
+        const W = canvas.offsetWidth;
+        const H = 130;
+        ctx.clearRect(0, 0, W, H);
+
+        // pull frequency data if the analyser is ready
+        const raw = new Float32Array(BAR_N).fill(0);
+
+        if (analyser) {
+          const buf   = new Uint8Array(analyser.frequencyBinCount);
+          analyser.getByteFrequencyData(buf);
+
+          const start = 2;
+          const end   = Math.floor(buf.length * 0.75);
+          const step  = (end - start) / BAR_N;
+
+          for (let i = 0; i < BAR_N; i++) {
+            let sum = 0, count = 0;
+            const lo = Math.floor(i * step + start);
+            const hi = Math.floor((i + 1) * step + start);
+            for (let j = lo; j < hi && j < buf.length; j++) {
+              sum += buf[j];
+              count++;
+            }
+            raw[i] = count > 0 ? (sum / count) / 255 : 0;
+          }
+        } else {
+          // gentle idle ripple while audio hasn't started yet
+          const t = Date.now() / 1000;
+          for (let i = 0; i < BAR_N; i++) {
+            raw[i] = Math.max(0, Math.sin(t * 1.2 + i * 0.18) * 0.5 + 0.5) * 0.08;
+          }
+        }
+
+        // smooth bars with exponential decay
+        const alpha = audioEl.paused ? 0.06 : 0.28;
+
+        for (let i = 0; i < BAR_N; i++) {
+          smooth[i] += (raw[i] - smooth[i]) * alpha;
+
+          // peak hold
+          if (smooth[i] > peaks[i]) {
+            peaks[i]     = smooth[i];
+            peakTimer[i] = 60;
+          } else if (peakTimer[i] > 0) {
+            peakTimer[i]--;
+            if (peakTimer[i] === 0) peaks[i] *= 0.85;
+          } else {
+            peaks[i] = Math.max(peaks[i] - 0.003, smooth[i]);
+          }
+        }
+
+        const gap  = 2;
+        const barW = (W - gap * (BAR_N - 1)) / BAR_N;
+
+        for (let i = 0; i < BAR_N; i++) {
+          const v    = Math.max(smooth[i], 0.004);
+          const barH = v * (H - 6);
+          const x    = i * (barW + gap);
+          const y    = H - barH;
+
+          // gradient: dark green at the base, bright at the top
+          const grad = ctx.createLinearGradient(0, H, 0, 0);
+          grad.addColorStop(0,    '#0d2b1a');
+          grad.addColorStop(0.4,  '#16a34a');
+          grad.addColorStop(0.75, '#22c55e');
+          grad.addColorStop(1,    '#39ff8a');
+
+          ctx.fillStyle = grad;
+          ctx.beginPath();
+          if (ctx.roundRect) {
+            ctx.roundRect(x, y, barW, barH, [2, 2, 0, 0]);
+          } else {
+            ctx.rect(x, y, barW, barH);
+          }
+          ctx.fill();
+
+          // extra glow for loud bars
+          if (v > 0.6) {
+            ctx.fillStyle = `rgba(57,255,138,${(v - 0.6) * 0.25})`;
+            ctx.fillRect(x - 1, y, barW + 2, barH);
+          }
+
+          // peak dot
+          if (peaks[i] > 0.02) {
+            const py = H - peaks[i] * (H - 6) - 2;
+            ctx.fillStyle   = '#39ff8a';
+            ctx.globalAlpha = Math.min(peakTimer[i] / 60, 1);
+            ctx.fillRect(x, py, barW, 2);
+            ctx.globalAlpha = 1;
+          }
+        }
+
+        // faint mirror reflection at the base
+        ctx.save();
+        ctx.globalAlpha = 0.07;
+        ctx.scale(1, -0.18);
+        ctx.translate(0, -H * (1 / 0.18) - H + 4);
+        for (let i = 0; i < BAR_N; i++) {
+          const v    = Math.max(smooth[i], 0.004);
+          const barH = v * (H - 6);
+          const x    = i * (barW + gap);
+          const y    = H - barH;
+          ctx.fillStyle = '#22c55e';
+          ctx.fillRect(x, y, barW, barH);
+        }
+        ctx.restore();
+
+        cavaRaf = requestAnimationFrame(drawFrame);
+      }
+
+      cavaRaf = requestAnimationFrame(drawFrame);
+
+      line('info', '<span style="color:var(--green)">◈</span> cava running — press <span style="color:var(--green)">[ q ]</span> or <span style="color:var(--green)">[ esc ]</span> to exit');
+      blank();
+      input.focus();
+    }
+
+    function stopCava() {
+      if (!cavaActive) return;
+      cavaActive = false;
+      if (cavaRaf) cancelAnimationFrame(cavaRaf);
+      cavaRaf = null;
+      cmdLine('q');
+      line('info', 'cava stopped.');
+      blank();
+    }
+
+
+    // ── command router ───────────────────────────────────────
+
+    const cmdHistory = [];
+    let histIdx = -1;
+
+    function runCmd(raw) {
+      const cmd = raw.trim().toLowerCase();
+      if (!cmd) return;
+
+      cmdHistory.unshift(raw);
+      histIdx = -1;
+      cmdLine(raw);
+
+      switch (cmd) {
+        case 'whoami':
+        case 'about':     showAbout();    break;
+        case 'skills':    showSkills();   break;
+        case 'projects':  showProjects(); break;
+        case 'contact':   showContact();  break;
+        case 'help':      showHelp();     break;
+        case 'banner':    showBanner();   break;
+        case 'fastfetch':
+        case 'neofetch':  showFastfetch(); break;
+        case 'cava':      showCava();     break;
+        case 'clear':
+          out.innerHTML = '';
+          showBanner();
+          break;
+        default:
+          blank();
+          line('err', `bash: ${raw}: command not found`);
+          line('info', `type <span style="color:var(--green)">help</span> to see available commands`);
+          blank();
+      }
+    }
+
+    input.addEventListener('keydown', e => {
+      // q / esc exits cava mode
+      if (cavaActive && (e.key === 'q' || e.key === 'Escape')) {
+        e.preventDefault();
+        stopCava();
+        return;
+      }
+
+      if (e.key === 'Enter') {
+        const val  = input.value;
+        input.value = '';
+        runCmd(val);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (histIdx < cmdHistory.length - 1) {
+          histIdx++;
+          input.value = cmdHistory[histIdx];
+        }
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (histIdx > 0) {
+          histIdx--;
+          input.value = cmdHistory[histIdx];
+        } else {
+          histIdx     = -1;
+          input.value = '';
+        }
+      }
+    });
+
+    // keep the terminal input focused, but don't steal from the login screen
+    document.addEventListener('click', () => {
+      if (document.getElementById('login-screen')) return;
+      if (!window.getSelection().toString()) input.focus();
+    });
+
+
+    // ── boot sequence ────────────────────────────────────────
+    //
+    // runs after login completes — fake kernel log, then auto-types
+    // a few commands to show off the terminal
+
+    async function boot() {
+
+      const bootLog = [
+        '[  0.001] Kernel 6.8.12-arch1-1 loaded',
+        '[  0.042] ACPI: IRQ0 — audio device OK',
+        '[  0.108] PCI: MSI quirk detected',
+        '[  0.220] net: registered protocol family 2',
+        '[  0.580] systemd[1]: Starting portfolio.service',
+        '[  0.940] audio.service: playlist queued (shuffle=true)',
+        '[  1.002] portfolio.service: OK',
+      ];
+
+      for (const msg of bootLog) {
+        line('info', msg);
+        await delay(82);
+      }
+
+      blank();
+
+      await typeCmd('cat /etc/motd', 38);
+      showBanner();
+      await delay(170);
+
+      await typeCmd('fastfetch', 52);
+      showFastfetch();
+      await delay(170);
+
+      await typeCmd('ls --projects', 50);
+      showProjects();
+      await delay(130);
+
+      await typeCmd('help', 58);
+      showHelp();
+
+      line('info', '<span style="color:var(--green)">■</span> ready &nbsp;·&nbsp; try <span style="color:var(--green)">cava</span> for real-time audio visualization');
+      blank();
+      input.focus();
+    }
+
+  })();
+  </script>
+
 </body>
 </html>
