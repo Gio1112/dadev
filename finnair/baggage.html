@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Baggage Rules | Finnair</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary-900:#0c0243; --primary-800:#181458; --primary-700:#201d64; --primary-600:#27266e; --primary-400:#494989; --primary-300:#66679b; --primary-100:#bbbcd4; --primary-50:#e4e4ee;
+    --secondary-800:#6f1b81; --secondary-700:#7e1f89; --secondary-600:#8f2591; --secondary-200:#cf92ca; --secondary-50:#f3e5f2;
+    --tertiary-900:#161616; --tertiary-800:#353535; --tertiary-700:#545454; --tertiary-600:#676767; --tertiary-500:#8f8f8f; --tertiary-400:#afafaf; --tertiary-300:#d3d3d3; --tertiary-200:#e5e5e5; --tertiary-100:#f0f0f0; --tertiary-50:#f8f8f8;
+    --navy:var(--primary-900); --ice:var(--primary-100); --ice-light:var(--primary-50); --ice-bg:var(--secondary-50);
+    --text-grey:var(--tertiary-600); --font:'DM Sans', sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:var(--font); color:var(--navy); }
+  a { color:inherit; text-decoration:none; }
+  .top { background:var(--navy); color:#fff; padding:1.2rem 1.4rem; }
+  .top h1 { margin:0; font-size:1.35rem; }
+  .wrap { max-width:1000px; margin:0 auto; padding:1.4rem; }
+  .back { display:inline-flex; padding:.45rem .8rem; border:1px solid var(--ice); border-radius:999px; font-weight:600; font-size:.84rem; }
+  .back:hover { background:var(--ice-bg); }
+  table { width:100%; border-collapse:collapse; margin-top:1rem; border:1px solid var(--ice-light); }
+  th, td { text-align:left; padding:.75rem; border-bottom:1px solid var(--ice-light); font-size:.9rem; }
+  th { background:var(--ice-bg); }
+  td { color:var(--text-grey); }
+  .grid { margin-top:1rem; display:grid; grid-template-columns:repeat(2,1fr); gap:.8rem; }
+  .card { border:1px solid var(--ice-light); border-radius:12px; padding:1rem; }
+  .card h3 { margin:0 0 .45rem; font-size:.96rem; color:var(--navy); }
+  .card ul { margin:0; padding-left:1rem; color:var(--text-grey); font-size:.88rem; line-height:1.5; }
+  .faq { margin-top:1rem; border:1px solid var(--ice-light); border-radius:12px; padding:1rem; }
+  .faq details { border-top:1px solid var(--ice-light); padding:.6rem 0; }
+  .faq details:first-of-type { border-top:none; padding-top:0; }
+  .faq summary { cursor:pointer; font-weight:600; }
+  .faq p { margin:.45rem 0 0; color:var(--text-grey); font-size:.88rem; line-height:1.45; }
+  @media (max-width:760px){ .grid { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+  <header class="top"><h1>Baggage rules</h1></header>
+  <main class="wrap">
+    <a class="back" href="home.html">Back to home</a>
+    <table aria-label="Baggage allowances">
+      <thead>
+        <tr><th>Fare type</th><th>Carry-on</th><th>Checked baggage</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Economy Light</td><td>1 small item</td><td>Not included</td></tr>
+        <tr><td>Economy Classic</td><td>1 cabin bag + 1 small item</td><td>1 x 23 kg</td></tr>
+        <tr><td>Premium Economy</td><td>1 cabin bag + 1 small item</td><td>2 x 23 kg</td></tr>
+        <tr><td>Business</td><td>2 cabin bags + 1 small item</td><td>2 x 32 kg</td></tr>
+      </tbody>
+    </table>
+
+    <section class="grid" aria-label="Baggage preparation guidance">
+      <article class="card">
+        <h3>Cabin baggage tips</h3>
+        <ul>
+          <li>Keep liquids in containers up to 100 ml and place them in a transparent bag where required.</li>
+          <li>Store medicines, travel documents, and valuables in your carry-on items.</li>
+          <li>Make sure your cabin bag fits overhead-bin dimensions on your route.</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h3>Checked baggage tips</h3>
+        <ul>
+          <li>Attach contact details to every checked bag and keep your baggage receipt until arrival.</li>
+          <li>Avoid packing restricted and fragile items in checked baggage.</li>
+          <li>Use approved protective packaging for sports equipment and special items.</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="faq" aria-label="Baggage FAQ">
+      <h3 style="margin:0 0 .6rem;color:var(--navy)">Baggage FAQ</h3>
+      <details>
+        <summary>Can I buy extra baggage later?</summary>
+        <p>Yes, extra baggage can usually be added online in Manage booking before departure.</p>
+      </details>
+      <details>
+        <summary>What if my baggage is delayed?</summary>
+        <p>Please submit a delayed-baggage report at the arrival airport and keep your baggage tags for reference.</p>
+      </details>
+      <details>
+        <summary>Do carry-on limits differ by aircraft?</summary>
+        <p>Cabin baggage dimensions and number of items can vary by route and fare, so always review your ticket details.</p>
+      </details>
+    </section>
+  </main>
+</body>
+</html>

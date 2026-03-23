@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Avios and Tier Points | Finnair</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary-900:#0c0243; --primary-800:#181458; --primary-700:#201d64; --primary-600:#27266e; --primary-400:#494989; --primary-300:#66679b; --primary-100:#bbbcd4; --primary-50:#e4e4ee;
+    --secondary-800:#6f1b81; --secondary-700:#7e1f89; --secondary-600:#8f2591; --secondary-200:#cf92ca; --secondary-50:#f3e5f2;
+    --tertiary-900:#161616; --tertiary-800:#353535; --tertiary-700:#545454; --tertiary-600:#676767; --tertiary-500:#8f8f8f; --tertiary-400:#afafaf; --tertiary-300:#d3d3d3; --tertiary-200:#e5e5e5; --tertiary-100:#f0f0f0; --tertiary-50:#f8f8f8;
+    --navy:var(--primary-900); --navy-light:var(--primary-400); --ice:var(--primary-100); --ice-light:var(--primary-50); --ice-bg:var(--secondary-50);
+    --text-grey:var(--tertiary-600); --font:'DM Sans', sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family:var(--font); color:var(--navy); }
+  .top { background:var(--navy); color:#fff; padding:1.2rem 1.4rem; }
+  .top h1 { margin:0; font-size:1.35rem; }
+  .wrap { max-width:1000px; margin:0 auto; padding:1.4rem; }
+  a { color:inherit; text-decoration:none; }
+  .back { display:inline-flex; padding:.45rem .8rem; border:1px solid var(--ice); border-radius:999px; font-weight:600; font-size:.84rem; }
+  .back:hover { background:var(--ice-bg); }
+  .panel { margin-top:1rem; border:1px solid var(--ice-light); border-radius:12px; padding:1rem; }
+  .panel h2 { margin:0 0 .45rem; font-size:1rem; }
+  .panel p { margin:0; color:var(--text-grey); line-height:1.45; font-size:.9rem; }
+  .cta { margin-top:1rem; display:inline-flex; background:var(--navy); color:#fff; padding:.55rem .9rem; border-radius:999px; font-size:.85rem; font-weight:700; }
+  .cta:hover { background:var(--navy-light); }
+  .table-wrap { margin-top:1rem; border:1px solid var(--ice-light); border-radius:12px; overflow:hidden; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; padding:.7rem .8rem; font-size:.88rem; border-bottom:1px solid var(--ice-light); }
+  th { background:var(--ice-bg); }
+  td { color:var(--text-grey); }
+  .grid { margin-top:1rem; display:grid; grid-template-columns:repeat(2,1fr); gap:.8rem; }
+  .card { border:1px solid var(--ice-light); border-radius:12px; padding:1rem; }
+  .card h3 { margin:0 0 .45rem; font-size:.95rem; }
+  .card p { margin:0; color:var(--text-grey); font-size:.88rem; line-height:1.45; }
+  @media (max-width:760px){ .grid { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+  <header class="top"><h1>Avios and tier points</h1></header>
+  <main class="wrap">
+    <a class="back" href="home.html">Back to home</a>
+    <section class="panel">
+      <h2>How Avios work</h2>
+      <p>Collect Avios from flights and partners, then redeem them for award flights, upgrades, and selected travel extras.</p>
+    </section>
+    <section class="panel">
+      <h2>Tier points</h2>
+      <p>Tier points are earned from eligible flights and help you progress through membership levels for added travel benefits.</p>
+    </section>
+
+    <section class="table-wrap" aria-label="Example Avios earning table">
+      <table>
+        <thead>
+          <tr><th>Route type</th><th>Cabin class</th><th>Example Avios</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Nordic short-haul</td><td>Economy</td><td>From 300</td></tr>
+          <tr><td>European medium-haul</td><td>Economy</td><td>From 600</td></tr>
+          <tr><td>Long-haul</td><td>Premium Economy</td><td>From 2,000</td></tr>
+          <tr><td>Long-haul</td><td>Business</td><td>From 3,500</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="grid" aria-label="Avios help blocks">
+      <article class="card">
+        <h3>Ways to redeem</h3>
+        <p>Use Avios for award flights, cabin upgrades, selected extras, and partner benefits depending on availability.</p>
+      </article>
+      <article class="card">
+        <h3>How tiers work</h3>
+        <p>Tier points reset on your membership anniversary. Maintaining tier benefits requires reaching the threshold each period.</p>
+      </article>
+      <article class="card">
+        <h3>Family sharing</h3>
+        <p>Household and family features may help combine earned value, subject to program terms and account setup.</p>
+      </article>
+      <article class="card">
+        <h3>Estimated accrual at booking</h3>
+        <p>You can view estimated Avios during booking and compare fares based on expected loyalty accrual.</p>
+      </article>
+    </section>
+
+    <a class="cta" href="login.html?returnTo=account.html">Check your balance</a>
+  </main>
+</body>
+</html>
