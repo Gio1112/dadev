@@ -1098,7 +1098,7 @@
   const topLoginBtn = document.getElementById('top-login-btn');
   const topJoinBtn = document.getElementById('top-join-btn');
 
-  const API_BASE_URL = (window.FINNAIR_API_BASE_URL || localStorage.getItem('finnair_api_base_url') || 'http://localhost:8787').replace(/\/$/, '');
+  const API_BASE_URL = (window.FINNAIR_API_BASE_URL || localStorage.getItem('finnair_api_base_url') || 'https://finnair-backend-production.up.railway.app').replace(/\/$/, '');
 
   const defaultLocale = 'en-GB-GBP';
   let activeLocale = localStorage.getItem('finnair_locale') || defaultLocale;
