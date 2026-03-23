@@ -77,7 +77,7 @@
   </div>
 
 <script>
-  const API_BASE = (window.FINNAIR_API_BASE_URL || localStorage.getItem('finnair_api_base_url') || 'http://localhost:8787').replace(/\/$/, '');
+  const API_BASE = (window.FINNAIR_API_BASE_URL || localStorage.getItem('finnair_api_base_url') || 'https://finnair-backend-production.up.railway.app').replace(/\/$/, '');
   let accessToken = localStorage.getItem('finnair_api_token') || '';
   let refreshToken = localStorage.getItem('finnair_api_refresh_token') || '';
 
