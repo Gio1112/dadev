@@ -828,11 +828,10 @@
 
     // ── playlist ─────────────────────────────────────────────
     //
-    // fetches the /audio folder from GitHub, shuffles it,
-    // then plays through the tracks one by one
+    // hardcoded track list pointing directly at the /audio folder.
+    // add more entries here whenever you drop files into the repo.
 
-    const GITHUB_API = 'https://api.github.com/repos/Gio1112/dadev/contents/audio';
-    const RAW_BASE   = 'https://raw.githubusercontent.com/Gio1112/dadev/main/audio/';
+    const RAW_BASE = 'https://raw.githubusercontent.com/Gio1112/dadev/main/audio/';
 
     const audioEl = document.getElementById('bg-audio');
 
@@ -848,23 +847,37 @@
     }
 
     async function loadPlaylist() {
+      // try the GitHub API first so new files get picked up automatically
       try {
-        const res   = await fetch(GITHUB_API);
+        const res   = await fetch('https://api.github.com/repos/Gio1112/dadev/contents/audio');
         const files = await res.json();
+
+        if (!Array.isArray(files)) throw new Error('unexpected response');
+
         const audio = files.filter(f => /\.(mp3|ogg|wav|flac|m4a)$/i.test(f.name));
-        playlist    = shuffle(audio.map(f => RAW_BASE + encodeURIComponent(f.name)));
-      } catch {
-        // fallback if the API call fails
-        playlist = [RAW_BASE + encodeURIComponent('soundcloudaud.com_glm 2.mp3')];
+        if (audio.length === 0) throw new Error('no audio files found');
+
+        playlist = shuffle(audio.map(f => RAW_BASE + encodeURIComponent(f.name)));
+        console.log(`[audio] loaded ${playlist.length} track(s) from API`);
+      } catch (err) {
+        // API failed (rate limit, CORS, etc.) — fall back to known files
+        console.warn('[audio] API failed, using fallback list:', err.message);
+        playlist = shuffle([
+          RAW_BASE + 'music.mp3',
+        ]);
       }
     }
 
     function playTrack(index) {
-      if (!playlist.length) return;
+      if (!playlist.length) {
+        console.warn('[audio] playlist is empty');
+        return;
+      }
       trackIndex  = ((index % playlist.length) + playlist.length) % playlist.length;
       audioEl.src = playlist[trackIndex];
+      console.log(`[audio] playing track ${trackIndex + 1}/${playlist.length}:`, playlist[trackIndex]);
       audioEl.load();
-      audioEl.play().catch(() => {});
+      audioEl.play().catch(err => console.warn('[audio] play() failed:', err));
     }
 
     audioEl.addEventListener('ended', () => playTrack(trackIndex + 1));
@@ -913,6 +926,7 @@
       try {
         initAudioCtx();
         if (audioCtx.state === 'suspended') await audioCtx.resume();
+        console.log(`[audio] context state: ${audioCtx.state}, playlist length: ${playlist.length}`);
         playTrack(0);
       } catch (err) {
         console.warn('Audio start failed:', err);
