@@ -990,14 +990,14 @@
     </div>
     <div id="authStatus" class="auth-status"></div>
     <div id="memberSummary" class="member-summary" aria-live="polite"></div>
-    <p class="auth-help">Discord redirect URI must match this page URL exactly. Configure API URL with <strong>window.FINNAIR_API_BASE</strong> before this script if not using localhost.</p>
+    <p class="auth-help">Discord redirect URI must match this page URL exactly. The login flow uses the live Railway API by default.</p>
   </div>
 </div>
 
 <script>
   const AUTH_STORE_KEY = 'finnair_demo_auth_user';
   const DISCORD_CLIENT_ID = '1485717317298946158';
-  const API_BASE_URL = window.FINNAIR_API_BASE || (window.location.origin && window.location.origin !== 'null' ? window.location.origin : 'http://localhost:3000');
+  const API_BASE_URL = window.FINNAIR_API_BASE || 'https://finnair-backend-production.up.railway.app';
 
   const loginBtn = document.getElementById('loginBtn');
   const loginBtnLabel = document.getElementById('loginBtnLabel');
