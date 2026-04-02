@@ -981,9 +981,9 @@
     </div>
     <p class="auth-note">Sign in with Discord to load your Finnair Plus member details from the API.</p>
     <div class="auth-actions">
-      <button id="discordLoginBtn" class="btn-discord">
+      <a id="discordLoginBtn" class="btn-discord" href="https://finnair-backend-production.up.railway.app/api/auth/discord/start" rel="noreferrer">
         <span>Continue with Discord</span>
-      </button>
+      </a>
       <div class="auth-subactions">
         <button id="logoutBtn" class="btn-ghost" type="button">Log out</button>
       </div>
@@ -1179,7 +1179,9 @@
 
   discordLoginBtn?.addEventListener('click', () => {
     setStatus('Redirecting to Discord...');
-    window.location.href = buildDiscordAuthUrl();
+    if (discordLoginBtn instanceof HTMLAnchorElement) {
+      discordLoginBtn.href = buildDiscordAuthUrl();
+    }
   });
 
   logoutBtn?.addEventListener('click', () => {
