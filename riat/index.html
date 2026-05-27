@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Redirecting...</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <meta name="theme-color" content="#050505" />
+  <meta http-equiv="refresh" content="4; url=https://giorgiodabest.com" />
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+      background: #050505;
+      color: #d7ffd7;
+      font-family: "Courier New", Courier, monospace;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        repeating-linear-gradient(
+          0deg,
+          rgba(255, 255, 255, 0.035) 0,
+          rgba(255, 255, 255, 0.035) 1px,
+          transparent 1px,
+          transparent 4px
+        ),
+        radial-gradient(circle at center, transparent 45%, rgba(0, 0, 0, 0.62) 100%);
+      opacity: 0.75;
+    }
+
+    main {
+      position: relative;
+      z-index: 1;
+      width: min(900px, 100%);
+      border: 1px solid rgba(215, 255, 215, 0.2);
+      background: rgba(5, 5, 5, 0.74);
+      padding: clamp(22px, 5vw, 44px);
+      box-shadow: 0 0 40px rgba(57, 255, 138, 0.08);
+    }
+
+    pre {
+      color: #39ff8a;
+      font-size: clamp(0.55rem, 1.6vw, 1rem);
+      line-height: 1.12;
+      white-space: pre;
+      overflow-x: auto;
+      text-shadow: 0 0 12px rgba(57, 255, 138, 0.22);
+      margin-bottom: 28px;
+    }
+
+    .line {
+      font-size: clamp(0.9rem, 2vw, 1rem);
+      line-height: 1.8;
+      color: #d7ffd7;
+    }
+
+    .muted {
+      color: #7ba87b;
+    }
+
+    .target {
+      color: #39ff8a;
+      word-break: break-all;
+    }
+
+    a {
+      color: #39ff8a;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(57, 255, 138, 0.45);
+    }
+
+    a:hover {
+      border-bottom-color: #39ff8a;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 0.65em;
+      height: 1em;
+      background: #39ff8a;
+      margin-left: 0.2em;
+      vertical-align: -0.15em;
+      animation: blink 0.9s steps(1, end) infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <pre aria-label="ASCII Giorgio logo">
+ ██████╗ ██╗ ██████╗ ██████╗  ██████╗ ██╗ ██████╗ 
+██╔════╝ ██║██╔═══██╗██╔══██╗██╔════╝ ██║██╔═══██╗
+██║  ███╗██║██║   ██║██████╔╝██║  ███╗██║██║   ██║
+██║   ██║██║██║   ██║██╔══██╗██║   ██║██║██║   ██║
+╚██████╔╝██║╚██████╔╝██║  ██║╚██████╔╝██║╚██████╔╝
+ ╚═════╝ ╚═╝ ╚═════╝ ╚═╝  ╚═╝ ╚═════╝ ╚═╝ ╚═════╝ 
+    </pre>
+
+    <p class="line">$ status</p>
+    <p class="line muted">this page is out of use.</p>
+    <p class="line">$ redirect --to <span class="target">https://giorgiodabest.com</span></p>
+    <p class="line muted">redirecting you now... <span class="cursor" aria-hidden="true"></span></p>
+    <p class="line muted">not redirected? <a href="https://giorgiodabest.com">click here</a>.</p>
+  </main>
+
+  <script>
+    window.setTimeout(() => {
+      window.location.replace("https://giorgiodabest.com");
+    }, 4000);
+  </script>
+</body>
+</html>
